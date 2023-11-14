@@ -38,32 +38,46 @@
 
 <template>
     <div class="query-page">
-        <h3>Search client</h3>
-        <input class="query-input" type="text" id="clientname" placeholder="client name" v-model="clientName"
-            @keyup.enter="queryApi" required />
+        <div class="query-section">
+            <div class="query-label">Search client</div>
+            <div class="query-input">
+                <input type="text" id="clientname" placeholder="client name" v-model="clientName" @keyup.enter="queryApi"
+                    required />
+            </div>
+
+        </div>
+        <div v-if="clientList.length > 0">
+            <table>
+                <tr class="table-header">
+                    <th>Client</th>
+                    <th>Service(no)</th>
+                    <th>Status</th>
+                </tr>
+                <tr v-for="client in clientList" :key="client.id">
+                    <td>{{ client.name }}</td>
+                </tr>
+            </table>
+        </div>
+        <div v-if="message" class="message">{{ message }}</div>
     </div>
-    <div v-if="clientList.length > 0">
-        <h3>Client List</h3>
-        <table>
-            <tr>
-                <th>Client</th>
-                <th>Service(no)</th>
-                <th>Status</th>
-            </tr>
-            <tr v-for="client in clientList" :key="client.id">
-                <td>{{ client.name }}</td>
-            </tr>
-        </table>
-    </div>
-    <div v-if="message" class="message">{{ message }}</div>
 </template>
 
 <style scoped>
     .query-page {
-        padding: 15px 0 0 0;
-        font-family: roboto;
+        font-family: Roboto, Verdana, Geneva, Tahoma, sans-serif;
+    }
+
+    .query-section {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 15px 0 15px 0;
         margin: auto;
         width: 50%;
+    }
+
+    .query-label {
+        padding: 5px;
     }
 
     .query-input {
@@ -80,5 +94,19 @@
     table {
         width: 50%;
         margin: auto;
+        border-radius: 5px;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    th {
+        background-color: rgb(238, 234, 234);
+    }
+
+    tr:nth-child(odd) {
+        background-color: rgb(195, 238, 198);
+    }
+
+    tr:nth-child(even) {
+        background-color: rgb(161, 250, 165);
     }
 </style>
