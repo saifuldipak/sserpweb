@@ -1,6 +1,7 @@
 <script setup>
     import { ref } from 'vue'
     import QueryResult from './QueryResult.vue';
+    import AddRecord from './AddRecord.vue'
 
     const activeLink = ref('')
 
@@ -18,6 +19,9 @@
     </ul>
     <div v-if="activeLink === 'search'">
         <QueryResult />
+    </div>
+    <div v-else-if="activeLink === 'add'">
+        <AddRecord />
     </div>
 </template>
 
