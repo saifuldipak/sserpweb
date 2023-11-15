@@ -15,13 +15,13 @@
     <ul>
         <li><a href="#" @click="linkClicked('add')" :class="{ 'active': activeLink === 'add' }">Add</a></li>
         <li><a href="#" @click="linkClicked('search')" :class="{ 'active': activeLink === 'search' }">Search</a></li>
-        <li class="nav-right"><a href="#" @click="$emit('logout')">Logout</a></li>
+        <li class="nav-right"><a href="#" @click="$emits('logout')">Logout</a></li>
     </ul>
     <div v-if="activeLink === 'search'">
         <QueryResult />
     </div>
     <div v-else-if="activeLink === 'add'">
-        <AddRecord />
+        <AddRecord @auth-required="$emits('logout')" />
     </div>
 </template>
 
