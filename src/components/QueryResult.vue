@@ -39,12 +39,9 @@
 <template>
     <div class="query-page">
         <div class="query-section">
-            <div class="query-label">Search client</div>
-            <div class="query-input">
-                <input type="text" id="clientname" placeholder="client name" v-model="clientName" @keyup.enter="queryApi"
-                    required />
-            </div>
-
+            <input class="search-input" type="text" id="clientname" placeholder="client name" v-model="clientName"
+                @keyup.enter="queryApi" required />
+            <button class="search-button">Search</button>
         </div>
         <div v-if="clientList.length > 0">
             <table>
@@ -80,9 +77,15 @@
         padding: 5px;
     }
 
-    .query-input {
+    .search-input {
         display: block;
-        padding: 2px;
+        padding: 5px;
+    }
+
+    .search-button {
+        margin-left: 5px;
+        padding: 5px;
+        background-color: whitesmoke;
     }
 
     h3 {
