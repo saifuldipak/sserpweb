@@ -41,7 +41,7 @@
         <div class="query-section">
             <input class="search-input" type="text" id="clientname" placeholder="client name" v-model="clientName"
                 @keyup.enter="queryApi" required />
-            <button class="search-button">Search</button>
+            <button class="search-button" @click="queryApi">Search</button>
         </div>
         <div v-if="clientList.length > 0">
             <table>
