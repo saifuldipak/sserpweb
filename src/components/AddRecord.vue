@@ -52,11 +52,12 @@
         <li><button @click="clickedLink('contact')">Add Contact</button></li>
     </ul>
 
-    <div v-if="linkName === 'client'">
+    <div v-if="linkName === 'client'" class="add-client">
+        <h4>Add Client</h4>
         <div v-if="message">{{ message }}</div>
         <form @submit.prevent="addClient">
-            <input v-model="clientName" type="text" placeholder="client name">
-            <button type="submit">Add</button>
+            <input class="add-client-input" v-model="clientName" type="text" placeholder="client name">
+            <button class="add-client-button" type="submit">Add</button>
         </form>
     </div>
 </template>
@@ -86,6 +87,29 @@
         background-color: rgb(231, 207, 177);
 
 
+    }
+
+    .add-client {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .add-client h4 {
+        margin-top: 5px;
+        margin-bottom: 5px;
+
+    }
+
+    .add-client-input {
+        padding: 5px;
+    }
+
+    .add-client-button {
+        background-color: rgb(230, 228, 228);
+        margin-left: 5px;
     }
 
     @media(max-width: 768px) {
