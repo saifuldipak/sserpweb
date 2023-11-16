@@ -18,7 +18,7 @@
         <li class="nav-right"><a href="#" @click="$emits('logout')">Logout</a></li>
     </ul>
     <div v-if="activeLink === 'search'">
-        <QueryResult />
+        <QueryResult @auth-required="$emits('logout')" />
     </div>
     <div v-else-if="activeLink === 'add'">
         <AddRecord @auth-required="$emits('logout')" />
