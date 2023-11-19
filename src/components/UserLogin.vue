@@ -1,7 +1,7 @@
 <script setup>
     import { ref } from 'vue';
 
-    const apiUrl = 'http://127.0.0.1:8000/token';
+    const apiUrl = 'http://120.50.31.58:8000/token';
     const username = ref('');
     const password = ref('');
     const userAuthenticated = ref('');
