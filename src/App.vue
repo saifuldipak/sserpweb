@@ -23,97 +23,101 @@
 </script>
 
 <template>
-    <div v-if="token">
-        <nav>
-            <ul>
-                <li class="dropdown">
-                    <img src="./components/icons/menu_button_2.png">
-                    <div class="dropdown-content">
-                        <a href="#" @click="clickedLink('search')">Search</a>
-                        <a href="#" @click="clickedLink('add-client')">Add Client</a>
-                    </div>
-                </li>
-                <li class="logout"><img src="./components/icons/Profile-Avatar.png">saiful</li>
-            </ul>
-        </nav>
-        <div v-if="action === 'search'">
-            <Search @auth-required="removeToken" />
-        </div>
-        <div v-else-if="action === 'add-client'">
-            <AddRecord @auth-required="removeToken" />
-        </div>
-    </div>
+    <ul v-if="token">
+        <li class="menu dropdown">
+            <img src="./components/icons/menu_button_2.png" class="icon">
+            <div class="dropdown-content">
+                <a href="#">Search</a>
+                <a href="#">New Client</a>
+            </div>
+        </li>
+        <li class="profile dropdown">
+            <img src="./components/icons/Profile-Avatar.png" class="icon">
+            <div class="dropdown-content">
+                <a href="#">Profile</a>
+                <a href="#">Logout</a>
+            </div>
+        </li>
+    </ul>
     <div v-else>
         <UserLogin @login-success="updateToken" />
+    </div>
+
+    <div v-if="action === 'search'">
+        <Search @auth-required="removeToken" />
+    </div>
+    <div v-else-if="action === 'add-client'">
+        <AddRecord @auth-required="removeToken" />
     </div>
 </template>
 
 <style scoped>
-    nav {
-        background-color: #2a2a2a;
-        color: #fff;
-        text-align: center;
-    }
-
-    nav ul {
-        list-style: none;
-        padding: 0;
+    ul {
+        list-style-type: none;
         margin: 0;
+        padding: 0;
+        background-color: #333;
         display: flex;
         justify-content: space-between;
-
+        border-radius: 8px;
     }
 
-    nav li {
-        padding: 15px;
-        background-color: rgb(26, 182, 86);
+    li.menu {
+        border-radius: 8px;
     }
 
-    li img {
+    .icon {
         height: 35px;
         width: 35px;
+        padding: 8px;
     }
 
-    li a {
-        color: #f3f5f3;
+    li.profile {
+        border-radius: 8px;
+    }
+
+    .username {
+        display: block;
+        color: white;
         text-decoration: none;
     }
 
-    li.logout {
-        display: flex;
-        align-items: center;
-        background-color: #2a2a2a;
+    .menu:hover,
+    .profile:hover {
+        background-color: rgb(87, 177, 87);
     }
 
-    /* Dropdown styles */
+
     .dropdown {
-        position: right;
-        display: inline-block;
+        position: relative;
     }
 
     .dropdown-content {
-        display: none;
         position: absolute;
-        background-color: #333;
-        min-width: 160px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        display: none;
+        min-width: 130px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
         z-index: 1;
-        text-align: left;
+    }
+
+    .profile .dropdown-content {
+        right: 0;
+    }
+
+    .dropdown-content a {
+        display: block;
+        text-decoration: none;
+        background-color: #f9f9f9;
+        color: black;
+        padding: 12px;
+
+    }
+
+    .dropdown-content a:hover {
+        background-color: #d7d5d5;
     }
 
     .dropdown:hover .dropdown-content {
         display: block;
     }
-
-    .dropdown-content a {
-        color: #fff;
-        padding: 12px 16px;
-        text-decoration: none;
-        display: block;
-        font-size: medium;
-    }
-
-    .dropdown-content a:hover {
-        background-color: #555;
-    }
-</style>
+</style>                                                                                                                                                                                                                                                                                                   */
