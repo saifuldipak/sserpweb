@@ -1,7 +1,7 @@
 <script setup>
     import { ref } from 'vue';
+    import { API_URL } from '@/config';
 
-    const apiUrl = 'http://120.50.31.58:8000/token';
     const username = ref('');
     const password = ref('');
     const userAuthenticated = ref('');
@@ -9,12 +9,13 @@
     const emit = defineEmits(['login-success'])
 
     const login = async () => {
+        const apiEndpoint = API_URL + 'token'
         try {
             const formData = new FormData()
             formData.append('username', username.value);
             formData.append('password', password.value);
 
-            const response = await fetch(apiUrl, {
+            const response = await fetch(apiEndpoint, {
                 method: 'POST',
                 body: formData,
             });

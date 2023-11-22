@@ -1,14 +1,14 @@
 <script setup>
     import { ref } from 'vue'
+    import { API_URL } from '@/config.js'
 
     const clientName = ref('')
     const clientList = ref([])
     const message = ref('')
-    const apiUrl = 'http://127.0.0.1:8000/';
     const emit = defineEmits(['auth-required'])
 
     const queryApi = async () => {
-        const apiEndpoint = apiUrl + 'clients/query/' + clientName.value + '?page=0&page_size=10'
+        const apiEndpoint = API_URL + 'clients/query/' + clientName.value + '?page=0&page_size=10'
 
         try {
             const response = await fetch(apiEndpoint, {
