@@ -62,7 +62,7 @@
         border-radius: 8px;
     }
 
-    li.menu {
+    li {
         border-radius: 8px;
     }
 
@@ -72,21 +72,9 @@
         padding: 8px;
     }
 
-    li.profile {
-        border-radius: 8px;
-    }
-
-    .username {
-        display: block;
-        color: white;
-        text-decoration: none;
-    }
-
-    .menu:hover,
-    .profile:hover {
+    li:hover {
         background-color: rgb(87, 177, 87);
     }
-
 
     .dropdown {
         position: relative;
@@ -98,6 +86,7 @@
         min-width: 130px;
         box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
         z-index: 1;
+        border-radius: 10px;
     }
 
     .profile .dropdown-content {
@@ -110,6 +99,7 @@
         background-color: #f9f9f9;
         color: black;
         padding: 12px;
+        border-radius: 10px;
 
     }
 
