@@ -10,6 +10,7 @@
     function removeToken() {
         localStorage.removeItem('token');
         token.value = localStorage.getItem('token')
+        action.value = ''
     }
 
     function updateToken() {
@@ -27,7 +28,7 @@
         <li class="menu dropdown">
             <img src="./components/icons/menu_button_2.png" class="icon">
             <div class="dropdown-content">
-                <a href="#">Search</a>
+                <a href="#" @click="clickedLink('search')">Search</a>
                 <a href="#">New Client</a>
             </div>
         </li>
@@ -35,7 +36,7 @@
             <img src="./components/icons/Profile-Avatar.png" class="icon">
             <div class="dropdown-content">
                 <a href="#">Profile</a>
-                <a href="#">Logout</a>
+                <a href="#" @click="removeToken">Logout</a>
             </div>
         </li>
     </ul>
