@@ -2,7 +2,7 @@
     import { ref } from 'vue';
     import UserLogin from './components/UserLogin.vue';
     import Search from './components/Search.vue';
-    import AddRecord from './components/AddRecord.vue';
+    import AddClient from './components/AddClient.vue'
 
     const token = ref('')
     const action = ref('')
@@ -29,7 +29,7 @@
             <img src="./components/icons/menu_button_2.png" class="icon">
             <div class="dropdown-content">
                 <a href="#" @click="clickedLink('search')">Search</a>
-                <a href="#">New Client</a>
+                <a href="#" @click="clickedLink('add-client')">Add Client</a>
             </div>
         </li>
         <li class="profile dropdown">
@@ -48,7 +48,7 @@
         <Search @auth-required="removeToken" />
     </div>
     <div v-else-if="action === 'add-client'">
-        <AddRecord @auth-required="removeToken" />
+        <AddClient @auth-required="removeToken" />
     </div>
 </template>
 
