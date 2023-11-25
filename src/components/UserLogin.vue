@@ -4,8 +4,8 @@
 
     const username = ref('');
     const password = ref('');
-    const userAuthenticated = ref('');
-    const errorMessage = ref('');
+    const apiError = ref({})
+
     const emit = defineEmits(['login-success'])
 
     const login = async () => {
@@ -22,21 +22,16 @@
 
             if (response.status === 200) {
                 localStorage.setItem('token', response.headers.get('access_token'))
-                userAuthenticated.value = 'yes'
                 emit('login-success')
-            } else if (response.status === 401) {
-                userAuthenticated.value = 'invalid'
-                //console.error('Authentication failed (401 Unauthorized)');
-                // You can perform specific handling for unauthorized access here
-            } else {
-                userAuthenticated.value = 'unauthorized'
-                //console.error('Authentication failed');
+            }
+            else {
+                apiError.value = await response.json()
             }
         } catch (error) {
-            errorMessage.value = 'Network error'
-            console.error('Network or API error:', error);
+            apiError.value.detail = 'Network or API error'
+            console.error('Network or API error:', error.message)
         }
-    };
+    }
 </script>
 
 
@@ -45,9 +40,7 @@
         <div class="login-form">
             <div class="login-form-header">
                 <h3>CRM</h3>
-                <p v-if="userAuthenticated === 'invalid'" class="error-message">Username or password incorrect</p>
-                <p v-else-if="userAuthenticated === 'unauthorized'" class="error-message">Authentication failed</p>
-                <p v-else-if="errorMessage" class="network-error">{{ errorMessage }}</p>
+                <p v-if="apiError.detail" class="error-message">{{ apiError.detail }}</p>
             </div>
             <form @submit.prevent="login">
                 <input type="text" id="username" placeholder="username" v-model="username" required />
