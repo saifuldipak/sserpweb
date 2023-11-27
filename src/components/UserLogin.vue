@@ -21,7 +21,8 @@
             });
 
             if (response.status === 200) {
-                localStorage.setItem('token', response.headers.get('access_token'))
+                const responseData = await response.json()
+                localStorage.setItem('token', responseData.access_token)
                 emit('login-success')
             }
             else {
