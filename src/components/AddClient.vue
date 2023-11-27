@@ -4,67 +4,101 @@
     import { API_URL } from '@/config.js'
 
     const clientTypeList = ref([])
-    const errorMessage = ref('')
-    const selectedClientType = ref('')
-    const clientType = ref('')
     const emit = defineEmits(['auth-required'])
+    const apiError = ref({})
+    const apiMessage = ref('')
+    const clientName = ref('')
+    const clientType = ref(0)
+
+    const token = localStorage.getItem('token')
+    if (!token) {
+        console.log('JWT not found in local storage')
+        emit('auth-required')
+    }
 
     onMounted(async () => {
         const apiEndpoint = API_URL + 'clients/types/get'
         try {
             const response = await fetch(apiEndpoint, {
                 method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
             })
 
             if (response.status === 200) {
                 clientTypeList.value = await response.json()
             }
             else if (response.status === 401) {
+                console.log('Need authentication')
                 emit('auth-required')
+            }
+            else {
+                apiError.value = await response.json()
             }
         }
         catch (error) {
-            console.error('Network or API error:', error);
-            errorMessage.value = 'Error getting client types'
+            apiError.value.detail = 'Network or API error'
+            console.error('Network or API error:', error.message)
         }
     })
 
-    const queryApi = async () => {
-        const apiEndpoint = API_URL + 'clients/query/' + clientName.value + '?page=0&page_size=10'
+    const addClient = async () => {
+        apiMessage.value = ''
+        apiError.value.detail = ''
+
+        const apiEndpoint = API_URL + 'clients/add'
+        const clientData = {
+            'name': clientName.value,
+            'client_type_id': parseInt(clientType.value),
+        }
 
         try {
             const response = await fetch(apiEndpoint, {
-                method: 'GET',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(clientData)
             });
 
             if (response.status === 200) {
-                clientList.value = await response.json()
-                if (clientList.value.length === 0) {
-                    message.value = 'No record found'
-                }
-                else {
-                    message.value = ''
-                }
+                apiMessage.value = `Client "${clientName.value}" added successfully`
+                console.log(await response.json())
             } else if (response.status === 401) {
                 console.log('Need authentication')
                 emit('auth-required')
+            }
+            else if (response.status === 400) {
+                apiError.value.detail = 'Client exists'
+                console.log(await response.json())
             } else {
-                console.log('Not found')
+                apiError.value.detail = 'Failed to add client, please see console'
+                console.log(await response.json())
             }
         } catch (error) {
-            console.error('Network or API error:', error);
+            apiError.value.detail = 'Network or API error'
+            console.error('Network or API error:', error.message)
         }
     }
 </script>
 
 <template>
-    <form>
+    <form @submit.prevent="addClient">
         <div class="form-section">
             <div class="form-title">Add Client</div>
+            <div v-if="apiError.detail" class="message-container">
+                <span class="message-format error-message">{{ apiError.detail }}</span>
+            </div>
+            <div v-if="apiMessage" class="message-container">
+                <span class="message-format success-message"> {{ apiMessage }}</span>
+            </div>
             <label for="client-name">Client Name</label>
-            <input type="text" id="field1" name="client-name">
+            <input type="text" id="field1" name="client-name" v-model="clientName">
             <label for="client-type">Client Type:</label>
-            <select id="client-type" name="client-type" v-model="selectedClientType">
+            <select id="client-type" name="client-type" v-model="clientType">
                 <option value="" disabled>Please select</option>
                 <option v-for="clientType in clientTypeList" :key="clientType.id" :value="clientType.id">{{
                     clientType.name }}
@@ -132,6 +166,26 @@
         border-radius: 7px;
         font-size: medium;
     }
+
+    .message-container {
+        text-align: center;
+    }
+
+    .message-format {
+        text-align: center;
+        background-color: whitesmoke;
+        padding: 3px;
+
+    }
+
+    .error-message {
+        color: red;
+    }
+
+    .success-message {
+        color: green;
+    }
+
 
     @media screen and (min-width: 768px) {
 
