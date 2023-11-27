@@ -6,28 +6,32 @@
     const clientList = ref([])
     const message = ref('')
     const emit = defineEmits(['auth-required'])
+    const apiError = ref({})
 
     const queryApi = async () => {
-        const apiEndpoint = API_URL + 'clients/query/' + clientName.value + '?page=0&page_size=10'
+        const token = localStorage.getItem('token')
+        if (!token) {
+            console.log('JWT not found in local storage')
+            emit('auth-required')
+        }
 
+        const apiEndpoint = API_URL + 'clients/query/' + clientName.value + '?page=0&page_size=10'
         try {
             const response = await fetch(apiEndpoint, {
                 method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                }
             });
 
             if (response.status === 200) {
                 clientList.value = await response.json()
-                if (clientList.value.length === 0) {
-                    message.value = 'No record found'
-                }
-                else {
-                    message.value = ''
-                }
             } else if (response.status === 401) {
                 console.log('Need authentication')
                 emit('auth-required')
             } else {
-                console.log('Not found')
+                apiError.value = await response.json()
             }
         } catch (error) {
             console.error('Network or API error:', error);
@@ -42,6 +46,9 @@
             <input class="search-input" type="text" id="clientname" placeholder="client name" v-model="clientName"
                 @keyup.enter="queryApi" required />
             <button class="search-button" @click="queryApi">Search</button>
+        </div>
+        <div v-if="apiError.detail" class="error-message-container">
+            <span class="error-message">{{ apiError.detail }}</span>
         </div>
         <div v-if="clientList.length > 0">
             <table>
@@ -111,5 +118,17 @@
 
     tr:nth-child(even) {
         background-color: rgb(161, 250, 165);
+    }
+
+    .error-message-container {
+        text-align: center;
+    }
+
+    .error-message {
+        color: red;
+        text-align: center;
+        background-color: whitesmoke;
+        padding: 3px;
+
     }
 </style>
