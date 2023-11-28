@@ -15,7 +15,7 @@
             emit('auth-required')
         }
 
-        const apiEndpoint = API_URL + 'clients/query/' + clientName.value + '?page=0&page_size=10'
+        const apiEndpoint = API_URL + 'clients/search/' + clientName.value + '?page=0&page_size=10'
         try {
             const response = await fetch(apiEndpoint, {
                 method: 'GET',
@@ -42,11 +42,13 @@
 
 <template>
     <div class="query-page">
-        <div class="query-section">
-            <input class="search-input" type="text" id="clientname" placeholder="client name" v-model="clientName"
-                @keyup.enter="queryApi" required />
-            <button class="search-button" @click="queryApi">Search</button>
-        </div>
+        <form @submit.prevent="queryApi">
+            <div class="query-section">
+                <input class="search-input" type="text" id="clientname" placeholder="client name" required
+                    v-model="clientName" />
+                <button class="search-button">Search</button>
+            </div>
+        </form>
         <div v-if="apiError.detail" class="error-message-container">
             <span class="error-message">{{ apiError.detail }}</span>
         </div>
