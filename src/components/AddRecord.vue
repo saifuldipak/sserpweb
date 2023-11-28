@@ -1,120 +1,235 @@
 <script setup>
     import { ref } from 'vue'
+    import { onMounted } from 'vue';
+    import { API_URL } from '@/config.js'
 
+    const clientTypeList = ref([])
     const emit = defineEmits(['auth-required'])
-    const linkName = ref('')
-    const message = ref('')
-    const apiUrl = 'http://127.0.0.1:8000/'
+    const apiError = ref({})
+    const apiMessage = ref('')
     const clientName = ref('')
+    const clientType = ref(0)
+    const props = defineProps(['formType'])
 
-    function clickedLink(link) {
-        linkName.value = link
-        message.value = ''
-        clientName.value = ''
+    const token = localStorage.getItem('token')
+    if (!token) {
+        console.log('JWT not found in local storage')
+        emit('auth-required')
     }
 
-    async function addClient() {
-        const apiEndpoint = apiUrl + 'clients/add'
+    onMounted(async () => {
+        const apiEndpoint = API_URL + 'clients/types/get'
+        try {
+            const response = await fetch(apiEndpoint, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            })
+
+            if (response.status === 200) {
+                clientTypeList.value = await response.json()
+            }
+            else if (response.status === 401) {
+                console.log('Need authentication')
+                emit('auth-required')
+            }
+            else {
+                apiError.value = await response.json()
+            }
+        }
+        catch (error) {
+            apiError.value.detail = 'Network or API error'
+            console.error('Network or API error:', error.message)
+        }
+    })
+
+    const addClient = async () => {
+        apiMessage.value = ''
+        apiError.value.detail = ''
+
+        const apiEndpoint = API_URL + 'clients/add'
+        const clientData = {
+            'name': clientName.value,
+            'client_type_id': parseInt(clientType.value),
+        }
 
         try {
             const response = await fetch(apiEndpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify({
-                    'name': clientName.value,
-                })
+                body: JSON.stringify(clientData)
             });
 
             if (response.status === 200) {
-                message.value = `Client ${clientName.value} added successfully`
+                apiMessage.value = `Client "${clientName.value}" added successfully`
+                console.log(await response.json())
             } else if (response.status === 401) {
                 console.log('Need authentication')
                 emit('auth-required')
-            } else if (response.status === 400) {
-                message.value = 'Client exists'
             }
-            else {
-                console.log('Unknown error')
+            else if (response.status === 400) {
+                apiError.value.detail = 'Client exists'
+                console.log(await response.json())
+            } else {
+                apiError.value.detail = 'Failed to add client, please see console'
+                console.log(await response.json())
             }
         } catch (error) {
-            console.error('Network or API error:', error);
+            apiError.value.detail = 'Network or API error'
+            console.error('Network or API error:', error.message)
         }
     }
-
 </script>
 
 <template>
-    <ul>
-        <li><button @click="clickedLink('service')">Add Service</button></li>
-        <li><button @click="clickedLink('client')">Add Client</button></li>
-        <li><button @click="clickedLink('contact')">Add Contact</button></li>
-    </ul>
+    <form @submit.prevent="addClient">
+        <div class="form-section">
+            <div class="form-title">{{ formType }}</div>
+            <div v-if="apiError.detail" class="message-container">
+                <span class="message-format error-message">{{ apiError.detail }}</span>
+            </div>
+            <div v-if="apiMessage" class="message-container">
+                <span class="message-format success-message"> {{ apiMessage }}</span>
+            </div>
+            <div v-if="props.formType === 'Add Client'">
+                <label for="client-name">Client Name</label>
+                <input type="text" id="field1" name="client-name" v-model="clientName">
+                <label for="client-type">Client Type:</label>
+                <select id="client-type" name="client-type" v-model="clientType">
+                    <option value="" disabled>Please select</option>
+                    <option v-for="clientType in clientTypeList" :key="clientType.id" :value="clientType.id">{{
+                        clientType.name }}
+                    </option>
+                </select>
+            </div>
+            <div v-if="props.formType === 'Add Contacts'">
+                <label for="fullname">Contact Name</label>
+                <input type="text" id="fullname" name="fullname">
+                <label for="contact-type">Contact Type:</label>
+                <select id="contact-type" name="contact-type">
+                    <option value="admin">Admin</option>
+                    <option value="technical">Technical</option>
+                    <option value="billing">Billing</option>
+                </select>
+                <label for="designation">Designation</label>
+                <input type="text" id="designation" name="designation">
+                <label for="phone-number">Phone Number</label>
+                <input type="tel" id="phone-number" name="phone-number" pattern="01[3-9]{1}[0-9]{8}"
+                    placeholder="01745667890">
+            </div>
+            <div v-if="props.formType === 'Add Services'">
+                <label for="service-location">Service Location</label>
+                <input type="text" id="service-location" name="service-location">
+                <label for="bandwidth">Bandwidth</label>
+                <input type="number" id="bandwidth" name="bandwidth" placeholder="Enter a positive number" min="1" step="1">
+                <label>Bandwidth type:</label>
+                <input type="radio" id="data" name="options" value="data">
+                <label for="option1">Data</label>
+                <input type="radio" id="internet" name="options" value="internet">
+                <label for="option2">Internet</label>
+            </div>
+            <button type="submit">Add</button>
+        </div>
 
-    <div v-if="linkName === 'client'" class="add-client">
-        <h4>Add Client</h4>
-        <div v-if="message">{{ message }}</div>
-        <form @submit.prevent="addClient">
-            <input class="add-client-input" v-model="clientName" type="text" placeholder="client name">
-            <button class="add-client-button" type="submit">Add</button>
-        </form>
-    </div>
+    </form>
 </template>
 
+
+
 <style scoped>
-    ul {
-        list-style: none;
-        background-color: white;
-        display: flex;
-        justify-content: center;
+    .form-section {
+        margin: auto;
+        padding: 10px;
+        width: 80%;
+        background-color: bisque;
+        margin-bottom: 10px;
         margin-top: 10px;
+        border-radius: 10px;
+        box-shadow: 3px 5px 10px 0px rgba(0, 0, 0, 0.2);
 
     }
 
-    li {
-        flex: 0 0 auto;
-        margin-right: 10px;
-    }
-
-    button {
-        background-color: rgb(249, 234, 215);
-        padding: 8px;
-        border: 0px;
-    }
-
-    button:hover {
-        background-color: rgb(231, 207, 177);
-
-
-    }
-
-    .add-client {
-        display: flex;
-        justify-content: center;
-        flex-direction: column;
-        margin: 0 auto;
+    .form-title {
+        margin: auto;
+        width: 90%;
         text-align: center;
-    }
-
-    .add-client h4 {
-        margin-top: 5px;
-        margin-bottom: 5px;
+        /*  background-color: rgb(247, 199, 135); */
+        font-size: x-large;
+        margin-bottom: 8px;
 
     }
 
-    .add-client-input {
+    label,
+    input,
+    select {
+        display: block;
+        width: 90%;
+        margin: auto;
+
+    }
+
+    label {
         padding: 5px;
     }
 
-    .add-client-button {
-        background-color: rgb(230, 228, 228);
-        margin-left: 5px;
+    input,
+    select {
+        padding: 8px;
+        margin-bottom: 10px;
+        box-sizing: border-box;
     }
 
-    @media(max-width: 768px) {
-        ul li {
-            margin-right: 5px;
+    button {
+        display: block;
+        margin: auto;
+        width: 40%;
+        padding: 8px;
+        background-color: rgb(194, 145, 85);
+        color: white;
+        border: none;
+        border-radius: 7px;
+        font-size: medium;
+    }
+
+    .message-container {
+        text-align: center;
+    }
+
+    .message-format {
+        text-align: center;
+        background-color: whitesmoke;
+        padding: 3px;
+
+    }
+
+    .error-message {
+        color: red;
+    }
+
+    .success-message {
+        color: green;
+    }
+
+
+    @media screen and (min-width: 768px) {
+
+        label,
+        input,
+        select {
+            width: 95%;
+        }
+
+        .form-section {
+            width: 40%;
+        }
+
+        .form-title {
+            width: 40%
         }
     }
 </style>

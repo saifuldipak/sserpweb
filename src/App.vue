@@ -2,7 +2,7 @@
     import { ref } from 'vue';
     import UserLogin from './components/UserLogin.vue';
     import Search from './components/Search.vue';
-    import AddClient from './components/AddClient.vue'
+    import AddRecord from './components/AddRecord.vue'
 
     const token = ref('')
     const action = ref('')
@@ -24,31 +24,37 @@
 </script>
 
 <template>
-    <ul v-if="token">
-        <li class="menu dropdown">
-            <img src="./components/icons/menu_button_2.png" class="icon">
-            <div class="dropdown-content">
-                <a href="#" @click="clickedLink('search')">Search</a>
-                <a href="#" @click="clickedLink('add-client')">Add Client</a>
+    <div v-if="token">
+        <ul>
+            <li class="menu dropdown">
+                <img src="./components/icons/menu_button_2.png" class="icon">
+                <div class="dropdown-content">
+                    <a href="#" @click="clickedLink('search')">Search</a>
+                    <a href="#" @click="clickedLink('Add Client')">Add Client</a>
+                    <a href="#" @click="clickedLink('Add Contacts')">Add Contacts</a>
+                    <a href="#" @click="clickedLink('Add Services')">Add Services</a>
+                </div>
+            </li>
+            <li class="profile dropdown">
+                <img src="./components/icons/Profile-Avatar.png" class="icon">
+                <div class="dropdown-content">
+                    <a href="#">Profile</a>
+                    <a href="#" @click="removeToken">Logout</a>
+                </div>
+            </li>
+        </ul>
+        <div v-if="action">
+            <div v-if="action === 'search'">
+                <Search @auth-required="removeToken" />
             </div>
-        </li>
-        <li class="profile dropdown">
-            <img src="./components/icons/Profile-Avatar.png" class="icon">
-            <div class="dropdown-content">
-                <a href="#">Profile</a>
-                <a href="#" @click="removeToken">Logout</a>
+            <div v-else>
+                <AddRecord @auth-required="removeToken" :form-type="action" />
             </div>
-        </li>
-    </ul>
-    <div v-else>
-        <UserLogin @login-success="updateToken" />
+        </div>
     </div>
 
-    <div v-if="action === 'search'">
-        <Search @auth-required="removeToken" />
-    </div>
-    <div v-else-if="action === 'add-client'">
-        <AddClient @auth-required="removeToken" />
+    <div v-else>
+        <UserLogin @login-success="updateToken" />
     </div>
 </template>
 
