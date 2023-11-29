@@ -3,46 +3,49 @@
     import { API_URL } from '@/config.js'
 
     const clientName = ref('')
-    const clientList = ref([])
     const message = ref('')
     const emit = defineEmits(['auth-required'])
     const apiError = ref({})
+    const clientDetails = ref([])
 
-    const queryApi = async () => {
-        const token = localStorage.getItem('token')
+    const callApi = async (apiEndpoint) => {
+        const token = localStorage.getItem("token");
         if (!token) {
-            console.log('JWT not found in local storage')
-            emit('auth-required')
+            console.log("JWT not found in local storage");
+            emit("auth-required");
         }
 
-        const apiEndpoint = API_URL + 'clients/search/' + clientName.value + '?page=0&page_size=10'
         try {
             const response = await fetch(apiEndpoint, {
-                method: 'GET',
+                method: "GET",
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                }
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
             });
 
             if (response.status === 200) {
-                clientList.value = await response.json()
+                return await response.json()
             } else if (response.status === 401) {
-                console.log('Need authentication')
-                emit('auth-required')
+                console.log("Need authentication");
+                emit("auth-required");
             } else {
-                apiError.value = await response.json()
+                apiError.value = await response.json();
             }
         } catch (error) {
-            console.error('Network or API error:', error);
+            console.error("Network or API error:", error);
         }
-    }
+    };
 
+    async function searchClient(clientName) {
+        const apiEndpoint = API_URL + 'clients/search/' + clientName
+        clientDetails.value = await callApi(apiEndpoint)
+    }
 </script>
 
 <template>
     <div class="query-page">
-        <form @submit.prevent="queryApi">
+        <form @submit.prevent="searchClient(clientName)">
             <div class="query-section">
                 <input class="search-input" type="text" id="clientname" placeholder="client name" required
                     v-model="clientName" />
@@ -52,15 +55,15 @@
         <div v-if="apiError.detail" class="error-message-container">
             <span class="error-message">{{ apiError.detail }}</span>
         </div>
-        <div v-if="clientList.length > 0">
+        <div v-if="clientDetails.length > 0">
             <table>
                 <tr class="table-header">
-                    <th>Client</th>
-                    <th>Service(no)</th>
-                    <th>Status</th>
+                    <th>Id</th>
+                    <th>Name</th>
                 </tr>
-                <tr v-for="client in clientList" :key="client.id">
-                    <td>{{ client.name }}</td>
+                <tr v-for="client in clientDetails" :key="client.id">
+                    <td><a href="#">{{ client.id }}</a></td>
+                    <td><a href="#">{{ client.name }}</a> </td>
                 </tr>
             </table>
         </div>
@@ -132,5 +135,11 @@
         background-color: whitesmoke;
         padding: 3px;
 
+    }
+
+    @media screen and (min-width: 768px) {
+        table {
+            width: 50%;
+        }
     }
 </style>
