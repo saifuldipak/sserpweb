@@ -7,6 +7,7 @@
     const emit = defineEmits(['auth-required'])
     const apiError = ref({})
     const clientDetails = ref([])
+    const showClient = ref('')
 
     const callApi = async (apiEndpoint) => {
         const token = localStorage.getItem("token");
@@ -63,9 +64,28 @@
                 </tr>
                 <tr v-for="client in clientDetails" :key="client.id">
                     <td><a href="#">{{ client.id }}</a></td>
-                    <td><a href="#">{{ client.name }}</a> </td>
+                    <td><a href="#" @click="showClient = client.name">{{ client.name }}</a> </td>
                 </tr>
             </table>
+        </div>
+        <div v-if="showClient">
+            <div v-if="clientDetails">
+                <ul v-for="clientDetail in clientDetails" :key="clientDetail.id">
+                    <div v-if="clientDetail.name === showClient">
+                        <li>Client Id: {{ clientDetail.id }}</li>
+                        <li>Client Name: {{ clientDetail.name }}</li>
+                        <li>Client Type: {{ clientDetail.client_type_id }}</li>
+                        <li>Contacts:
+                            <ul v-for="contact in clientDetail.contacts" :key="contact.id">
+                                <li>Name: {{ contact.name }}, Designation: {{ contact.designation }}, Type: {{ contact.type
+                                }},
+                                    Phone: {{ contact.phone }},
+                                </li>
+                            </ul>
+                        </li>
+                    </div>
+                </ul>
+            </div>
         </div>
         <div v-if="message" class="message">{{ message }}</div>
     </div>
