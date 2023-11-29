@@ -74,7 +74,7 @@
                     <div v-if="clientDetail.name === showClient">
                         <li>Client Id: {{ clientDetail.id }}</li>
                         <li>Client Name: {{ clientDetail.name }}</li>
-                        <li>Client Type: {{ clientDetail.client_type_id }}</li>
+                        <li>Client Type: {{ clientDetail.client_type.name }}</li>
                         <li>Contacts:
                             <ul v-for="contact in clientDetail.contacts" :key="contact.id">
                                 <li>Name: {{ contact.name }}, Designation: {{ contact.designation }}, Type: {{ contact.type
