@@ -1,5 +1,5 @@
 <script setup>
-    import { ref } from 'vue'
+    import { ref, watch } from 'vue'
     import { onMounted } from 'vue';
     import { API_URL } from '@/config.js'
 
@@ -18,6 +18,22 @@
     const vendorId = ref('')
     const contactFor = ref('')
     let caller, apiEndpoint, method, body
+
+    const resetMessages = () => {
+        apiMessage.value = ''
+        apiError.value = {}
+    }
+
+    //clear messages when formType chagnes
+    watch(() => props.formType, resetMessages)
+
+    onMounted(() => {
+        if (props.formType === 'Add Client') {
+            apiEndpoint = API_URL + 'clients/types/get'
+            method = 'GET'
+            callApi(caller = 'onMountedHook', apiEndpoint = apiEndpoint, method = method)
+        }
+    })
 
     const callApi = async (caller, apiEndpoint, method, body = '') => {
         const token = localStorage.getItem('token')
@@ -87,14 +103,6 @@
         }
 
     }
-
-    onMounted(() => {
-        if (props.formType === 'Add Client') {
-            apiEndpoint = API_URL + 'clients/types/get'
-            method = 'GET'
-            callApi(caller = 'onMountedHook', apiEndpoint = apiEndpoint, method = method)
-        }
-    })
 
     const addRecord = () => {
         apiMessage.value = ''
