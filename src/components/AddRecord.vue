@@ -3,142 +3,124 @@
     import { onMounted } from 'vue';
     import { API_URL } from '@/config.js'
 
-    const clientTypeList = ref([])
+    const props = defineProps(['formType'])
     const emit = defineEmits(['auth-required'])
+    const clientTypeList = ref([])
     const apiError = ref({})
     const apiMessage = ref('')
     const clientName = ref('')
-    const clientType = ref(0)
-    const props = defineProps(['formType'])
+    const clientType = ref('')
+    const contactFullName = ref('')
+    const conactType = ref('')
+    const designation = ref('')
+    const phoneNumber = ref('')
+    const clientId = ref('')
+    const vendorId = ref('')
+    const contactFor = ref('')
+    let caller, apiEndpoint, method, body
 
-    const token = localStorage.getItem('token')
-    if (!token) {
-        console.log('JWT not found in local storage')
-        emit('auth-required')
-    }
+    const callApi = async (caller, apiEndpoint, method, body = '') => {
+        const token = localStorage.getItem('token')
+        if (!token) {
+            console.log('JWT not found in local storage')
+            emit('auth-required')
+        }
 
-    onMounted(async () => {
-        const apiEndpoint = API_URL + 'clients/types/get'
-        try {
-            const response = await fetch(apiEndpoint, {
-                method: 'GET',
+        let request
+        if (body) {
+            request = {
+                method: method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
                 },
-            })
-
-            if (response.status === 200) {
-                clientTypeList.value = await response.json()
-            }
-            else if (response.status === 401) {
-                console.log('Need authentication')
-                emit('auth-required')
-            }
-            else {
-                apiError.value = await response.json()
+                body: JSON.stringify(body)
             }
         }
-        catch (error) {
+        else {
+            request = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            }
+        }
+
+        try {
+            const response = await fetch(apiEndpoint, request)
+            if (response.status === 200) {
+                if (caller === 'onMountedHook') {
+                    clientTypeList.value = await response.json()
+                    console.log(clientTypeList.value)
+                }
+                else {
+                    if (props.formType === 'Add Client') {
+                        apiMessage.value = `Client "${clientName.value}" added successfully`
+                    }
+                    else if (props.formType === 'Add Contact') {
+                        apiMessage.value = `Contacts added successfully`
+                    }
+                    else if (props.formType === 'Add Service') {
+                        apiMessage.value = `Service added successfully`
+                    }
+                    console.log(await response.json())
+                }
+
+            } else if (response.status === 401) {
+                console.log(await response.json())
+                emit('auth-required')
+            }
+            else if (response.status === 400) {
+                if (props.formType === 'Add Client') {
+                    apiError.value.detail = 'Client exists'
+                }
+
+                console.log(await response.json())
+            } else {
+                apiError.value.detail = 'Failed to add client, please see console'
+                console.log(await response.json())
+            }
+        } catch (error) {
             apiError.value.detail = 'Network or API error'
-            console.error('Network or API error:', error.message)
+            console.error('Network or API error:', error)
+        }
+
+    }
+
+    onMounted(() => {
+        if (props.formType === 'Add Client') {
+            apiEndpoint = API_URL + 'clients/types/get'
+            method = 'GET'
+            callApi(caller = 'onMountedHook', apiEndpoint = apiEndpoint, method = method)
         }
     })
-
-    /* const addClient = async () => {
-        apiMessage.value = ''
-        apiError.value.detail = ''
-
-        const apiEndpoint = API_URL + 'clients/add'
-        const clientData = {
-            'name': clientName.value,
-            'client_type_id': parseInt(clientType.value),
-        }
-
-        try {
-            const response = await fetch(apiEndpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(clientData)
-            });
-
-            if (response.status === 200) {
-                apiMessage.value = `Client "${clientName.value}" added successfully`
-                console.log(await response.json())
-            } else if (response.status === 401) {
-                console.log('Need authentication')
-                emit('auth-required')
-            }
-            else if (response.status === 400) {
-                apiError.value.detail = 'Client exists'
-                console.log(await response.json())
-            } else {
-                apiError.value.detail = 'Failed to add client, please see console'
-                console.log(await response.json())
-            }
-        } catch (error) {
-            apiError.value.detail = 'Network or API error'
-            console.error('Network or API error:', error.message)
-        }
-    } */
-
-    const callApi = async (apiEndpoint, recordData) => {
-        try {
-            const response = await fetch(apiEndpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(recordData)
-            });
-
-            if (response.status === 200) {
-                if (props.formType === 'Add Client') {
-                    apiMessage.value = `Client "${clientName.value}" added successfully`
-                }
-                else if (props.formType === 'Add Contact') {
-                    apiMessage.value = `Contacts added successfully`
-                }
-                else if (props.formType === 'Add Service') {
-                    apiMessage.value = `Service added successfully`
-                }
-            } else if (response.status === 401) {
-                console.log(await response.json())
-                emit('auth-required')
-            }
-            else if (response.status === 400) {
-                apiError.value.detail = 'Client exists'
-                console.log(await response.json())
-            } else {
-                apiError.value.detail = 'Failed to add client, please see console'
-                console.log(await response.json())
-            }
-        } catch (error) {
-            apiError.value.detail = 'Network or API error'
-            console.error('Network or API error:', error.message)
-        }
-
-    }
 
     const addRecord = () => {
         apiMessage.value = ''
         apiError.value.detail = ''
-        let recordData = {}
-        let apiEndpoint = ''
 
         if (props.formType === 'Add Client') {
             apiEndpoint = API_URL + 'clients/add'
-            recordData = {
+            body = {
                 'name': clientName.value,
-                'client_type_id': parseInt(clientType.value),
+                'client_type_id': parseInt(clientType.value)
             }
         }
+        else if (props.formType === 'Add Contact') {
+            apiEndpoint = API_URL + 'clients/contacts/add'
+            body = {
+                'name': contactFullName.value,
+                'designation': designation.value,
+                'phone': phoneNumber.value,
+                'type': conactType.value,
+                'client_id': parseInt(clientId.value),
+                'vendor_id': parseInt(vendorId.value)
+            }
 
-        callApi(apiEndpoint, recordData)
+        }
+
+        callApi(caller = 'addRecord', apiEndpoint = apiEndpoint, method = 'POST', body)
     }
 </script>
 
@@ -165,18 +147,35 @@
             </div>
             <div v-if="props.formType === 'Add Contacts'">
                 <label for="fullname">Contact Name</label>
-                <input type="text" id="fullname" name="fullname">
-                <label for="contact-type">Contact Type:</label>
-                <select id="contact-type" name="contact-type">
-                    <option value="admin">Admin</option>
-                    <option value="technical">Technical</option>
-                    <option value="billing">Billing</option>
+                <input type="text" id="fullname" name="fullname" v-model="contactFullName">
+                <label for="contact-type">Contact Type</label>
+                <select id="contact-type" name="contact-type" v-model="conactType">
+                    <option value="" disabled>Please select</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Technical">Technical</option>
+                    <option value="Billing">Billing</option>
                 </select>
                 <label for="designation">Designation</label>
-                <input type="text" id="designation" name="designation">
+                <input type="text" id="designation" name="designation" v-model="designation">
                 <label for="phone-number">Phone Number</label>
                 <input type="tel" id="phone-number" name="phone-number" pattern="01[3-9]{1}[0-9]{8}"
-                    placeholder="01745667890">
+                    placeholder="01745667890 (11 digits)" v-model="phoneNumber">
+                <label for="phone-number">Contact For</label>
+                <select id="contact-for" name="contact-for" v-model="contactFor" @select="contactFor">
+                    <option value="" disabled>Please select</option>
+                    <option value="client">Client</option>
+                    <option value="vendor">Vendor</option>
+                </select>
+                <div v-if="contactFor === 'client'">
+                    <label for="client-id">Client Id</label>
+                    <input type="text" id="client-id" name="client-id" placeholder="Enter a positive number" min="1"
+                        step="1" v-model="clientId">
+                </div>
+                <div v-else-if="contactFor === 'vendor'">
+                    <label for="vendor-id">Vendor Id</label>
+                    <input type="text" id="vendor-id" name="vendor-id" placeholder="Enter a positive number" min="1"
+                        step="1" v-model="vendorId">
+                </div>
             </div>
             <div v-if="props.formType === 'Add Services'">
                 <label for="service-location">Service Location</label>
@@ -270,7 +269,6 @@
     .success-message {
         color: green;
     }
-
 
     @media screen and (min-width: 768px) {
 
