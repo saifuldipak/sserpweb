@@ -45,7 +45,7 @@
         }
     })
 
-    const addClient = async () => {
+    /* const addClient = async () => {
         apiMessage.value = ''
         apiError.value.detail = ''
 
@@ -83,11 +83,67 @@
             apiError.value.detail = 'Network or API error'
             console.error('Network or API error:', error.message)
         }
+    } */
+
+    const callApi = async (apiEndpoint, recordData) => {
+        try {
+            const response = await fetch(apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(recordData)
+            });
+
+            if (response.status === 200) {
+                if (props.formType === 'Add Client') {
+                    apiMessage.value = `Client "${clientName.value}" added successfully`
+                }
+                else if (props.formType === 'Add Contact') {
+                    apiMessage.value = `Contacts added successfully`
+                }
+                else if (props.formType === 'Add Service') {
+                    apiMessage.value = `Service added successfully`
+                }
+            } else if (response.status === 401) {
+                console.log(await response.json())
+                emit('auth-required')
+            }
+            else if (response.status === 400) {
+                apiError.value.detail = 'Client exists'
+                console.log(await response.json())
+            } else {
+                apiError.value.detail = 'Failed to add client, please see console'
+                console.log(await response.json())
+            }
+        } catch (error) {
+            apiError.value.detail = 'Network or API error'
+            console.error('Network or API error:', error.message)
+        }
+
+    }
+
+    const addRecord = () => {
+        apiMessage.value = ''
+        apiError.value.detail = ''
+        let recordData = {}
+        let apiEndpoint = ''
+
+        if (props.formType === 'Add Client') {
+            apiEndpoint = API_URL + 'clients/add'
+            recordData = {
+                'name': clientName.value,
+                'client_type_id': parseInt(clientType.value),
+            }
+        }
+
+        callApi(apiEndpoint, recordData)
     }
 </script>
 
 <template>
-    <form @submit.prevent="addClient">
+    <form @submit.prevent="addRecord">
         <div class="form-section">
             <div class="form-title">{{ formType }}</div>
             <div v-if="apiError.detail" class="message-container">
