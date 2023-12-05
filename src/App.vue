@@ -1,11 +1,14 @@
 <script setup>
-    import { ref } from 'vue';
+    import { ref, onMounted } from 'vue';
+    import { API_URL } from './config';
     import UserLogin from './components/UserLogin.vue';
     import Search from './components/Search.vue';
     import AddRecord from './components/AddRecord.vue'
 
     const token = ref('')
     const action = ref('')
+    const clientTypes = ref([])
+    const apiError = ref('')
 
     function removeToken() {
         localStorage.removeItem('token');
@@ -53,17 +56,38 @@
         try {
             const response = await fetch(apiEndpoint, request)
             if (response.status === 200) {
-                const fetchData = await response.json()
-                const data = await fetchData
-                return data
+                try {
+                    const data = await response.json()
+                    return data
+                }
+                catch (jsonError) {
+                    throw new Error('Error parsing json')
+                }
             }
             else if (response.status === 401) {
                 removeToken()
+                throw new Error('Need authentication')
+            }
+            else {
+                throw new Error(`Error: ${response.status}`)
             }
         } catch (error) {
-            return error.message
+            throw new Error(error.message)
         }
     }
+
+    onMounted(async () => {
+        const apiEndpoint = API_URL + 'clients/types/get'
+        const method = 'GET'
+
+        try {
+            clientTypes.value = await callApi(apiEndpoint, method)
+        }
+        catch (error) {
+            console.log(error.message)
+            apiError.value = error.message
+        }
+    })
 </script>
 
 <template>
@@ -86,9 +110,10 @@
                 </div>
             </li>
         </ul>
+        <div v-if="apiError">{{ apiError }}</div>
         <div v-if="action">
             <div v-if="action === 'search'">
-                <Search @auth-required="removeToken" />
+                <Search :client-types="clientTypes" />
             </div>
             <div v-else>
                 <AddRecord @auth-required="removeToken" :form-type="action" />
