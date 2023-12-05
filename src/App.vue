@@ -4,15 +4,17 @@
     import UserLogin from './components/UserLogin.vue';
     import Search from './components/Search.vue';
     import AddRecord from './components/AddRecord.vue'
+    import ShowData from './components/ShowData.vue'
 
     const token = ref('')
     const action = ref('')
     const clientTypes = ref([])
     const apiError = ref('')
+    const clients = ref([])
 
     function removeToken() {
         localStorage.removeItem('token');
-        token.value = localStorage.getItem('token')
+        token.value = ''
         action.value = ''
     }
 
@@ -88,6 +90,19 @@
             apiError.value = error.message
         }
     })
+
+    async function getClients(clientName) {
+        const apiEndpoint = API_URL + 'clients/search/' + clientName
+        const method = 'GET'
+        try {
+            clients.value = await callApi(apiEndpoint, method)
+            console.log(clients.value)
+        }
+        catch (error) {
+            console.log(error.message)
+            apiError.value = error.message
+        }
+    }
 </script>
 
 <template>
@@ -113,11 +128,14 @@
         <div v-if="apiError">{{ apiError }}</div>
         <div v-if="action">
             <div v-if="action === 'search'">
-                <Search :client-types="clientTypes" />
+                <Search :client-types="clientTypes" @show-data="getClients" />
             </div>
             <div v-else>
                 <AddRecord @auth-required="removeToken" :form-type="action" />
             </div>
+        </div>
+        <div v-if="clients.length > 0">
+            <ShowData :clients="clients" />
         </div>
     </div>
 
