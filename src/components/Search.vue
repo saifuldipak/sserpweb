@@ -3,7 +3,6 @@
 
     const clientName = ref('')
     const message = ref('')
-    const emit = defineEmits(['auth-required'])
     const apiError = ref({})
     const clientDetails = ref([])
     const showClient = ref('')
@@ -16,6 +15,8 @@
     const props = defineProps({
         clientTypes: Array,
     })
+
+    const emit = defineEmits(['showData'])
 
     const toggleCustomSearch = () => {
         if (showSearchOptions.value) {
@@ -33,12 +34,11 @@
 <template>
     <!-- Simple search form -->
     <div class="search-page">
-        <form @submit.prevent="searchClient(clientName)">
+        <form @submit.prevent="$emit('showData', clientName)">
             <div class="simple-search">
                 <input type="text" id="clientname" placeholder="client name" required v-model="clientName" />
                 <a href="#" @click="toggleCustomSearch"><img src="./icons/settings-icon-14976.png" class="icon"
                         alt="Asvanced search options"></a>
-
                 <button>Search</button>
             </div>
         </form>
