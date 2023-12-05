@@ -21,6 +21,45 @@
         action.value = link
     }
 
+    /* call api with different endpoint urls and return data */
+    const callApi = async (apiEndpoint, method, body = '') => {
+        const token = localStorage.getItem('token')
+        if (!token) {
+            console.log('JWT not found in local storage')
+            emit('auth-required')
+        }
+
+        let request
+        if (body) {
+            request = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(body)
+            }
+        }
+        else {
+            request = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            }
+        }
+
+        try {
+            const response = await fetch(apiEndpoint, request)
+            const fetchData = await response.json()
+            const data = await fetchData
+            return data
+        } catch (error) {
+            return error.message
+        }
+    }
+
 </script>
 
 <template>
