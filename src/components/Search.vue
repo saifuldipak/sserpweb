@@ -1,6 +1,5 @@
 <script setup>
     import { ref } from 'vue'
-    import { API_URL } from '@/config.js'
 
     const clientName = ref('')
     const message = ref('')
@@ -12,40 +11,11 @@
     const contactName = ref('')
     const contactPhone = ref('')
     const clickedSearchForm = ref('')
+    const clientType = ref('')
 
-    const callApi = async (apiEndpoint) => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            console.log("JWT not found in local storage");
-            emit("auth-required");
-        }
-
-        try {
-            const response = await fetch(apiEndpoint, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (response.status === 200) {
-                return await response.json()
-            } else if (response.status === 401) {
-                console.log("Need authentication");
-                emit("auth-required");
-            } else {
-                apiError.value = await response.json();
-            }
-        } catch (error) {
-            console.error("Network or API error:", error);
-        }
-    };
-
-    async function searchClient(clientName) {
-        const apiEndpoint = API_URL + 'clients/search/' + clientName
-        clientDetails.value = await callApi(apiEndpoint)
-    }
+    const props = defineProps({
+        clientTypes: Array,
+    })
 
     const toggleCustomSearch = () => {
         if (showSearchOptions.value) {
@@ -84,20 +54,20 @@
             <div v-if="clickedSearchForm" class="advanced-search-form">
                 <div v-if="clickedSearchForm === 'client'">
                     <label for="client-name">Client Name</label>
-                    <input type="text" id="client-name" placeholder="client name" required v-model="clientName" />
+                    <input type="text" id="client-name" placeholder="Enter text..." v-model="clientName" />
                     <label for="client-type">Client Type</label>
                     <select id="client-type" name="client-type" v-model="clientType">
                         <option value="" disabled>Please select</option>
-                        <option v-for=" clientType  in  clientTypeList " :key="clientType.id" :value="clientType.id">{{
+                        <option v-for="clientType  in  props.clientTypes" :key="clientType.id" :value="clientType.id">{{
                             clientType.name }}
                         </option>
                     </select>
                 </div>
                 <div v-if="clickedSearchForm === 'contact'">
                     <label for="client-name">Client Name</label>
-                    <input type="text" id="client-name" placeholder="client name" required v-model="clientName" />
+                    <input type="text" id="client-name" placeholder="Enter text..." required v-model="clientName" />
                     <label for="contact-name">Contact Name</label>
-                    <input type="text" id="contact-name" placeholder="contact name" required v-model="contactName" />
+                    <input type="text" id="contact-name" placeholder="Enter text..." required v-model="contactName" />
                 </div>
                 <button>Search</button>
             </div>
@@ -233,6 +203,7 @@
         border: 0;
         border-left: 1px solid grey;
         border-right: 1px solid grey;
+        border-radius: 3px;
 
 
     }
@@ -251,6 +222,7 @@
         padding: 10px;
         align-items: center;
         box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 7px;
     }
 
     .advanced-search-form div {
