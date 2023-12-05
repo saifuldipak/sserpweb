@@ -52,14 +52,18 @@
 
         try {
             const response = await fetch(apiEndpoint, request)
-            const fetchData = await response.json()
-            const data = await fetchData
-            return data
+            if (response.status === 200) {
+                const fetchData = await response.json()
+                const data = await fetchData
+                return data
+            }
+            else if (response.status === 401) {
+                removeToken()
+            }
         } catch (error) {
             return error.message
         }
     }
-
 </script>
 
 <template>
