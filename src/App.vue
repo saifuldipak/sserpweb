@@ -2,9 +2,7 @@
     import { ref, onMounted } from 'vue';
     import { API_URL } from './config';
     import UserLogin from './components/UserLogin.vue';
-    import Search from './components/Search.vue';
-    import AddRecord from './components/AddRecord.vue'
-    import ShowData from './components/ShowData.vue'
+    import PageHeader from './components/PageHeader.vue';
 
     const token = ref('')
     const action = ref('')
@@ -20,6 +18,7 @@
 
     function updateToken() {
         token.value = localStorage.getItem('token')
+        apiError.value = ''
     }
 
     function clickedLink(link) {
@@ -91,18 +90,18 @@
         }
     })
 
-    async function getClients(clientName) {
+    async function getData(clientName) {
         const apiEndpoint = API_URL + 'clients/search/' + clientName
         const method = 'GET'
         try {
             clients.value = await callApi(apiEndpoint, method)
-            console.log(clients.value)
         }
         catch (error) {
             console.log(error.message)
             apiError.value = error.message
         }
     }
+
 </script>
 
 <template>
@@ -111,10 +110,9 @@
             <li class="menu dropdown">
                 <img src="./components/icons/menu_button_2.png" class="icon">
                 <div class="dropdown-content">
-                    <a href="#" @click="clickedLink('search')">Search</a>
-                    <a href="#" @click="clickedLink('Add Client')">Add Client</a>
-                    <a href="#" @click="clickedLink('Add Contacts')">Add Contacts</a>
-                    <a href="#" @click="clickedLink('Add Services')">Add Services</a>
+                    <a href="#" @click="clickedLink('Clients')">Clients</a>
+                    <a href="#" @click="clickedLink('Services')">Services</a>
+                    <a href="#" @click="clickedLink('Contacts')">Contacts</a>
                 </div>
             </li>
             <li class="profile dropdown">
@@ -127,18 +125,9 @@
         </ul>
         <div v-if="apiError">{{ apiError }}</div>
         <div v-if="action">
-            <div v-if="action === 'search'">
-                <Search :client-types="clientTypes" @show-data="getClients" />
-            </div>
-            <div v-else>
-                <AddRecord @auth-required="removeToken" :form-type="action" />
-            </div>
-        </div>
-        <div v-if="clients.length > 0">
-            <ShowData :clients="clients" />
+            <PageHeader @get-data="getData" :view-type="action" />
         </div>
     </div>
-
     <div v-else>
         <UserLogin @login-success="updateToken" />
     </div>
