@@ -3,12 +3,13 @@
     import { API_URL } from './config';
     import UserLogin from './components/UserLogin.vue';
     import PageHeader from './components/PageHeader.vue';
+    import ShowData from './components/ShowData.vue';
 
     const token = ref('')
     const action = ref('')
     const clientTypes = ref([])
     const apiError = ref('')
-    const clients = ref([])
+    const data = ref([])
 
     function removeToken() {
         localStorage.removeItem('token');
@@ -90,11 +91,16 @@
         }
     })
 
-    async function getData(clientName) {
-        const apiEndpoint = API_URL + 'clients/search/' + clientName
-        const method = 'GET'
+    async function getData(viewType, searchString) {
+        let apiEndpoint, method
+
+        if (viewType === 'Clients') {
+            apiEndpoint = API_URL + 'clients/search/' + searchString
+            method = 'GET'
+        }
+
         try {
-            clients.value = await callApi(apiEndpoint, method)
+            data.value = await callApi(apiEndpoint, method)
         }
         catch (error) {
             console.log(error.message)
@@ -125,7 +131,10 @@
         </ul>
         <div v-if="apiError">{{ apiError }}</div>
         <div v-if="action">
-            <PageHeader @get-data="getData" :view-type="action" />
+            <PageHeader @search="getData" :view-type="action" />
+        </div>
+        <div v-if="data">
+            <ShowData :data-type="action" :data="data" />
         </div>
     </div>
     <div v-else>

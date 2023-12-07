@@ -1,8 +1,8 @@
 <script setup>
     import { ref } from 'vue'
 
-    const clientName = ref('')
-    const emit = defineEmits(['getData'])
+    const searchString = ref('')
+    const emit = defineEmits(['search'])
     const props = defineProps({
         viewType: String
     })
@@ -13,8 +13,8 @@
     <div class="header-section">
         <h2 class="heading">{{ props.viewType }}</h2>
         <div class="tool-bar">
-            <form @submit.prevent="$emit('search', props.viewType, clientName)">
-                <input type="text" placeholder="Enter text..." v-model="clientName" required />
+            <form @submit.prevent="$emit('search', props.viewType, searchString)">
+                <input type="text" placeholder="Enter text..." v-model="searchString" required />
                 <button type="submit">Search</button>
             </form>
             <div>
