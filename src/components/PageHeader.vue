@@ -7,13 +7,18 @@
         viewType: String
     })
 
+    function sendSearchString() {
+        emit('search', props.viewType, searchString.value)
+        searchString.value = ''
+    }
+
 </script>
 
 <template>
     <div class="header-section">
         <h2 class="heading">{{ props.viewType }}</h2>
         <div class="tool-bar">
-            <form @submit.prevent="$emit('search', props.viewType, searchString)">
+            <form @submit.prevent="sendSearchString">
                 <input type="text" placeholder="Enter text..." v-model="searchString" required />
                 <button type="submit">Search</button>
             </form>
