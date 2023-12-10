@@ -24,6 +24,7 @@
 
     function clickedLink(link) {
         action.value = link
+        data.value = []
     }
 
     /* call api with different endpoint urls and return data */
@@ -96,6 +97,10 @@
 
         if (viewType === 'Clients') {
             apiEndpoint = API_URL + 'clients/search/' + searchString
+            method = 'GET'
+        }
+        else if (viewType === 'Contacts') {
+            apiEndpoint = API_URL + 'clients/contacts/search/' + searchString
             method = 'GET'
         }
 
