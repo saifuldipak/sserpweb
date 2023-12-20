@@ -93,10 +93,35 @@
     })
 
     async function getData(viewType, searchString) {
-        let apiEndpoint, method
+        let apiEndpoint, method, clientName, clientType
 
         if (viewType === 'Clients') {
-            apiEndpoint = API_URL + 'clients/search/' + searchString
+            const searchStringLowerCase = searchString.toLowerCase()
+            const clientNameRegex = /client_name:([^ ]+)/
+            const clientTypeRegex = /client_type:([^ ]+)/
+            const clientNameMatch = clientNameRegex.exec(searchStringLowerCase)
+            const clientTypeMatch = clientTypeRegex.exec(searchStringLowerCase)
+
+            if (clientNameMatch) {
+                clientName = clientNameMatch[1]
+            }
+            else {
+                clientName = ''
+            }
+
+            if (clientTypeMatch) {
+                clientType = clientTypeMatch[1]
+            }
+            else {
+                clientType = ''
+            }
+
+            if (!clientNameMatch && !clientTypeMatch) {
+                clientName = searchStringLowerCase
+                clientType = ''
+            }
+
+            apiEndpoint = API_URL + `search/client?client_name=${clientName}&client_type=${clientType}`
             method = 'GET'
         }
         else if (viewType === 'Contacts') {
