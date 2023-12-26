@@ -93,7 +93,8 @@
     })
 
     const createApiEndpoint = function (viewType, searchString) {
-        let apiEndpoint, method, clientName, clientType
+        let apiEndpoint, clientName, clientType
+        const method = 'GET'
 
         if (viewType === 'Clients') {
             const searchStringLowerCase = searchString.toLowerCase()
@@ -122,7 +123,10 @@
             }
 
             apiEndpoint = API_URL + `search/client?client_name=${clientName}&client_type=${clientType}`
-            method = 'GET'
+        }
+        else if (viewType === 'Services') {
+            const servicePoint = searchString
+            apiEndpoint = API_URL + `search/service?service_point=${servicePoint}`
         }
 
         return { apiEndpoint, method }
