@@ -92,7 +92,7 @@
         }
     })
 
-    async function getData(viewType, searchString) {
+    const createApiEndpoint = function (viewType, searchString) {
         let apiEndpoint, method, clientName, clientType
 
         if (viewType === 'Clients') {
@@ -124,10 +124,12 @@
             apiEndpoint = API_URL + `search/client?client_name=${clientName}&client_type=${clientType}`
             method = 'GET'
         }
-        else if (viewType === 'Contacts') {
-            apiEndpoint = API_URL + 'clients/contacts/search/' + searchString
-            method = 'GET'
-        }
+
+        return { apiEndpoint, method }
+    }
+
+    async function getData(viewType, searchString) {
+        const { apiEndpoint, method } = createApiEndpoint(viewType, searchString)
 
         try {
             data.value = await callApi(apiEndpoint, method)
