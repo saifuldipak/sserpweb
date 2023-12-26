@@ -1,4 +1,7 @@
 <script setup>
+    import ContactDetails from './ContactDetails.vue';
+    import AddressDetails from './AddressDetails.vue';
+
     const props = defineProps({
         item: Object
     })
@@ -15,29 +18,11 @@
                 </li>
             </ul>
         </li>
-        <li>Contacts:
-            <ul v-for="(contact, index) in props.item.contacts" :key="contact.id">
-                <span>{{ contact.name }}</span>
-                <ul>
-                    <li>Designation: {{ contact.designation }}</li>
-                    <li>Contact type: {{ contact.type }}</li>
-                    <li>Phone: {{ contact.phone1 }}</li>
-                </ul>
-            </ul>
+        <li v-if="props.item.contacts">Contacts:
+            <ContactDetails :contacts="props.item.contacts" />
         </li>
-        <li>Address:
-            <ul v-for="(address, index) in props.item.addresses" :key="address.id">
-                <span>{{ address.extra_info }}</span>
-                <ul>
-                    <li>Flat: {{ address.flat }}</li>
-                    <li>Floor: {{ address.floor }}</li>
-                    <li>Holding: {{ address.holding }}</li>
-                    <li>Street: {{ address.street }}</li>
-                    <li>Area: {{ address.area }}</li>
-                    <li>Thana: {{ address.thana }}</li>
-                    <li>District: {{ address.district }}</li>
-                </ul>
-            </ul>
+        <li v-if="props.item.addresses">Addresses:
+            <AddressDetails :addresses="props.item.addresses" />
         </li>
     </ul>
 </template>

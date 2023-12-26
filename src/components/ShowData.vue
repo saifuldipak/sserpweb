@@ -1,7 +1,7 @@
 <script setup>
     import { ref } from 'vue'
-    import ShowClientDetails from './ShowClientDetails.vue';
-    import ShowServiceDetails from './ShowServiceDetails.vue';
+    import ClientDetails from './ClientDetails.vue';
+    import ServiceDetails from './ServiceDetails.vue';
 
     const props = defineProps({
         data: Array,
@@ -28,8 +28,8 @@
     </ul>
     <div v-if="itemDetails">
         <button @click="itemDetails = ''">X</button>
-        <ShowClientDetails v-if="props.dataType === 'Clients'" :item="itemDetails" />
-        <ShowServiceDetails v-if="props.dataType === 'Services'" :item="itemDetails" />
+        <ClientDetails v-if="props.dataType === 'Clients'" :item="itemDetails" />
+        <ServiceDetails v-if="props.dataType === 'Services'" :item="itemDetails" />
     </div>
 </template>
 
