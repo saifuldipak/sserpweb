@@ -142,7 +142,7 @@
 
 <template>
     <div v-if="token">
-        <ul>
+        <ul class="menu-bar">
             <li class="menu dropdown">
                 <img src="./components/icons/menu_button_2.png" class="icon">
                 <div class="dropdown-content">
@@ -173,7 +173,7 @@
 </template>
 
 <style scoped>
-    ul {
+    ul.menu-bar {
         list-style-type: none;
         margin: 0;
         padding: 0;
@@ -183,7 +183,7 @@
         border-radius: 8px;
     }
 
-    li {
+    li.menu {
         border-radius: 8px;
     }
 
@@ -193,7 +193,7 @@
         padding: 8px;
     }
 
-    li:hover {
+    li.menu:hover {
         background-color: rgb(87, 177, 87);
     }
 
