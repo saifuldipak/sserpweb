@@ -93,22 +93,22 @@
     })
 
     const createApiEndpoint = function (viewType, searchString) {
-        let apiEndpoint, clientName, clientType
+        let apiEndpoint, clientName, clientType, servicePoint
         const method = 'GET'
+        const searchStringLowerCase = searchString.toLowerCase()
+
+        const clientNameRegex = /client_name:([^ ]+)/
+        const clientNameMatch = clientNameRegex.exec(searchStringLowerCase)
+        if (clientNameMatch) {
+            clientName = clientNameMatch[1]
+        }
+        else {
+            clientName = ''
+        }
 
         if (viewType === 'Clients') {
-            const searchStringLowerCase = searchString.toLowerCase()
-            const clientNameRegex = /client_name:([^ ]+)/
             const clientTypeRegex = /client_type:([^ ]+)/
-            const clientNameMatch = clientNameRegex.exec(searchStringLowerCase)
             const clientTypeMatch = clientTypeRegex.exec(searchStringLowerCase)
-
-            if (clientNameMatch) {
-                clientName = clientNameMatch[1]
-            }
-            else {
-                clientName = ''
-            }
 
             if (clientTypeMatch) {
                 clientType = clientTypeMatch[1]
@@ -125,8 +125,21 @@
             apiEndpoint = API_URL + `search/client?client_name=${clientName}&client_type=${clientType}`
         }
         else if (viewType === 'Services') {
-            const servicePoint = searchString
-            apiEndpoint = API_URL + `search/service?service_point=${servicePoint}`
+            const servicePointRegex = /service_point:([^ ]+)/
+            const servicePointMatch = servicePointRegex.exec(searchStringLowerCase)
+            if (servicePointMatch) {
+                servicePoint = servicePointMatch[1]
+            }
+            else {
+                servicePoint = ''
+            }
+
+            if (!clientNameMatch && !servicePointMatch) {
+                servicePoint = searchStringLowerCase
+                clientName = ''
+            }
+
+            apiEndpoint = API_URL + `search/service?service_point=${servicePoint}&client_name=${clientName}`
         }
 
         return { apiEndpoint, method }
