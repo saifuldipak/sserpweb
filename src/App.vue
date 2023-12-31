@@ -10,6 +10,7 @@
     const clientTypes = ref([])
     const apiError = ref('')
     const data = ref([])
+    const searchString = ref('')
 
     function removeToken() {
         localStorage.removeItem('token');
@@ -92,10 +93,10 @@
         }
     })
 
-    const createApiEndpoint = function (viewType, searchString) {
+    const createApiEndpoint = function () {
         let apiEndpoint, clientName, clientType, servicePoint
         const method = 'GET'
-        const searchStringLowerCase = searchString.toLowerCase()
+        const searchStringLowerCase = searchString.value.toLowerCase()
 
         const clientNameRegex = /client_name:([^ ]+)/
         const clientNameMatch = clientNameRegex.exec(searchStringLowerCase)
@@ -106,7 +107,7 @@
             clientName = ''
         }
 
-        if (viewType === 'Clients') {
+        if (action.value === 'Clients') {
             const clientTypeRegex = /client_type:([^ ]+)/
             const clientTypeMatch = clientTypeRegex.exec(searchStringLowerCase)
 
@@ -124,7 +125,7 @@
 
             apiEndpoint = API_URL + `search/client?client_name=${clientName}&client_type=${clientType}`
         }
-        else if (viewType === 'Services') {
+        else if (action.value === 'Services') {
             const servicePointRegex = /service_point:([^ ]+)/
             const servicePointMatch = servicePointRegex.exec(searchStringLowerCase)
             if (servicePointMatch) {
@@ -145,8 +146,9 @@
         return { apiEndpoint, method }
     }
 
-    async function getData(viewType, searchString) {
-        const { apiEndpoint, method } = createApiEndpoint(viewType, searchString)
+    const getData = async function () {
+        apiError.value = ''
+        const { apiEndpoint, method } = createApiEndpoint()
 
         try {
             data.value = await callApi(apiEndpoint, method)
@@ -180,7 +182,19 @@
         </ul>
         <div v-if="apiError">{{ apiError }}</div>
         <div v-if="action">
-            <PageHeader @search="getData" :view-type="action" />
+            <div class="search-bar">
+                <div class="left-items">
+                    <h1 class="heading">{{ action }}</h1>
+                    <button class="add-button">+Add</button>
+                </div>
+                <div class="search-form">
+                    <form class="search-form" @submit.prevent="getData">
+                        <input class="search-input" type="text" placeholder="Enter text..." v-model="searchString"
+                            required />
+                        <button type="submit">Search</button>
+                    </form>
+                </div>
+            </div>
         </div>
         <div v-if="data">
             <ShowData :data-type="action" :data="data" />
@@ -249,5 +263,33 @@
 
     .dropdown:hover .dropdown-content {
         display: block;
+    }
+
+    .search-bar {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .left-items {
+        width: 20%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: left;
+
+    }
+
+    .left-items h1 {
+        padding-right: 10px;
+    }
+
+    .search-form {
+        width: 30%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
     }
 </style>                                                                                                                                                                                                                                                                                                   */
