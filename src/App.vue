@@ -2,15 +2,18 @@
     import { ref, onMounted } from 'vue';
     import { API_URL } from './config';
     import UserLogin from './components/UserLogin.vue';
-    import PageHeader from './components/PageHeader.vue';
     import ShowData from './components/ShowData.vue';
+    import AddClient from './components/AddClient.vue';
 
     const token = ref('')
     const action = ref('')
     const clientTypes = ref([])
     const apiError = ref('')
-    const data = ref([])
+    const data = ref()
     const searchString = ref('')
+    const formType = ref('')
+    const client = ref()
+    const apiMessage = ref('')
 
     function removeToken() {
         localStorage.removeItem('token');
@@ -81,7 +84,7 @@
     }
 
     onMounted(async () => {
-        const apiEndpoint = API_URL + 'clients/types/get'
+        const apiEndpoint = API_URL + 'search/client/type'
         const method = 'GET'
 
         try {
@@ -148,6 +151,8 @@
 
     const getData = async function () {
         apiError.value = ''
+        formType.value = ''
+        apiMessage.value = ''
         const { apiEndpoint, method } = createApiEndpoint()
 
         try {
@@ -157,6 +162,11 @@
             console.log(error.message)
             apiError.value = error.message
         }
+    }
+
+    const createForm = function (form) {
+        data.value = ''
+        formType.value = form
     }
 
 </script>
@@ -180,12 +190,11 @@
                 </div>
             </li>
         </ul>
-        <div v-if="apiError">{{ apiError }}</div>
         <div v-if="action">
             <div class="search-bar">
                 <div class="left-items">
                     <h1 class="heading">{{ action }}</h1>
-                    <button class="add-button">+Add</button>
+                    <button class="add-button" @click="createForm('add')">+Add</button>
                 </div>
                 <div class="search-form">
                     <form class="search-form" @submit.prevent="getData">
@@ -196,9 +205,10 @@
                 </div>
             </div>
         </div>
-        <div v-if="data">
-            <ShowData :data-type="action" :data="data" />
-        </div>
+        <div v-if="apiError">{{ apiError }}</div>
+        <div v-if="apiMessage">{{ apiMessage }}</div>
+        <ShowData v-if="data" :data-type="action" :data="data" />
+        <AddClient v-if="formType === 'add' && action === 'Clients'" :client-types="clientTypes" />
     </div>
     <div v-else>
         <UserLogin @login-success="updateToken" />
