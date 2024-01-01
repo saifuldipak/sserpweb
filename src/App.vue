@@ -4,6 +4,7 @@
     import UserLogin from './components/UserLogin.vue';
     import ShowData from './components/ShowData.vue';
     import AddClient from './components/AddClient.vue';
+    import ModifyClient from './components/ModifyClient.vue';
 
     const token = ref('')
     const action = ref('')
@@ -12,8 +13,10 @@
     const data = ref()
     const searchString = ref('')
     const formType = ref('')
-    const client = ref()
     const apiMessage = ref('')
+    const showData = ref(true)
+    const showModifyClient = ref(false)
+    const clientId = ref(0)
 
     function removeToken() {
         localStorage.removeItem('token');
@@ -150,6 +153,8 @@
     }
 
     const getData = async function () {
+        showModifyClient.value = false
+        showData.value = true
         apiError.value = ''
         formType.value = ''
         apiMessage.value = ''
@@ -167,6 +172,12 @@
     const createForm = function (form) {
         data.value = ''
         formType.value = form
+    }
+
+    const modifyClient = function (itemId) {
+        clientId.value = itemId
+        showData.value = false
+        showModifyClient.value = true
     }
 
 </script>
@@ -207,8 +218,9 @@
         </div>
         <div v-if="apiError">{{ apiError }}</div>
         <div v-if="apiMessage">{{ apiMessage }}</div>
-        <ShowData v-if="data" :data-type="action" :data="data" />
+        <ShowData v-if="data && showData" :data-type="action" :data="data" @modify-client="modifyClient" />
         <AddClient v-if="formType === 'add' && action === 'Clients'" :client-types="clientTypes" />
+        <ModifyClient v-if="clientId && showModifyClient" :data="data" :client-id="clientId" :client-types="clientTypes" />
     </div>
     <div v-else>
         <UserLogin @login-success="updateToken" />
