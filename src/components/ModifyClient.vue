@@ -1,12 +1,15 @@
 <script setup>
-    import { onMounted, ref } from 'vue'
+    import { computed, onMounted, ref } from 'vue'
     import { API_URL, createRequestBody } from '../config';
+    import SubmitConfirm from './SubmitConfirm.vue'
 
     const clientId = ref()
     const clientName = ref('')
     const clientTypeId = ref()
     const apiMessage = ref('')
     const apiError = ref('')
+    const dialogVisible = ref(false);
+    const showForm = ref(true)
 
     const props = defineProps({
         clientId: Number,
@@ -23,8 +26,11 @@
             }
         }
     })
+    const closeDialog = () => {
+        dialogVisible.value = false;
+    };
 
-    const modifyClient = async () => {
+    const submitForm = async () => {
         apiError.value = ''
         apiMessage.value = ''
 
@@ -37,37 +43,53 @@
             const response = await fetch(apiEndpoint, requestBody)
             if (response.status === 200) {
                 apiMessage.value = 'Modification successfull'
+                showForm.value = false
             }
             else {
                 const responseData = await response.json()
-                apiMessage.value = responseData.detail
+                apiError.value = responseData.detail
             }
         }
         catch (error) {
             console.log(error)
             apiError.value = error.message
         }
+        finally {
+            closeDialog()
+        }
     }
 
     const handleSubmit = async () => {
-        if (confirm('Are you sure you want to modify?')) {
-            await modifyClient()
-        }
+        dialogVisible.value = true
     }
+
+    const clientType = computed(() => {
+        for (const item of props.clientTypes) {
+            if (item.id === clientTypeId.value) {
+                return item.name
+            }
+        }
+    })
 </script>
 
 <template>
-    <h4>Modify Client</h4>
+    <h4>Modify</h4>
     <div v-if="apiError">{{ apiError }}</div>
-    <div v-if="apiMessage">{{ apiMessage }}</div>
-    <div>Client Id: {{ clientId }}</div>
-    <form @submit.prevent="handleSubmit">
-        <label for="client-name">Client Name</label>
-        <input type="text" id="client-name" v-model="clientName">
-        <select v-model="clientTypeId">
-            <option v-for="clientType in clientTypes" :value="clientType.id">{{ clientType.name }}
-            </option>
-        </select>
-        <button type="submit">Modify</button>
-    </form>
+    <div v-if="apiMessage">{{ apiMessage }}
+        Client Id: {{ clientId }}
+        Client Name: {{ clientName }}
+        Client Type: {{ clientType }}
+    </div>
+    <div v-if="showForm">Client Id: {{ clientId }}
+        <form @submit.prevent="handleSubmit">
+            <label for="client-name">Client Name</label>
+            <input type="text" id="client-name" v-model="clientName">
+            <select v-model="clientTypeId">
+                <option v-for="clientType in clientTypes" :value="clientType.id">{{ clientType.name }}
+                </option>
+            </select>
+            <button type="submit">Modify</button>
+            <SubmitConfirm v-model:show="dialogVisible" @confirm="submitForm" @cancel="closeDialog" />
+        </form>
+    </div>
 </template>
