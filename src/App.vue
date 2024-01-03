@@ -5,6 +5,7 @@
     import ShowData from './components/ShowData.vue';
     import AddClient from './components/AddClient.vue';
     import ModifyClient from './components/ModifyClient.vue';
+    import Delete from './components/Delete.vue'
 
     const token = ref('')
     const action = ref('')
@@ -17,6 +18,9 @@
     const showData = ref(true)
     const showModifyClient = ref(false)
     const clientId = ref(0)
+    const itemType = ref('')
+    const showDeleteComponent = ref(false)
+    const itemData = ref()
 
     function removeToken() {
         localStorage.removeItem('token');
@@ -153,6 +157,8 @@
     }
 
     const getData = async function () {
+        data.value = ''
+        showDeleteComponent.value = false
         showModifyClient.value = false
         showData.value = true
         apiError.value = ''
@@ -174,10 +180,30 @@
         formType.value = form
     }
 
+    const getItemData = (id) => {
+        for (const item of data.value) {
+            if (item.id === id) {
+                itemData.value = item
+            }
+        }
+
+    }
     const modifyClient = function (itemId) {
         clientId.value = itemId
         showData.value = false
         showModifyClient.value = true
+    }
+
+    const deleteItem = (type, id) => {
+        itemType.value = type
+        getItemData(id)
+        showData.value = false
+        showDeleteComponent.value = true
+    }
+
+    const cancelDeleteItem = () => {
+        showDeleteComponent.value = false
+        showData.value = true
     }
 
 </script>
@@ -218,9 +244,12 @@
         </div>
         <div v-if="apiError">{{ apiError }}</div>
         <div v-if="apiMessage">{{ apiMessage }}</div>
-        <ShowData v-if="data && showData" :data-type="action" :data="data" @modify-client="modifyClient" />
+        <ShowData v-if="data && showData" :data-type="action" :data="data" @modify-client="modifyClient"
+            @delete-item="deleteItem" />
         <AddClient v-if="formType === 'add' && action === 'Clients'" :client-types="clientTypes" />
         <ModifyClient v-if="clientId && showModifyClient" :data="data" :client-id="clientId" :client-types="clientTypes" />
+        <Delete v-if="itemData && showDeleteComponent" :item-type="itemType" :item-data="itemData"
+            @cancel="cancelDeleteItem" />
     </div>
     <div v-else>
         <UserLogin @login-success="updateToken" />

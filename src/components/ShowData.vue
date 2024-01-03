@@ -10,7 +10,7 @@
 
     const itemDetails = ref()
 
-    const emits = defineEmits(['modifyClient'])
+    const emit = defineEmits(['modifyClient', 'deleteItem'])
 </script>
 
 <template>
@@ -21,6 +21,7 @@
                     <a href="#" @click="itemDetails = item">{{ item.name }}</a>
                     <span class="item-type">{{ item.client_type.name }}</span>
                     <button @click="$emit('modifyClient', item.id)">Modify</button>
+                    <button @click="$emit('deleteItem', 'Client', item.id)">Delete</button>
                 </div>
                 <div v-else-if="props.dataType === 'Services'">
                     <a href="#" @click="itemDetails = item">{{ item.point }}</a>

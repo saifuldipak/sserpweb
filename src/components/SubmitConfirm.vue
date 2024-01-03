@@ -1,6 +1,7 @@
 <template>
     <div class="modal" v-if="show">
-        <span>Are you sure you want to modify?</span>
+        <span v-if="props.actionType === 'modify'">Are you sure you want to modify?</span>
+        <span v-if="props.actionType === 'delete'">Are you sure you want to delete?</span>
         <button @click="confirm">Confirm</button>
         <button @click="cancel">Cancel</button>
     </div>
@@ -9,11 +10,15 @@
 <script setup>
     import { ref } from 'vue';
 
-    defineProps({
+    const props = defineProps({
         show: {
             type: Boolean,
             required: true,
         },
+        actionType: {
+            type: String,
+            required: true,
+        }
     });
 
     const emit = defineEmits(['confirm', 'cancel'])
