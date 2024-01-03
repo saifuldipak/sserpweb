@@ -21,6 +21,11 @@
     const itemData = ref()
     const showModify = ref(false)
     const showAdd = ref(false)
+    const menuLinks = ref([
+        { 'id': 1, 'name': 'Clients' },
+        { 'id': 2, 'name': 'Services' },
+        { 'id': 3, 'name': 'Service Types' }
+    ])
 
     function removeToken() {
         localStorage.removeItem('token');
@@ -34,6 +39,9 @@
     }
 
     function clickedLink(link) {
+        showAdd.value = false
+        showModify.value = false
+        showDelete.value = false
         action.value = link
         data.value = []
     }
@@ -218,9 +226,7 @@
             <li class="menu dropdown">
                 <img src="./components/icons/menu_button_2.png" class="icon">
                 <div class="dropdown-content">
-                    <a href="#" @click="clickedLink('Clients')">Clients</a>
-                    <a href="#" @click="clickedLink('Services')">Services</a>
-                    <a href="#" @click="clickedLink('Contacts')">Contacts</a>
+                    <a href="#" v-for="link in menuLinks" :key="link.id" @click="clickedLink(link.name)">{{ link.name }}</a>
                 </div>
             </li>
             <li class="profile dropdown">
@@ -235,7 +241,7 @@
             <div class="search-bar">
                 <div class="left-items">
                     <h1 class="heading">{{ action }}</h1>
-                    <button class="add-button" @click="addItem('Client')">+Add</button>
+                    <button class="add-button" @click="addItem(action)">+Add</button>
                 </div>
                 <div class="search-form">
                     <form class="search-form" @submit.prevent="getData">
@@ -250,10 +256,9 @@
         <div v-if="apiMessage">{{ apiMessage }}</div>
         <ShowData v-if="data && showData" :data-type="action" :data="data" @modify-item="modifyItem"
             @delete-item="deleteItem" />
-        <Add v-if="itemType" :item-type="itemType" :client-types="clientTypes" />
+        <Add v-if="itemType && showAdd" :item-type="itemType" :client-types="clientTypes" />
         <Modify v-if="itemData && showModify" :item-type="itemType" :item-data="itemData" :client-types="clientTypes" />
-        <Delete v-if="itemData && showDeleteComponent" :item-type="itemType" :item-data="itemData"
-            @cancel="cancelDeleteItem" />
+        <Delete v-if="itemData && showDelete" :item-type="itemType" :item-data="itemData" @cancel="cancelDeleteItem" />
     </div>
     <div v-else>
         <UserLogin @login-success="updateToken" />
