@@ -8,10 +8,11 @@
     const apiError = ref('')
 
     const props = defineProps({
+        itemType: String,
         clientTypes: Array
     })
 
-    const addClient = async function () {
+    const submitForm = async function () {
         apiResponse.value = ''
         apiError.value = ''
         const apiEndpoint = API_URL + 'clients/add'
@@ -39,13 +40,16 @@
 </script>
 
 <template>
-    <form @submit.prevent="addClient">
-        <input type="text" placeholder="client name" v-model="clientName">
-        <select v-model="clientTypeId">
-            <option v-for="clientType in clientTypes" :value="clientType.id">{{ clientType.name }}</option>
-        </select>
+    <form @submit.prevent="submitForm">
+        <div v-if="props.itemType === 'Client'">
+            <input type="text" placeholder="client name" v-model="clientName">
+            <select v-model="clientTypeId">
+                <option v-for="clientType in clientTypes" :value="clientType.id">{{ clientType.name }}</option>
+            </select>
+        </div>
         <button type="submit">Add</button>
     </form>
+
     <div v-if="apiResponse">{{ apiResponse }}</div>
     <div v-if="apiError">{{ apiError }}</div>
 </template>

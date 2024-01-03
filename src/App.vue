@@ -3,7 +3,7 @@
     import { API_URL } from './config';
     import UserLogin from './components/UserLogin.vue';
     import ShowData from './components/ShowData.vue';
-    import AddClient from './components/AddClient.vue';
+    import Add from './components/Add.vue';
     import Modify from './components/Modify.vue';
     import Delete from './components/Delete.vue'
 
@@ -17,9 +17,10 @@
     const apiMessage = ref('')
     const showData = ref(true)
     const itemType = ref('')
-    const showDeleteComponent = ref(false)
+    const showDelete = ref(false)
     const itemData = ref()
     const showModify = ref(false)
+    const showAdd = ref(false)
 
     function removeToken() {
         localStorage.removeItem('token');
@@ -174,17 +175,20 @@
         }
     }
 
-    const createForm = function (form) {
-        data.value = ''
-        formType.value = form
-    }
-
     const getItemData = (id) => {
         for (const item of data.value) {
             if (item.id === id) {
                 itemData.value = item
             }
         }
+    }
+
+    const addItem = (item) => {
+        showData.value = false
+        showModify.value = false
+        showDelete.value = false
+        showAdd.value = true
+        itemType.value = item
     }
 
     const modifyItem = (type, id) => {
@@ -231,7 +235,7 @@
             <div class="search-bar">
                 <div class="left-items">
                     <h1 class="heading">{{ action }}</h1>
-                    <button class="add-button" @click="createForm('add')">+Add</button>
+                    <button class="add-button" @click="addItem('Client')">+Add</button>
                 </div>
                 <div class="search-form">
                     <form class="search-form" @submit.prevent="getData">
@@ -246,7 +250,7 @@
         <div v-if="apiMessage">{{ apiMessage }}</div>
         <ShowData v-if="data && showData" :data-type="action" :data="data" @modify-item="modifyItem"
             @delete-item="deleteItem" />
-        <AddClient v-if="formType === 'add' && action === 'Clients'" :client-types="clientTypes" />
+        <Add v-if="itemType" :item-type="itemType" :client-types="clientTypes" />
         <Modify v-if="itemData && showModify" :item-type="itemType" :item-data="itemData" :client-types="clientTypes" />
         <Delete v-if="itemData && showDeleteComponent" :item-type="itemType" :item-data="itemData"
             @cancel="cancelDeleteItem" />
