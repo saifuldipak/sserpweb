@@ -1,6 +1,6 @@
 <script setup>
     import { ref, onMounted } from 'vue';
-    import { API_URL, createRequestBody, callApi, createQueryParameters } from './config';
+    import { API_URL, createRequest, callApi, createQueryParameters } from './config';
     import UserLogin from './components/UserLogin.vue';
     import ShowData from './components/ShowData.vue';
     import Add from './components/Add.vue';
@@ -60,7 +60,7 @@
         showDelete.value = false
         showData.value = true
         const method = 'GET'
-        const requestBody = createRequestBody(method)
+        const request = createRequest(method)
 
         if (viewName.value == 'Clients') {
             const queryParameters = createQueryParameters(viewName.value, searchString.value)
@@ -77,7 +77,7 @@
             apiEndpoint = API_URL + 'search/client/type'
         }
 
-        const { code, response, error } = await callApi(apiEndpoint, requestBody)
+        const { code, response, error } = await callApi(apiEndpoint, request)
         if (code === 200) {
             data.value = response
         }

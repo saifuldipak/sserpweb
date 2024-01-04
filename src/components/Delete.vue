@@ -1,7 +1,7 @@
 <script setup>
     import { ref } from 'vue';
     import SubmitConfirm from './SubmitConfirm.vue'
-    import { API_URL, createRequestBody } from '../config';
+    import { API_URL, createRequest } from '../config';
 
     const dialogVisible = ref(true)
     const apiError = ref('')
@@ -34,10 +34,10 @@
 
         const apiEndpoint = API_URL + 'clients/delete/' + props.itemData.id
         const method = 'DELETE'
-        const requestBody = createRequestBody(method)
+        const request = createRequest(method)
 
         try {
-            const response = await fetch(apiEndpoint, requestBody)
+            const response = await fetch(apiEndpoint, request)
             if (response.status === 200) {
                 apiMessage.value = 'Deleted'
             }

@@ -1,6 +1,6 @@
 <script setup>
     import { ref } from 'vue'
-    import { API_URL, createRequestBody } from '@/config.js'
+    import { API_URL, createRequest } from '@/config.js'
 
     const itemName = ref('')
     const clientTypeId = ref(0)
@@ -28,10 +28,10 @@
             body = { 'name': itemName.value, 'description': serviceTypeDescription.value }
         }
 
-        const requestBody = createRequestBody(method, body)
+        const request = createRequest(method, body)
 
         try {
-            const response = await fetch(apiEndpoint, requestBody)
+            const response = await fetch(apiEndpoint, request)
             if (response.status === 200) {
                 apiResponse.value = `${props.itemType}: '${itemName.value}'' created`
             }

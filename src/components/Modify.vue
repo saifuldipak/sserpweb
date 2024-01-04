@@ -1,6 +1,6 @@
 <script setup>
     import { computed, ref } from 'vue'
-    import { API_URL, createRequestBody } from '../config';
+    import { API_URL, createRequest } from '../config';
     import SubmitConfirm from './SubmitConfirm.vue'
 
     const clientId = ref()
@@ -33,10 +33,10 @@
         const apiEndpoint = API_URL + 'clients/modify'
         const method = 'PUT'
         const body = { id: clientId.value, name: clientName.value, client_type_id: clientTypeId.value }
-        const requestBody = createRequestBody(method, body)
+        const request = createRequest(method, body)
 
         try {
-            const response = await fetch(apiEndpoint, requestBody)
+            const response = await fetch(apiEndpoint, request)
             if (response.status === 200) {
                 apiMessage.value = 'Modification successfull'
                 showForm.value = false

@@ -1,7 +1,7 @@
 export const API_URL = "http://127.0.0.1:8000/";
 
-//create request body for api call
-export const createRequestBody = function (method, body = "") {
+//create request json object for api call
+export const createRequest = function (method, body = "") {
     const token = localStorage.getItem("token");
     if (!token) {
         console.log("JWT not found in local storage");
@@ -30,7 +30,7 @@ export const createRequestBody = function (method, body = "") {
     return request;
 };
 
-//api call
+//make api call & return response code and data
 export const callApi = async (apiEndpoint, requestBody) => {
     const result = { code: "", response: "", error: "" };
 
