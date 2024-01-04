@@ -1,5 +1,5 @@
 <script setup>
-    import { ref } from 'vue'
+    import { onMounted, ref } from 'vue'
     import ClientDetails from './ClientDetails.vue';
     import ServiceDetails from './ServiceDetails.vue';
 
@@ -11,6 +11,10 @@
     const itemDetails = ref()
 
     const emit = defineEmits(['modifyItem', 'deleteItem'])
+
+    /* onMounted(() => {
+        console.log(props.data, props.dataType)
+    }) */
 </script>
 
 <template>
@@ -26,6 +30,9 @@
                 <div v-else-if="props.dataType === 'Services'">
                     <a href="#" @click="itemDetails = item">{{ item.point }}</a>
                     <span class="item-type"> {{ item.clients.name }}</span>
+                </div>
+                <div v-else-if="props.dataType === 'Service Types'">
+                    <span class="item-type">{{ item.name }}</span>
                 </div>
             </li>
         </div>

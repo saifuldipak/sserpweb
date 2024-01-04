@@ -1,6 +1,6 @@
 <script setup>
     import { ref, onMounted } from 'vue';
-    import { API_URL } from './config';
+    import { API_URL, createRequestBody, callApi2 } from './config';
     import UserLogin from './components/UserLogin.vue';
     import ShowData from './components/ShowData.vue';
     import Add from './components/Add.vue';
@@ -38,15 +38,34 @@
         apiError.value = ''
     }
 
-    function clickedLink(link) {
+    async function clickedLink(link) {
         showAdd.value = false
         showModify.value = false
         showDelete.value = false
         action.value = link
         data.value = []
+
+        if (link === 'Service Types') {
+            const apiEndpoint = API_URL + 'search/service/type'
+            const method = 'GET'
+            const requestBody = createRequestBody(method)
+            const { code, response, error } = await callApi2(apiEndpoint, requestBody)
+            if (code) {
+                if (code === 200) {
+                    data.value = response
+                    showData.value = true
+                }
+                else {
+                    apiMessage.value = response
+                }
+            }
+            else {
+                apiError.value = error
+            }
+        }
     }
 
-    /* call api with different endpoint urls and return data */
+
     const callApi = async (apiEndpoint, method, body = '') => {
         const token = localStorage.getItem('token')
         if (!token) {
