@@ -1,6 +1,6 @@
 <script setup>
     import { ref, onMounted } from 'vue';
-    import { API_URL, createRequestBody, callApi2 } from './config';
+    import { API_URL, createRequestBody, callApi, createQueryParameters } from './config';
     import UserLogin from './components/UserLogin.vue';
     import ShowData from './components/ShowData.vue';
     import Add from './components/Add.vue';
@@ -8,12 +8,10 @@
     import Delete from './components/Delete.vue'
 
     const token = ref('')
-    const action = ref('')
     const clientTypes = ref([])
     const apiError = ref('')
     const data = ref()
     const searchString = ref('')
-    const formType = ref('')
     const apiMessage = ref('')
     const showData = ref(true)
     const itemType = ref('')
@@ -21,16 +19,17 @@
     const itemData = ref()
     const showModify = ref(false)
     const showAdd = ref(false)
-    const menuLinks = ref([
+    const views = ref([
         { 'id': 1, 'name': 'Clients' },
         { 'id': 2, 'name': 'Services' },
         { 'id': 3, 'name': 'Service Types' }
     ])
+    const viewName = ref('')
 
     function removeToken() {
         localStorage.removeItem('token');
         token.value = ''
-        action.value = ''
+        viewName.value = ''
     }
 
     function updateToken() {
@@ -38,166 +37,54 @@
         apiError.value = ''
     }
 
-    async function clickedLink(link) {
+    async function clickedLink(view) {
+        searchString.value = ''
         showAdd.value = false
         showModify.value = false
         showDelete.value = false
-        action.value = link
+        viewName.value = view
         data.value = []
 
-        if (link === 'Service Types') {
-            const apiEndpoint = API_URL + 'search/service/type'
-            const method = 'GET'
-            const requestBody = createRequestBody(method)
-            const { code, response, error } = await callApi2(apiEndpoint, requestBody)
-            if (code) {
-                if (code === 200) {
-                    data.value = response
-                    showData.value = true
-                }
-                else {
-                    apiMessage.value = response
-                }
-            }
-            else {
-                apiError.value = error
-            }
+        if (viewName.value === 'Service Types') {
+            search()
         }
     }
 
-
-    const callApi = async (apiEndpoint, method, body = '') => {
-        const token = localStorage.getItem('token')
-        if (!token) {
-            console.log('JWT not found in local storage')
-            emit('auth-required')
-        }
-
-        let request
-        if (body) {
-            request = {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(body)
-            }
-        }
-        else {
-            request = {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-            }
-        }
-
-        try {
-            const response = await fetch(apiEndpoint, request)
-            if (response.status === 200) {
-                try {
-                    const data = await response.json()
-                    return data
-                }
-                catch (jsonError) {
-                    throw new Error('Error parsing json')
-                }
-            }
-            else if (response.status === 401) {
-                removeToken()
-                throw new Error('Need authentication')
-            }
-            else {
-                throw new Error(`Error: ${response.status}`)
-            }
-        } catch (error) {
-            throw new Error(error.message)
-        }
-    }
-
-    onMounted(async () => {
-        const apiEndpoint = API_URL + 'search/client/type'
-        const method = 'GET'
-
-        try {
-            clientTypes.value = await callApi(apiEndpoint, method)
-        }
-        catch (error) {
-            console.log(error.message)
-            apiError.value = error.message
-        }
-    })
-
-    const createApiEndpoint = function () {
-        let apiEndpoint, clientName, clientType, servicePoint
-        const method = 'GET'
-        const searchStringLowerCase = searchString.value.toLowerCase()
-
-        const clientNameRegex = /client_name:([^ ]+)/
-        const clientNameMatch = clientNameRegex.exec(searchStringLowerCase)
-        if (clientNameMatch) {
-            clientName = clientNameMatch[1]
-        }
-        else {
-            clientName = ''
-        }
-
-        if (action.value === 'Clients') {
-            const clientTypeRegex = /client_type:([^ ]+)/
-            const clientTypeMatch = clientTypeRegex.exec(searchStringLowerCase)
-
-            if (clientTypeMatch) {
-                clientType = clientTypeMatch[1]
-            }
-            else {
-                clientType = ''
-            }
-
-            if (!clientNameMatch && !clientTypeMatch) {
-                clientName = searchStringLowerCase
-                clientType = ''
-            }
-
-            apiEndpoint = API_URL + `search/client?client_name=${clientName}&client_type=${clientType}`
-        }
-        else if (action.value === 'Services') {
-            const servicePointRegex = /service_point:([^ ]+)/
-            const servicePointMatch = servicePointRegex.exec(searchStringLowerCase)
-            if (servicePointMatch) {
-                servicePoint = servicePointMatch[1]
-            }
-            else {
-                servicePoint = ''
-            }
-
-            if (!clientNameMatch && !servicePointMatch) {
-                servicePoint = searchStringLowerCase
-                clientName = ''
-            }
-
-            apiEndpoint = API_URL + `search/service?service_point=${servicePoint}&client_name=${clientName}`
-        }
-
-        return { apiEndpoint, method }
-    }
-
-    const getData = async function () {
-        data.value = ''
-        showDeleteComponent.value = false
-        showModify.value = false
-        showData.value = true
+    const search = async () => {
+        let apiEndpoint
         apiError.value = ''
-        formType.value = ''
         apiMessage.value = ''
-        const { apiEndpoint, method } = createApiEndpoint()
+        data.value = ''
+        showAdd.value = false
+        showModify.value = false
+        showDelete.value = false
+        showData.value = true
+        const method = 'GET'
+        const requestBody = createRequestBody(method)
 
-        try {
-            data.value = await callApi(apiEndpoint, method)
+        if (viewName.value == 'Clients') {
+            const queryParameters = createQueryParameters(viewName.value, searchString.value)
+            apiEndpoint = API_URL + 'search/client' + queryParameters
         }
-        catch (error) {
-            console.log(error.message)
+        else if (viewName.value == 'Services') {
+            const queryParameters = createQueryParameters(viewName.value, searchString.value)
+            apiEndpoint = API_URL + 'search/service' + queryParameters
+        }
+        else if (viewName.value == 'Service Types') {
+            apiEndpoint = API_URL + 'search/service/type'
+        }
+        else if (viewName.value == 'Client Types') {
+            apiEndpoint = API_URL + 'search/client/type'
+        }
+
+        const { code, response, error } = await callApi(apiEndpoint, requestBody)
+        if (code === 200) {
+            data.value = response
+        }
+        else if (code !== 200) {
+            apiMessage.value = response.detail
+        }
+        else {
             apiError.value = error.message
         }
     }
@@ -236,7 +123,6 @@
         showDeleteComponent.value = false
         showData.value = true
     }
-
 </script>
 
 <template>
@@ -245,7 +131,7 @@
             <li class="menu dropdown">
                 <img src="./components/icons/menu_button_2.png" class="icon">
                 <div class="dropdown-content">
-                    <a href="#" v-for="link in menuLinks" :key="link.id" @click="clickedLink(link.name)">{{ link.name }}</a>
+                    <a href="#" v-for="view in views" :key="view.id" @click="clickedLink(view.name)">{{ view.name }}</a>
                 </div>
             </li>
             <li class="profile dropdown">
@@ -256,14 +142,14 @@
                 </div>
             </li>
         </ul>
-        <div v-if="action">
+        <div v-if="viewName">
             <div class="search-bar">
                 <div class="left-items">
-                    <h1 class="heading">{{ action }}</h1>
-                    <button class="add-button" @click="addItem(action)">+Add</button>
+                    <h1 class="heading">{{ viewName }}</h1>
+                    <button class="add-button" @click="addItem(viewName)">+Add</button>
                 </div>
                 <div class="search-form">
-                    <form class="search-form" @submit.prevent="getData">
+                    <form class="search-form" @submit.prevent="search(viewName)">
                         <input class="search-input" type="text" placeholder="Enter text..." v-model="searchString"
                             required />
                         <button type="submit">Search</button>
@@ -273,7 +159,7 @@
         </div>
         <div v-if="apiError">{{ apiError }}</div>
         <div v-if="apiMessage">{{ apiMessage }}</div>
-        <ShowData v-if="data && showData" :data-type="action" :data="data" @modify-item="modifyItem"
+        <ShowData v-if="data && showData" :data-type="viewName" :data="data" @modify-item="modifyItem"
             @delete-item="deleteItem" />
         <Add v-if="itemType && showAdd" :item-type="itemType" :client-types="clientTypes" />
         <Modify v-if="itemData && showModify" :item-type="itemType" :item-data="itemData" :client-types="clientTypes" />
