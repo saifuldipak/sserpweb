@@ -31,7 +31,7 @@ export const createRequestBody = function (method, body = "") {
 };
 
 //api call
-export const callApi2 = async (apiEndpoint, requestBody) => {
+export const callApi = async (apiEndpoint, requestBody) => {
     const result = { code: "", response: "", error: "" };
 
     try {
@@ -44,4 +44,53 @@ export const callApi2 = async (apiEndpoint, requestBody) => {
     }
 
     return result;
+};
+
+//create query parameters
+export const createQueryParameters = (view, searchString) => {
+    let queryParameters, clientName, clientType, servicePoint;
+    const searchStringLowerCase = searchString.toLowerCase();
+
+    const clientNameRegex = /client_name:([^ ]+)/;
+    const clientNameMatch = clientNameRegex.exec(searchStringLowerCase);
+    if (clientNameMatch) {
+        clientName = clientNameMatch[1];
+    } else {
+        clientName = "";
+    }
+
+    if (view === "Clients") {
+        const clientTypeRegex = /client_type:([^ ]+)/;
+        const clientTypeMatch = clientTypeRegex.exec(searchStringLowerCase);
+
+        if (clientTypeMatch) {
+            clientType = clientTypeMatch[1];
+        } else {
+            clientType = "";
+        }
+
+        if (!clientNameMatch && !clientTypeMatch) {
+            clientName = searchStringLowerCase;
+            clientType = "";
+        }
+
+        queryParameters = `?client_name=${clientName}&client_type=${clientType}`;
+    } else if (view === "Services") {
+        const servicePointRegex = /service_point:([^ ]+)/;
+        const servicePointMatch = servicePointRegex.exec(searchStringLowerCase);
+        if (servicePointMatch) {
+            servicePoint = servicePointMatch[1];
+        } else {
+            servicePoint = "";
+        }
+
+        if (!clientNameMatch && !servicePointMatch) {
+            servicePoint = searchStringLowerCase;
+            clientName = "";
+        }
+
+        queryParameters = `?service_point=${servicePoint}&client_name=${clientName}`;
+    }
+
+    return queryParameters;
 };
