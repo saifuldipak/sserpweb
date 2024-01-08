@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, onMounted } from 'vue';
+    import { ref } from 'vue';
     import { callApi, createApiUrl, createRequest } from './config.js';
     import UserLogin from './components/UserLogin.vue';
     import ShowData from './components/ShowData.vue';
@@ -46,7 +46,21 @@
         data.value = []
 
         if (viewName.value === 'Service Types') {
-            search(viewName.value)
+            const method = 'GET'
+            const apiEndpoint = createApiUrl({ view: viewName.value, action: 'search' })
+            const request = createRequest(method)
+
+            const { code, response, error } = await callApi(apiEndpoint, request)
+            if (code === 200) {
+                data.value = response
+                showData.value = true
+            }
+            else if (code !== 200) {
+                apiMessage.value = response.detail
+            }
+            else {
+                apiError.value = error.message
+            }
         }
     }
 
@@ -87,8 +101,8 @@
         showDelete.value = false
         showAdd.value = false
 
-        if (viewName.value = 'Clients') {
-            const apiEndpoint = createApiUrl('Client Types')
+        if (viewName.value === 'Clients') {
+            const apiEndpoint = createApiUrl({ view: 'Client Types', action: 'search' })
             const request = createRequest('GET')
 
             const { code, response, error } = await callApi(apiEndpoint, request)
@@ -102,6 +116,9 @@
             else {
                 apiError.value = error.message
             }
+        }
+        else {
+            showAdd.value = true
         }
     }
 
