@@ -1,15 +1,15 @@
 <script setup>
     import { ref } from 'vue'
-    import { API_URL, createRequest } from '@/config.js'
+    import { API_URL, createRequest, callApi } from '@/config.js'
 
     const itemName = ref('')
     const clientTypeId = ref(0)
-    const apiResponse = ref('')
+    const apiMessage = ref('')
     const apiError = ref('')
     const serviceTypeDescription = ref('')
 
     const props = defineProps({
-        itemType: String,
+        viewName: String,
         clientTypes: Array
     })
 
@@ -29,19 +29,14 @@
         }
 
         const request = createRequest(method, body)
-
-        try {
-            const response = await fetch(apiEndpoint, request)
-            if (response.status === 200) {
-                apiResponse.value = `${props.itemType}: '${itemName.value}'' created`
-            }
-            else {
-                const responseData = await response.json()
-                apiResponse.value = responseData.detail
-            }
+        const { code, response, error } = await callApi(apiEndpoint, request)
+        if (code === 200) {
+            apiMessage.value = `Client: ${itemName} created`
         }
-        catch (error) {
-            console.log(error)
+        else if (code !== 200) {
+            apiMessage.value = response.detail
+        }
+        else {
             apiError.value = error.message
         }
     }
@@ -49,16 +44,16 @@
 </script>
 
 <template>
-    <div v-if="apiResponse">{{ apiResponse }}</div>
+    <div v-if="apiMessage">{{ apiMessage }}</div>
     <div v-if="apiError">{{ apiError }}</div>
     <form @submit.prevent="submitForm">
-        <div v-if="props.itemType === 'Clients'">
+        <div v-if="props.viewName === 'Clients'">
             <input type="text" placeholder="client name" v-model="itemName">
             <select v-model="clientTypeId">
                 <option v-for="clientType in clientTypes" :value="clientType.id">{{ clientType.name }}</option>
             </select>
         </div>
-        <div v-else-if="props.itemType === 'Service Types'">
+        <div v-else-if="props.viewName === 'Service Types'">
             <input type="text" placeholder="service type name" v-model="itemName" required>
             <input type="text" placeholder="description.....(optional)" v-model="serviceTypeDescription">
         </div>
