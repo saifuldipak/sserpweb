@@ -31,11 +31,11 @@ export const createRequest = function (method, body = "") {
 };
 
 //make api call & return response code and data
-export const callApi = async (apiEndpoint, requestBody) => {
+export const callApi = async (apiEndpoint, request) => {
     const result = { code: "", response: "", error: "" };
 
     try {
-        const response = await fetch(apiEndpoint, requestBody);
+        const response = await fetch(apiEndpoint, request);
         result.code = response.status;
         result.response = await response.json();
     } catch (error) {
@@ -93,4 +93,23 @@ export const createQueryParameters = (view, searchString) => {
     }
 
     return queryParameters;
+};
+
+//search
+export const createApiUrl = (view, searchString = "") => {
+    let apiEndpoint;
+
+    if (view == "Clients") {
+        const queryParameters = createQueryParameters(view, searchString);
+        apiEndpoint = API_HOST + "search/client" + queryParameters;
+    } else if (view == "Services") {
+        const queryParameters = createQueryParameters(view, searchString.value);
+        apiEndpoint = API_HOST + "search/service" + queryParameters;
+    } else if (view == "Service Types") {
+        apiEndpoint = API_HOST + "search/service/type";
+    } else if (view == "Client Types") {
+        apiEndpoint = API_HOST + "search/client/type";
+    }
+
+    return apiEndpoint;
 };

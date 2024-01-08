@@ -1,6 +1,6 @@
 <script setup>
     import { ref, onMounted } from 'vue';
-    import { API_URL, createRequest, callApi, createQueryParameters } from './config';
+    import { callApi, createApiUrl, createRequest } from './config.js';
     import UserLogin from './components/UserLogin.vue';
     import ShowData from './components/ShowData.vue';
     import Add from './components/Add.vue';
@@ -13,7 +13,7 @@
     const data = ref()
     const searchString = ref('')
     const apiMessage = ref('')
-    const showData = ref(true)
+    const showData = ref(false)
     const itemType = ref('')
     const showDelete = ref(false)
     const itemData = ref()
@@ -46,12 +46,11 @@
         data.value = []
 
         if (viewName.value === 'Service Types') {
-            search()
+            search(viewName.value)
         }
     }
 
-    const search = async () => {
-        let apiEndpoint
+    const handleSearch = async () => {
         apiError.value = ''
         apiMessage.value = ''
         data.value = ''
@@ -59,23 +58,8 @@
         showModify.value = false
         showDelete.value = false
         showData.value = true
-        const method = 'GET'
-        const request = createRequest(method)
 
-        if (viewName.value == 'Clients') {
-            const queryParameters = createQueryParameters(viewName.value, searchString.value)
-            apiEndpoint = API_URL + 'search/client' + queryParameters
-        }
-        else if (viewName.value == 'Services') {
-            const queryParameters = createQueryParameters(viewName.value, searchString.value)
-            apiEndpoint = API_URL + 'search/service' + queryParameters
-        }
-        else if (viewName.value == 'Service Types') {
-            apiEndpoint = API_URL + 'search/service/type'
-        }
-        else if (viewName.value == 'Client Types') {
-            apiEndpoint = API_URL + 'search/client/type'
-        }
+        const apiEndpoint = createApiUrl(viewName.value, searchString.value)
 
         const { code, response, error } = await callApi(apiEndpoint, request)
         if (code === 200) {
@@ -97,12 +81,28 @@
         }
     }
 
-    const addItem = (item) => {
+    const addItem = async () => {
         showData.value = false
         showModify.value = false
         showDelete.value = false
-        showAdd.value = true
-        itemType.value = item
+        showAdd.value = false
+
+        if (viewName.value = 'Clients') {
+            const apiEndpoint = createApiUrl('Client Types')
+            const request = createRequest('GET')
+
+            const { code, response, error } = await callApi(apiEndpoint, request)
+            if (code === 200) {
+                clientTypes.value = response
+                showAdd.value = true
+            }
+            else if (code !== 200) {
+                apiMessage.value = response.detail
+            }
+            else {
+                apiError.value = error.message
+            }
+        }
     }
 
     const modifyItem = (type, id) => {
@@ -146,10 +146,10 @@
             <div class="search-bar">
                 <div class="left-items">
                     <h1 class="heading">{{ viewName }}</h1>
-                    <button class="add-button" @click="addItem(viewName)">+Add</button>
+                    <button class="add-button" @click="addItem">+Add</button>
                 </div>
                 <div class="search-form">
-                    <form class="search-form" @submit.prevent="search(viewName)">
+                    <form class="search-form" @submit.prevent="handleSearch">
                         <input class="search-input" type="text" placeholder="Enter text..." v-model="searchString"
                             required />
                         <button type="submit">Search</button>
@@ -159,9 +159,8 @@
         </div>
         <div v-if="apiError">{{ apiError }}</div>
         <div v-if="apiMessage">{{ apiMessage }}</div>
-        <ShowData v-if="data && showData" :data-type="viewName" :data="data" @modify-item="modifyItem"
-            @delete-item="deleteItem" />
-        <Add v-if="itemType && showAdd" :item-type="itemType" :client-types="clientTypes" />
+        <ShowData v-if="showData" :view-name="viewName" :data="data" @modify-item="modifyItem" @delete-item="deleteItem" />
+        <Add v-if="showAdd" :view-name="viewName" :client-types="clientTypes" />
         <Modify v-if="itemData && showModify" :item-type="itemType" :item-data="itemData" :client-types="clientTypes" />
         <Delete v-if="itemData && showDelete" :item-type="itemType" :item-data="itemData" @cancel="cancelDeleteItem" />
     </div>
