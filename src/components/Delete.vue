@@ -1,7 +1,7 @@
 <script setup>
     import { ref } from 'vue';
     import SubmitConfirm from './SubmitConfirm.vue'
-    import { API_URL, createRequest } from '../config';
+    import { createApiUrl, createRequest } from '@/functions.js';
 
     const dialogVisible = ref(true)
     const apiError = ref('')
@@ -32,7 +32,7 @@
         apiError.value = ''
         apiMessage.value = ''
 
-        const apiEndpoint = API_URL + 'clients/delete/' + props.itemData.id
+        const apiEndpoint = createApiUrl({ view: 'client', action: 'delete' }) + '/' + props.itemData.id
         const method = 'DELETE'
         const request = createRequest(method)
 

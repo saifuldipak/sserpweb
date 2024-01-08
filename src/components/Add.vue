@@ -1,6 +1,6 @@
 <script setup>
     import { ref } from 'vue'
-    import { API_URL, createRequest, callApi } from '@/config.js'
+    import { createApiUrl, createRequest, callApi } from '@/functions.js'
 
     const itemName = ref('')
     const clientTypeId = ref(0)
@@ -14,22 +14,21 @@
     })
 
     const submitForm = async function () {
-        let apiEndpoint, body
-        apiResponse.value = ''
-        apiError.value = ''
-        const method = 'POST'
+        const apiEndpoint = createApiUrl(view = props.itemType, action = 'add')
 
-        if (props.itemType === 'Clients') {
-            apiEndpoint = API_URL + 'clients/add'
+        let body;
+        if (props.viewName === 'Clients') {
             body = { 'name': itemName.value, 'client_type_id': clientTypeId.value }
         }
-        else if (props.itemType === 'Service Types') {
-            apiEndpoint = API_URL + 'service/type/add'
+        else if (props.viewName === 'Service Types') {
             body = { 'name': itemName.value, 'description': serviceTypeDescription.value }
         }
 
+        const method = 'POST'
         const request = createRequest(method, body)
         const { code, response, error } = await callApi(apiEndpoint, request)
+        apiMessage.value = ''
+        apiError.value = ''
         if (code === 200) {
             apiMessage.value = `Client: ${itemName} created`
         }

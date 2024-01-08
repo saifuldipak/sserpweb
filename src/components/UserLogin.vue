@@ -1,6 +1,6 @@
 <script setup>
     import { ref } from 'vue';
-    import { API_URL } from '@/config';
+    import { createApiUrl } from '@/functions.js';
 
     const username = ref('');
     const password = ref('');
@@ -9,7 +9,7 @@
     const emit = defineEmits(['login-success'])
 
     const login = async () => {
-        const apiEndpoint = API_URL + 'token'
+        const apiEndpoint = createApiUrl({ view: 'token' })
         try {
             const formData = new FormData()
             formData.append('username', username.value);

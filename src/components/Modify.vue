@@ -1,6 +1,6 @@
 <script setup>
     import { computed, ref } from 'vue'
-    import { API_URL, createRequest } from '../config';
+    import { createApiUrl, createRequest } from '@/functions.js';
     import SubmitConfirm from './SubmitConfirm.vue'
 
     const clientId = ref()
@@ -30,7 +30,7 @@
         apiError.value = ''
         apiMessage.value = ''
 
-        const apiEndpoint = API_URL + 'clients/modify'
+        const apiEndpoint = createApiUrl({ view: 'Clients', action: 'modify' })
         const method = 'PUT'
         const body = { id: clientId.value, name: clientName.value, client_type_id: clientTypeId.value }
         const request = createRequest(method, body)
