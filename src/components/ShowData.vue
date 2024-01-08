@@ -5,7 +5,7 @@
 
     const props = defineProps({
         data: Array,
-        dataType: String
+        viewName: String
     })
 
     const itemDetails = ref()
@@ -21,17 +21,17 @@
     <ul v-if="props.data" class="item-list" :class="{ 'item-list-hide': itemDetails }">
         <div v-for="item in props.data" :key="item.id">
             <li>
-                <div v-if="props.dataType === 'Clients'">
+                <div v-if="props.viewName === 'Clients'">
                     <a href="#" @click="itemDetails = item">{{ item.name }}</a>
                     <span class="item-type">{{ item.client_type.name }}</span>
                     <button @click="$emit('modifyItem', 'Client', item.id)">Modify</button>
                     <button @click="$emit('deleteItem', 'Client', item.id)">Delete</button>
                 </div>
-                <div v-else-if="props.dataType === 'Services'">
+                <div v-else-if="props.viewName === 'Services'">
                     <a href="#" @click="itemDetails = item">{{ item.point }}</a>
                     <span class="item-type"> {{ item.clients.name }}</span>
                 </div>
-                <div v-else-if="props.dataType === 'Service Types'">
+                <div v-else-if="props.viewName === 'Service Types'">
                     <span class="item-type">{{ item.name }}</span>
                 </div>
             </li>
