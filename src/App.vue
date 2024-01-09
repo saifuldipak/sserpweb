@@ -1,6 +1,6 @@
 <script setup>
     import { ref } from 'vue';
-    import { callApi, createApiUrl, createRequest } from './config.js';
+    import { callApi, createApiUrl, createRequest } from '@/functions.js';
     import UserLogin from './components/UserLogin.vue';
     import ShowData from './components/ShowData.vue';
     import Add from './components/Add.vue';
@@ -99,16 +99,21 @@
         showData.value = false
         showModify.value = false
         showDelete.value = false
-        showAdd.value = false
+        showAdd.value = true
+        const request = createRequest('GET')
 
+        let apiEndpoint
         if (viewName.value === 'Clients') {
-            const apiEndpoint = createApiUrl({ view: 'Client Types', action: 'search' })
-            const request = createRequest('GET')
+            apiEndpoint = createApiUrl({ view: 'Client Types', action: 'search' })
+        }
+        else if (viewName.value === 'Services') {
+            apiEndpoint = createApiUrl({ view: 'Service Types', action: 'search' })
+        }
 
+        if (viewName.value === 'Clients' || viewName.value === 'Services') {
             const { code, response, error } = await callApi(apiEndpoint, request)
             if (code === 200) {
-                clientTypes.value = response
-                showAdd.value = true
+                data.value = response
             }
             else if (code !== 200) {
                 apiMessage.value = response.detail
@@ -116,9 +121,6 @@
             else {
                 apiError.value = error.message
             }
-        }
-        else {
-            showAdd.value = true
         }
     }
 
@@ -177,7 +179,7 @@
         <div v-if="apiError">{{ apiError }}</div>
         <div v-if="apiMessage">{{ apiMessage }}</div>
         <ShowData v-if="showData" :view-name="viewName" :data="data" @modify-item="modifyItem" @delete-item="deleteItem" />
-        <Add v-if="showAdd" :view-name="viewName" :client-types="clientTypes" />
+        <Add v-if="showAdd" :view-name="viewName" :data="data" />
         <Modify v-if="itemData && showModify" :item-type="itemType" :item-data="itemData" :client-types="clientTypes" />
         <Delete v-if="itemData && showDelete" :item-type="itemType" :item-data="itemData" @cancel="cancelDeleteItem" />
     </div>
