@@ -15,6 +15,8 @@
     const bandwidth = ref(0)
     const clientName = ref('')
     const clientList = ref([])
+    const vendorName = ref('')
+    const vendorType = ref()
 
     const props = defineProps({
         viewName: String,
@@ -22,7 +24,7 @@
     })
 
     const submitForm = async function () {
-        const apiEndpoint = createApiUrl({ view: props.itemType, action: 'add' })
+        const apiEndpoint = createApiUrl({ view: props.viewName, action: 'add' })
 
         let body;
         if (props.viewName === 'Clients') {
@@ -31,6 +33,9 @@
         else if (props.viewName === 'Service Types') {
             body = { 'name': itemName.value, 'description': serviceTypeDescription.value }
         }
+        else if (props.viewName === 'Vendors') {
+            body = { name: vendorName.value, type: vendorType.value }
+        }
 
         const method = 'POST'
         const request = createRequest(method, body)
@@ -38,7 +43,7 @@
         apiMessage.value = ''
         apiError.value = ''
         if (code === 200) {
-            apiMessage.value = `Client: ${itemName} created`
+            apiMessage.value = `Record added`
         }
         else if (code !== 200) {
             apiMessage.value = response.detail
@@ -86,6 +91,12 @@
             <input type="text" placeholder="client name" v-model="itemName">
             <select v-model="clientTypeId">
                 <option v-for="item in props.data" :value="item.id">{{ item.name }}</option>
+            </select>
+        </div>
+        <div v-else-if="props.viewName === 'Vendors'">
+            <input type="text" placeholder="vendor name" v-model="vendorName">
+            <select v-model="vendorType">
+                <option v-for="item in props.data" :key="item.id" :value="item.name">{{ item.name }}</option>
             </select>
         </div>
         <div v-else-if="props.viewName === 'Services'">
