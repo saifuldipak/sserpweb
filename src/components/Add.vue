@@ -17,6 +17,8 @@
     const clientList = ref([])
     const vendorName = ref('')
     const vendorType = ref()
+    const itemList = ref([])
+    const popName = ref('')
 
     const props = defineProps({
         viewName: String,
@@ -53,18 +55,19 @@
         }
     }
 
-    const searchClient = async () => {
+    const searchRecord = async (searchItem) => {
         apiMessage.value = ''
         apiError.value = ''
-        if (clientName.value.length > 2) {
-            const apiEndpoint = createApiUrl({ view: 'Clients', action: 'search', searchString: clientName.value })
+        let apiEndpoint
+        if (itemName.value.length > 2) {
+            apiEndpoint = createApiUrl({ view: searchItem, action: 'search', searchString: itemName.value })
             const request = createRequest('GET')
             const { code, response, error } = await callApi(apiEndpoint, request)
 
             apiMessage.value = ''
             apiError.value = ''
             if (code === 200) {
-                clientList.value = response
+                itemList.value = response
             }
             else if (code !== 200) {
                 apiMessage.value = response.detail
@@ -100,14 +103,13 @@
             </select>
         </div>
         <div v-else-if="props.viewName === 'Services'">
-            <input type="text" placeholder="Client name" v-model="clientName" @input="searchClient">
+            <input type="text" placeholder="Client name" v-model="itemName" @input="searchRecord('Clients')">
             <ul v-if="clientName.length > 0 && !apiMessage && !apiError" class="suggestions">
-                <li class="suggestion" v-for="client in clientList" :key="client.id"
+                <li class="suggestion" v-for="client in itemList" :key="client.id"
                     @click="selectClient(client.id, client.name)">{{
                         client.name }}
                 </li>
             </ul>
-
             <input type="text" placeholder="Service location" v-model="servicePoint">
             <select v-model="serviceType">
                 <option v-for="item in props.data" :value="item.id">{{ item.name }}</option>
@@ -115,6 +117,17 @@
             <input type="number" placeholder="bandwidth value in Mbps" v-model="bandwidth">
             <input type="integer" placeholde="pop id" v-model="popId">
             <input type="text" placeholder="extra info" v-model="extraInfo">
+        </div>
+        <div v-else-if="props.viewName === 'Pops'">
+            <input type="text" placeholder="Pop name" v-model="popName">
+            <input type="text" placeholder="Vendor name" v-model="itemName" @input="searchRecord('Vendors')">
+            <ul v-if="itemName.length > 0 && !apiMessage && !apiError" class="suggestions">
+                <li class="suggestion" v-for="pop in itemList" :key="pop.id" @click="selectItem(pop.id, pop.name)">{{
+                    item.name }}
+                </li>
+            </ul>
+
+
         </div>
         <div v-else-if="props.viewName === 'Service Types'">
             <input type="text" placeholder="service type name" v-model="itemName" required>
