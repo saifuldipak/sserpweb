@@ -34,6 +34,12 @@
                 <div v-else-if="props.viewName === 'Service Types'">
                     <span class="item-type">{{ item.name }}</span>
                 </div>
+                <div v-else-if="props.viewName === 'Vendors'">
+                    <span class="item-type">{{ item.name }}</span>
+                </div>
+                <div v-else-if="props.viewName === 'Pops'">
+                    <span class="item-type">{{ item.name }}</span>
+                </div>
             </li>
         </div>
     </ul>
