@@ -48,48 +48,44 @@ export const callApi = async (apiEndpoint, request) => {
 
 //create query parameters
 export const createQueryParameters = (view, searchString) => {
-    let queryParameters, clientName, clientType, servicePoint;
-    const searchStringLowerCase = searchString.toLowerCase();
-
-    const clientNameRegex = /client_name:([^ ]+)/;
-    const clientNameMatch = clientNameRegex.exec(searchStringLowerCase);
-    if (clientNameMatch) {
-        clientName = clientNameMatch[1];
-    } else {
-        clientName = "";
+    let firstQueryArgument, secondQueryArgument;
+    if (view === "Clients") {
+        firstQueryArgument = "client_name";
+        secondQueryArgument = "client_type";
+    } else if (view === "Services") {
+        firstQueryArgument = "service_point";
+        secondQueryArgument = "client_name";
+    } else if (view === "Pops") {
+        firstQueryArgument = "pop_name";
+        secondQueryArgument = "pop_owner";
+    } else if (view === "Vendors") {
+        firstQueryArgument = "vendor_name";
+        secondQueryArgument = "vendor_type";
     }
 
-    if (view === "Clients") {
-        const clientTypeRegex = /client_type:([^ ]+)/;
-        const clientTypeMatch = clientTypeRegex.exec(searchStringLowerCase);
+    const firstRegex = new RegExp(`${firstQueryArgument}:([^ ]+)`, "i");
+    const secondRegex = new RegExp(`${secondQueryArgument}:([^ ]+)`, "i");
 
-        if (clientTypeMatch) {
-            clientType = clientTypeMatch[1];
-        } else {
-            clientType = "";
-        }
+    const firstMatch = searchString.match(firstRegex);
+    const secondMatch = searchString.match(secondRegex);
 
-        if (!clientNameMatch && !clientTypeMatch) {
-            clientName = searchStringLowerCase;
-            clientType = "";
-        }
+    let queryParameters = "?";
+    if (firstMatch) {
+        queryParameters =
+            queryParameters + firstQueryArgument + "=" + firstMatch[1];
+    } else {
+        queryParameters = queryParameters + firstQueryArgument + "=";
+    }
 
-        queryParameters = `?client_name=${clientName}&client_type=${clientType}`;
-    } else if (view === "Services") {
-        const servicePointRegex = /service_point:([^ ]+)/;
-        const servicePointMatch = servicePointRegex.exec(searchStringLowerCase);
-        if (servicePointMatch) {
-            servicePoint = servicePointMatch[1];
-        } else {
-            servicePoint = "";
-        }
+    if (secondMatch) {
+        queryParameters =
+            queryParameters + "&" + secondQueryArgument + "=" + secondMatch[1];
+    } else {
+        queryParameters = queryParameters + "&" + secondQueryArgument + "=";
+    }
 
-        if (!clientNameMatch && !servicePointMatch) {
-            servicePoint = searchStringLowerCase;
-            clientName = "";
-        }
-
-        queryParameters = `?service_point=${servicePoint}&client_name=${clientName}`;
+    if (!firstMatch && !secondMatch) {
+        queryParameters = "?" + firstQueryArgument + "=" + searchString;
     }
 
     return queryParameters;
@@ -120,6 +116,12 @@ export const createApiUrl = ({ view, action = "", searchString = "" }) => {
             case "Service Types":
                 apiEndpoint = apiEndpoint + "service/type";
                 break;
+            case "Vendors":
+                apiEndpoint = apiEndpoint + "vendor";
+                break;
+            case "Pops":
+                apiEndpoint = apiEndpoint + "pop";
+                break;
             default:
                 throw new Error("Unknown view for action 'search'");
         }
@@ -132,21 +134,24 @@ export const createApiUrl = ({ view, action = "", searchString = "" }) => {
         return apiEndpoint;
     }
 
-    if (view === "Clients" && action !== "search") {
-        apiEndpoint = apiEndpoint + "client/";
-        switch (action) {
-            case "add":
-                apiEndpoint = apiEndpoint + "add";
+    let base;
+    if (action !== "search") {
+        switch (view) {
+            case "Clients":
+                base = "client/";
                 break;
-            case "modify":
-                apiEndpoint = apiEndpoint + "modify";
+            case "Services":
+                base = "service/";
                 break;
-            case "delete":
-                apiEndpoint = apiEndpoint + "delete";
+            case "Vendors":
+                base = "vendor/";
                 break;
-            default:
-                throw new Error("Unknow action for view 'Clients'");
+            case "Pops":
+                base = "pop/";
+                break;
         }
+
+        apiEndpoint = apiEndpoint + base + action;
         return apiEndpoint;
     }
 };
