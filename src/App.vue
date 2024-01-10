@@ -22,7 +22,15 @@
     const views = ref([
         { 'id': 1, 'name': 'Clients' },
         { 'id': 2, 'name': 'Services' },
-        { 'id': 3, 'name': 'Service Types' }
+        { 'id': 3, 'name': 'Service Types' },
+        { 'id': 4, 'name': 'Vendors' },
+        { 'id': 5, 'name': 'Pops' },
+
+    ])
+    const vendors = ref([
+        { id: 1, name: 'LSP' },
+        { id: 2, name: 'NTTN' },
+        { id: 3, name: 'ISP' }
     ])
     const viewName = ref('')
 
@@ -67,13 +75,14 @@
     const handleSearch = async () => {
         apiError.value = ''
         apiMessage.value = ''
-        data.value = ''
+        data.value = []
         showAdd.value = false
         showModify.value = false
         showDelete.value = false
         showData.value = true
 
-        const apiEndpoint = createApiUrl(viewName.value, searchString.value)
+        const apiEndpoint = createApiUrl({ view: viewName.value, action: 'search', searchString: searchString.value })
+        const request = createRequest('GET')
 
         const { code, response, error } = await callApi(apiEndpoint, request)
         if (code === 200) {
@@ -108,6 +117,9 @@
         }
         else if (viewName.value === 'Services') {
             apiEndpoint = createApiUrl({ view: 'Service Types', action: 'search' })
+        }
+        else if (viewName.value === 'Vendors') {
+            data.value = vendors.value
         }
 
         if (viewName.value === 'Clients' || viewName.value === 'Services') {
@@ -169,8 +181,7 @@
                 </div>
                 <div class="search-form">
                     <form class="search-form" @submit.prevent="handleSearch">
-                        <input class="search-input" type="text" placeholder="Enter text..." v-model="searchString"
-                            required />
+                        <input class="search-input" type="text" placeholder="Enter text..." v-model="searchString" />
                         <button type="submit">Search</button>
                     </form>
                 </div>
