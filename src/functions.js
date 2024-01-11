@@ -122,6 +122,9 @@ export const createApiUrl = ({ view, action = "", searchString = "" }) => {
             case "Pops":
                 apiEndpoint = apiEndpoint + "pop";
                 break;
+            case "Addresses":
+                apiEndpoint = apiEndpoint + "address";
+                break;
             default:
                 throw new Error("Unknown view for action 'search'");
         }
@@ -148,6 +151,9 @@ export const createApiUrl = ({ view, action = "", searchString = "" }) => {
                 break;
             case "Pops":
                 base = "pop/";
+                break;
+            case "Addresses":
+                base = "address/";
                 break;
         }
 

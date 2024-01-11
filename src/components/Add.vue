@@ -2,11 +2,11 @@
     import { ref } from 'vue'
     import { createApiUrl, createRequest, callApi } from '@/functions.js'
 
-    const clientTypeId = ref(0)
+    const clientTypeId = ref()
     const apiMessage = ref('')
     const apiError = ref('')
     const serviceTypeDescription = ref('')
-    const clientId = ref(0)
+    const clientId = ref()
     const serviceTypeId = ref()
     const servicePoint = ref('')
     const extraInfo = ref('')
@@ -18,6 +18,18 @@
     const popList = ref([])
     const clientList = ref([])
     const popId = ref()
+    const flatNumber = ref('')
+    const floorNumber = ref('')
+    const holdingNumber = ref('')
+    const street = ref('')
+    const areaName = ref('')
+    const thana = ref('')
+    const district = ref('')
+    const serviceName = ref('')
+    const serviceList = ref([])
+    const serviceId = ref()
+    const vendorId = ref()
+
 
     const props = defineProps({
         viewName: String,
@@ -39,6 +51,22 @@
         }
         else if (props.viewName === 'Services') {
             body = { client_id: clientId.value, point: servicePoint.value, service_type_id: serviceTypeId.value, bandwidth: bandwidth.value, pop_id: popId.value, extra_info: extraInfo.value }
+        }
+        else if (props.viewName === 'Addresses') {
+            body = {
+                flat: flatNumber.value,
+                floor: floorNumber.value,
+                holding: holdingNumber.value,
+                street: street.value,
+                area: areaName.value,
+                thana: thana.value,
+                district: district.value,
+                client_id: clientId.value,
+                service_id: serviceId.value,
+                vendor_id: vendorId.value,
+                extra_info: extraInfo.value
+            }
+            console.log(body)
         }
 
         const method = 'POST'
@@ -90,6 +118,9 @@
         else if (view === 'Pops') {
             itemName = popName.value
         }
+        else if (view === 'Services') {
+            itemName = serviceName.value
+        }
 
         if (itemName.length > 2) {
             const apiEndpoint = createApiUrl({ view: view, action: 'search', searchString: itemName })
@@ -115,6 +146,9 @@
         else if (view === 'Pops') {
             popList.value = itemList
         }
+        else if (view === 'Services') {
+            serviceList.value = itemList
+        }
     }
 
     /* const selectClient = (id, name) => {
@@ -133,6 +167,11 @@
             popId.value = id
             popName.value = name
             popList.value = []
+        }
+        else if (view === 'Services') {
+            serviceId.value = id
+            serviceName.value = name
+            serviceList.value = []
         }
     }
 
@@ -214,9 +253,38 @@
                 </li>
             </ul>
         </div>
+        <!-- Service Types -->
         <div v-else-if="props.viewName === 'Service Types'">
             <input type="text" placeholder="service type name" v-model="itemName" required>
             <input type="text" placeholder="description.....(optional)" v-model="serviceTypeDescription">
+        </div>
+        <!-- Addresses -->
+        <div v-else-if="props.viewName === 'Addresses'" class="add-form">
+            <input type="text" placeholder="Flat number" v-model="flatNumber">
+            <input type="text" placeholder="Floor number" v-model="floorNumber">
+            <input type="text" placeholder="Holding number" v-model="holdingNumber">
+            <input type="text" placeholder="Street" v-model="street">
+            <input type="text" placeholder="Area name" v-model="areaName">
+            <input type="text" placeholder="Thana" v-model="thana">
+            <input type="text" placeholder="District" v-model="district">
+            <input class="client-name" type="text" placeholder="Client name" v-model="clientName"
+                @input="searchSuggestions('Clients')">
+            <ul v-if="clientName.length > 0 && !apiMessage && !apiError" class="suggestions">
+                <li class="suggestion" v-for="client in clientList" :key="client.id"
+                    @click="selectSuggestion('Clients', client.id, client.name)">{{
+                        client.name }}
+                </li>
+            </ul>
+            <input class="client-name" type="text" placeholder="Service name" v-model="serviceName"
+                @input="searchSuggestions('Services')">
+            <ul v-if="serviceName.length > 0 && !apiMessage && !apiError" class="suggestions">
+                <li class="suggestion" v-for="service in serviceList" :key="service.id"
+                    @click="selectSuggestion('Services', service.id, service.point)">{{
+                        service.point }} {{ service.clients.name }}
+                </li>
+            </ul>
+            <input type="text" placeholder="Vendor name" v-model="vendorName">
+            <input type="text" placeholder="remark, description, landmark etc" v-model="extraInfo">
         </div>
         <button type="submit">Add</button>
     </form>
@@ -254,6 +322,12 @@
         width: 30%;
         display: flex;
         flex-direction: column;
+    }
+
+    .add-form input {
+        display: block;
+        padding: 5px;
+        margin: 3px;
     }
 
     .select-box option:disabled {

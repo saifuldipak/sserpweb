@@ -25,7 +25,7 @@
         { 'id': 3, 'name': 'Service Types' },
         { 'id': 4, 'name': 'Vendors' },
         { 'id': 5, 'name': 'Pops' },
-
+        { id: 6, name: 'Addresses' }
     ])
     const vendors = ref([
         { id: 1, name: 'LSP' },
