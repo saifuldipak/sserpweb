@@ -7,7 +7,7 @@
     const apiError = ref('')
     const serviceTypeDescription = ref('')
     const clientId = ref(0)
-    const serviceType = ref('')
+    const serviceTypeId = ref()
     const servicePoint = ref('')
     const extraInfo = ref('')
     const bandwidth = ref()
@@ -36,6 +36,9 @@
         }
         else if (props.viewName === 'Vendors') {
             body = { name: vendorName.value, type: vendorType.value }
+        }
+        else if (props.viewName === 'Services') {
+            body = { client_id: clientId.value, point: servicePoint.value, service_type_id: serviceTypeId.value, bandwidth: bandwidth.value, pop_id: popId.value, extra_info: extraInfo.value }
         }
 
         const method = 'POST'
@@ -188,7 +191,7 @@
                 </li>
             </ul>
             <input type="text" placeholder="Service location" v-model="servicePoint">
-            <select v-model="serviceType" class="select-box">
+            <select v-model="serviceTypeId" class="select-box">
                 <option disabled value="">service type</option>
                 <option placeholder="service type" v-for="item in props.data" :value="item.id">{{ item.name }}</option>
             </select>
