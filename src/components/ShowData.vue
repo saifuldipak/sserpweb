@@ -45,8 +45,8 @@
     </ul>
     <div v-if="itemDetails">
         <button @click="itemDetails = ''">X</button>
-        <ClientDetails v-if="props.dataType === 'Clients'" :item="itemDetails" />
-        <ServiceDetails v-if="props.dataType === 'Services'" :item="itemDetails" />
+        <ClientDetails v-if="props.viewName === 'Clients'" :item="itemDetails" />
+        <ServiceDetails v-if="props.viewName === 'Services'" :item="itemDetails" />
     </div>
 </template>
 
