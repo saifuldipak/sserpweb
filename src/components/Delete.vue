@@ -9,7 +9,7 @@
     const actionType = ref('delete')
 
     const props = defineProps({
-        itemType: {
+        viewName: {
             type: String,
             required: true
         },
@@ -32,7 +32,7 @@
         apiError.value = ''
         apiMessage.value = ''
 
-        const apiEndpoint = createApiUrl({ view: 'client', action: 'delete' }) + '/' + props.itemData.id
+        const apiEndpoint = createApiUrl({ view: 'Clients', action: 'delete' }) + '/' + props.itemData.id
         const method = 'DELETE'
         const request = createRequest(method)
 
@@ -58,10 +58,9 @@
 
 <template>
     <div v-if="apiMessage">{{ apiMessage }}</div>
-    <div v-if="props.itemType === 'Client'">
+    <div v-if="props.viewName === 'Clients'">
         Id: {{ props.itemData.id }}
         Name: {{ props.itemData.name }}
-        Type: {{ props.itemData.client_type_id }}
         <SubmitConfirm v-model:show="dialogVisible" :action-type="actionType" @confirm="deleteItem"
             @cancel="closeDialog('return')" />
     </div>

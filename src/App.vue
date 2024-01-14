@@ -142,11 +142,10 @@
         showModify.value = true
     }
 
-    const deleteItem = (type, id) => {
-        itemType.value = type
-        getItemData(id)
+    const deleteItem = (itemId) => {
+        getItemData(itemId)
         showData.value = false
-        showDeleteComponent.value = true
+        showDelete.value = true
     }
 
     const cancelDeleteItem = () => {
@@ -192,7 +191,7 @@
         <ShowData v-if="showData" :view-name="viewName" :data="data" @modify-item="modifyItem" @delete-item="deleteItem" />
         <Add v-if="showAdd" :view-name="viewName" :data="data" />
         <Modify v-if="showModify" :view-name="viewName" :item-data="itemData" />
-        <Delete v-if="itemData && showDelete" :item-type="itemType" :item-data="itemData" @cancel="cancelDeleteItem" />
+        <Delete v-if="showDelete" :view-name="viewName" :item-data="itemData" @cancel="cancelDeleteItem" />
     </div>
     <div v-else>
         <UserLogin @login-success="updateToken" />

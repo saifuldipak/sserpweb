@@ -25,7 +25,7 @@
                     <a href="#" @click="itemDetails = item">{{ item.name }}</a>
                     <span class="item-type">{{ item.client_type.name }}</span>
                     <button @click="$emit('modifyItem', item.id)">Modify</button>
-                    <button @click="$emit('deleteItem', 'Clients', item.id)">Delete</button>
+                    <button @click="$emit('deleteItem', item.id)">Delete</button>
                 </div>
                 <div v-else-if="props.viewName === 'Services'">
                     <a href="#" @click="itemDetails = item">{{ item.point }}</a>
