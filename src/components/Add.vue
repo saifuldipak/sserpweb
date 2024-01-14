@@ -41,7 +41,7 @@
 
         let body;
         if (props.viewName === 'Clients') {
-            body = { 'name': itemName.value, 'client_type_id': clientTypeId.value }
+            body = { 'name': clientName.value, 'client_type_id': clientTypeId.value }
         }
         else if (props.viewName === 'Service Types') {
             body = { 'name': itemName.value, 'description': serviceTypeDescription.value }
@@ -183,7 +183,7 @@
     <form @submit.prevent="submitForm">
         <!-- Clients -->
         <div v-if="props.viewName === 'Clients'">
-            <input type="text" placeholder="client name" v-model="itemName">
+            <input type="text" placeholder="client name" v-model="clientName">
             <select v-model="clientTypeId">
                 <option v-for="item in props.data" :value="item.id">{{ item.name }}</option>
             </select>
