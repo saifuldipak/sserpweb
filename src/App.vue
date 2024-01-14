@@ -8,7 +8,7 @@
     import Delete from './components/Delete.vue'
 
     const token = ref('')
-    const clientTypes = ref([])
+    const clientTypes = ref()
     const apiError = ref('')
     const data = ref()
     const searchString = ref('')
@@ -136,9 +136,8 @@
         }
     }
 
-    const modifyItem = (type, id) => {
-        itemType.value = type
-        getItemData(id)
+    const modifyItem = (itemId) => {
+        getItemData(itemId)
         showData.value = false
         showModify.value = true
     }
@@ -181,7 +180,8 @@
                 </div>
                 <div class="search-form">
                     <form class="search-form" @submit.prevent="handleSearch">
-                        <input class="search-input" type="text" placeholder="Enter text..." v-model="searchString" />
+                        <input class="search-input" type="text" placeholder="Enter text..." v-model="searchString"
+                            required />
                         <button type="submit">Search</button>
                     </form>
                 </div>
@@ -191,7 +191,7 @@
         <div v-if="apiMessage">{{ apiMessage }}</div>
         <ShowData v-if="showData" :view-name="viewName" :data="data" @modify-item="modifyItem" @delete-item="deleteItem" />
         <Add v-if="showAdd" :view-name="viewName" :data="data" />
-        <Modify v-if="itemData && showModify" :item-type="itemType" :item-data="itemData" :client-types="clientTypes" />
+        <Modify v-if="showModify" :view-name="viewName" :item-data="itemData" />
         <Delete v-if="itemData && showDelete" :item-type="itemType" :item-data="itemData" @cancel="cancelDeleteItem" />
     </div>
     <div v-else>
