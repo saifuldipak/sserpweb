@@ -1,5 +1,5 @@
 <script setup>
-    import { computed, ref } from 'vue'
+    import { computed, onMounted, ref } from 'vue'
     import { createApiUrl, createRequest } from '@/functions.js';
     import SubmitConfirm from './SubmitConfirm.vue'
 
@@ -11,11 +11,11 @@
     const dialogVisible = ref(false);
     const showForm = ref(true)
     const actionType = ref('modify')
+    const clientTypes = ref()
 
     const props = defineProps({
         itemData: Object,
-        itemType: String,
-        clientTypes: Array
+        viewName: String,
     })
 
     clientId.value = props.itemData.id
@@ -59,10 +59,38 @@
         dialogVisible.value = true
     }
 
-    const clientType = computed(() => {
-        for (const item of props.clientTypes) {
-            if (item.id === clientTypeId.value) {
-                return item.name
+    onMounted(async () => {
+        if (props.viewName === 'Clients') {
+            await getClientTypes()
+        }
+    })
+
+    const getClientTypes = async () => {
+        if (!clientTypes.value) {
+            const request = createRequest('GET')
+            const apiEndpoint = createApiUrl({ view: 'Client Types', action: 'search' })
+
+            try {
+                const response = await fetch(apiEndpoint, request)
+                const data = await response.json()
+                if (response.status === 200) {
+                    clientTypes.value = data
+                }
+                else {
+                    apiMessage.value = data.detail
+                }
+            }
+            catch (error) {
+                console.error = error
+                apiError.value = error.message
+            }
+        }
+    }
+
+    const clientTypeName = computed(() => {
+        for (const clientType of clientTypes.value) {
+            if (clientType.id === clientTypeId.value) {
+                return clientType.name
             }
         }
     })
@@ -74,14 +102,14 @@
     <div v-if="apiMessage">{{ apiMessage }}
         Client Id: {{ clientId }}
         Client Name: {{ clientName }}
-        Client Type: {{ clientType }}
+        Client Type: {{ clientTypeName }}
     </div>
-    <div v-if="props.itemType === 'Client'">Client Id: {{ clientId }}
+    <div v-if="props.viewName === 'Clients'">Client Id: {{ clientId }}
         <form @submit.prevent="handleSubmit">
             <label for="client-name">Client Name</label>
             <input type="text" id="client-name" v-model="clientName">
             <select v-model="clientTypeId">
-                <option v-for="clientType in props.clientTypes" :value="clientType.id">{{ clientType.name }}
+                <option v-for="clientType in clientTypes" :value="clientType.id">{{ clientType.name }}
                 </option>
             </select>
             <button type="submit">Modify</button>
