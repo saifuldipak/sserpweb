@@ -20,12 +20,10 @@
 <template>
     <ul v-if="props.data" class="item-list" :class="{ 'item-list-hide': itemDetails }">
         <div v-for="item in props.data" :key="item.id">
-            <li>
+            <li class="item">
                 <div v-if="props.viewName === 'Clients'">
                     <a href="#" @click="itemDetails = item">{{ item.name }}</a>
                     <span class="item-type">{{ item.client_type.name }}</span>
-                    <button @click="$emit('modifyItem', item.id)">Modify</button>
-                    <button @click="$emit('deleteItem', item.id)">Delete</button>
                 </div>
                 <div v-else-if="props.viewName === 'Services'">
                     <a href="#" @click="itemDetails = item">{{ item.point }}</a>
@@ -39,6 +37,10 @@
                 </div>
                 <div v-else-if="props.viewName === 'Pops'">
                     <span class="item-type">{{ item.name }}</span>
+                </div>
+                <div class="button-section">
+                    <button class="modify" @click="$emit('modifyItem', item.id)">Modify</button>
+                    <button class="delete" @click="$emit('deleteItem', item.id)">Delete</button>
                 </div>
             </li>
         </div>
@@ -61,5 +63,26 @@
 
     .item-type {
         margin-left: 50px;
+    }
+
+    .item {
+        display: flex;
+    }
+
+    .button-section {
+        margin-left: 10px;
+    }
+
+    .button-section button {
+        margin-left: 5px;
+    }
+
+    .modify {
+        background-color: yellow;
+    }
+
+    .delete {
+        background-color: red;
+        color: white;
     }
 </style>
