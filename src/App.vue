@@ -6,6 +6,7 @@
     import Add from './components/Add.vue';
     import Modify from './components/Modify.vue';
     import Delete from './components/Delete.vue'
+    import Services from './components/Services.vue';
 
     const token = ref('')
     const clientTypes = ref()
@@ -33,6 +34,7 @@
         { id: 3, name: 'ISP' }
     ])
     const viewName = ref('')
+    const actionName = ref('')
 
     function removeToken() {
         localStorage.removeItem('token');
@@ -46,12 +48,15 @@
     }
 
     async function clickedLink(view) {
+        apiError.value = ''
+        apiMessage.value = ''
         searchString.value = ''
         showAdd.value = false
         showModify.value = false
         showDelete.value = false
         viewName.value = view
         data.value = []
+        actionName.value = ''
 
         if (viewName.value === 'Service Types') {
             const method = 'GET'
@@ -76,6 +81,7 @@
         apiError.value = ''
         apiMessage.value = ''
         data.value = []
+        actionName.value = ''
         showAdd.value = false
         showModify.value = false
         showDelete.value = false
@@ -140,6 +146,7 @@
         getItemData(itemId)
         showData.value = false
         showModify.value = true
+        actionName.value = 'modify'
     }
 
     const deleteItem = (itemId) => {
@@ -175,7 +182,7 @@
             <div class="search-bar">
                 <div class="left-items">
                     <h1 class="heading">{{ viewName }}</h1>
-                    <button class="add-button" @click="addItem">+Add</button>
+                    <button class="add-button" @click="actionName = 'add'">+Add</button>
                 </div>
                 <div class="search-form">
                     <form class="search-form" @submit.prevent="handleSearch">
@@ -189,8 +196,8 @@
         <div v-if="apiError">{{ apiError }}</div>
         <div v-if="apiMessage">{{ apiMessage }}</div>
         <ShowData v-if="showData" :view-name="viewName" :data="data" @modify-item="modifyItem" @delete-item="deleteItem" />
+        <Services v-if="viewName === 'Services' && actionName !== ''" :action-name="actionName" :item-data="itemData" />
         <Add v-if="showAdd" :view-name="viewName" :data="data" />
-        <Modify v-if="showModify" :view-name="viewName" :item-data="itemData" />
         <Delete v-if="showDelete" :view-name="viewName" :item-data="itemData" @cancel="cancelDeleteItem" />
     </div>
     <div v-else>
