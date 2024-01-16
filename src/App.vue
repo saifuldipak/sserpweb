@@ -140,6 +140,11 @@
         }
     } */
 
+    const addItem = () => {
+        showData.value = false
+        actionName.value = 'add'
+    }
+
     const modifyItem = (itemId) => {
         getItemData(itemId)
         showData.value = false
@@ -179,7 +184,7 @@
             <div class="search-bar">
                 <div class="left-items">
                     <h1 class="heading">{{ viewName }}</h1>
-                    <button class="add-button" @click="actionName = 'add'">+Add</button>
+                    <button class="add-button" @click="addItem">+Add</button>
                 </div>
                 <div class="search-form">
                     <form class="search-form" @submit.prevent="handleSearch">
