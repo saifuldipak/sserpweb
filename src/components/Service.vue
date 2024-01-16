@@ -198,7 +198,7 @@
     <h3 v-if="props.actionName === 'add'">Add Service</h3>
     <h3 v-else-if="props.actionName === 'modify'">Modify Service</h3>
     <span v-if="props.actionName === 'modify'">Service Id: {{ serviceId }}</span>
-    <form @submit.prevent="handleSubmit" class="form">
+    <form @submit.prevent="handleSubmit" class="data-form">
         <input class="client-name" type="text" placeholder="Client name" v-model="clientName"
             @input="searchSuggestions('Clients')">
         <ul v-if="clientName.length > 0 && !apiMessage && !apiError" class="suggestions">
@@ -256,19 +256,5 @@
 
     .select-box option:disabled {
         color: gray;
-    }
-
-    form {
-        width: 30%;
-        display: flex;
-        flex-direction: column;
-    }
-
-    form input,
-    select,
-    button {
-        display: block;
-        padding: 5px;
-        margin: 3px;
     }
 </style>
