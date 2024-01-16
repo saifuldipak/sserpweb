@@ -19,20 +19,20 @@
             <td v-if="props.viewName === 'Clients'">
                 <a href="#" @click="itemDetails = item">{{ item.name }}</a>
             </td>
-            <div v-else-if="props.viewName === 'Services'">
+            <td v-else-if="props.viewName === 'Services'">
                 <a href="#" @click="itemDetails = item">{{ item.point }}</a>
-            </div>
-            <div v-else-if="props.viewName === 'Service Types'">
+            </td>
+            <td v-else-if="props.viewName === 'Service Types'">
                 <a href="#" @click="itemDetails = item">{{ item.point }}</a>
-            </div>
-            <div v-else-if="props.viewName === 'Vendors'">
+            </td>
+            <td v-else-if="props.viewName === 'Vendors'">
                 <a href="#" @click="itemDetails = item">{{ item.point }}</a>
-            </div>
-            <div v-else-if="props.viewName === 'Pops'">
+            </td>
+            <td v-else-if="props.viewName === 'Pops'">
                 <a href="#" @click="itemDetails = item">{{ item.point }}</a>
-            </div>
+            </td>
             <td v-if="props.viewName === 'Clients'">{{ item.client_type.name }}</td>
-            <div v-else-if="props.viewName === 'Services'">{{ item.clients.name }}</div>
+            <td v-else-if="props.viewName === 'Services'">{{ item.clients.name }}</td>
             <td class="button-section">
                 <button class="modify" @click="$emit('modifyItem', item.id)">Modify</button>
                 <button class="delete" @click="$emit('deleteItem', item.id)">Delete</button>
