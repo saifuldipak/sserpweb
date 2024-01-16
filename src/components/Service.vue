@@ -2,6 +2,7 @@
     import { onMounted, ref } from 'vue'
     import { createApiUrl, createRequest } from '@/functions.js'
     import SubmitConfirm from './SubmitConfirm.vue';
+    import SubmitButton from './SubmitButton.vue';
 
     const apiMessage = ref('')
     const apiError = ref('')
@@ -20,6 +21,8 @@
     const serviceId = ref()
     const serviceTypes = ref()
     const dialogVisible = ref(false)
+    const showDetails = ref(true)
+    const showForm = ref(true)
 
     const props = defineProps({
         actionName: {
@@ -32,7 +35,7 @@
     })
 
     const submitForm = async () => {
-        const apiEndpoint = createApiUrl({ view: 'Services', action: props.actionName })
+        let apiEndpoint = createApiUrl({ view: 'Services', action: props.actionName })
         let body, method
         if (props.actionName === 'add') {
             method = 'POST'
@@ -58,6 +61,11 @@
 
             }
         }
+        else if (props.actionName === 'delete') {
+            method = 'DELETE'
+            body = ''
+            apiEndpoint = apiEndpoint + '/' + serviceId.value
+        }
 
         const request = createRequest(method, body)
         try {
@@ -69,6 +77,11 @@
                 }
                 else if (props.actionName === 'modify') {
                     apiMessage.value = 'Service modified'
+                }
+                else if (props.actionName === 'delete') {
+                    apiMessage.value = 'Service deleted'
+                    showDetails.value = false
+                    showForm.value = false
                 }
             }
             else {
@@ -154,6 +167,8 @@
     }
 
     onMounted(async () => {
+        apiMessage.value = ''
+        apiError.value = ''
         const apiEndpoint = createApiUrl({ view: 'Service Types', action: 'search' })
         const request = createRequest('GET')
 
@@ -172,7 +187,7 @@
             apiError.value = error.message
         }
 
-        if (props.itemData) {
+        if (props.actionName === 'modify' || props.actionName === 'delete') {
             serviceId.value = props.itemData.id
             selectSuggestion('Clients', props.itemData.client_id, props.itemData.clients.name)
             servicePoint.value = props.itemData.point
@@ -193,38 +208,50 @@
 </script>
 
 <template>
-    <div v-if="apiMessage">{{ apiMessage }}</div>
-    <div v-if="apiError">{{ apiError }}</div>
     <h3 v-if="props.actionName === 'add'">Add Service</h3>
     <h3 v-else-if="props.actionName === 'modify'">Modify Service</h3>
-    <span v-if="props.actionName === 'modify'">Service Id: {{ serviceId }}</span>
-    <form @submit.prevent="handleSubmit" class="data-form">
-        <input class="client-name" type="text" placeholder="Client name" v-model="clientName"
-            @input="searchSuggestions('Clients')">
-        <ul v-if="clientName.length > 0 && !apiMessage && !apiError" class="suggestions">
-            <li class="suggestion" v-for="client in clientList" :key="client.id"
-                @click="selectSuggestion('Clients', client.id, client.name)">{{ client.name }}
-            </li>
-        </ul>
-        <input type="text" placeholder="Service location" v-model="servicePoint">
-        <select v-model="serviceTypeId" class="select-box">
-            <option disabled value="">service type</option>
-            <option placeholder="service type" v-for="serviceType in serviceTypes" :value="serviceType.id">{{
-                serviceType.name }}</option>
-        </select>
-        <input type="integer" placeholder="bandwidth value in Mbps" v-model="bandwidth">
-        <input type="text" placeholder="Pop name" v-model="popName" @input="searchSuggestions('Pops')">
-        <ul v-if="popName.length > 0 && !apiMessage && !apiError" class="suggestions">
-            <li class="suggestion" v-for="pop in popList" :key="pop.id" @click="selectSuggestion('Pops', pop.id, pop.name)">
-                {{ pop.name }}
-            </li>
-        </ul>
-        <input type="text" placeholder="extra info" v-model="extraInfo">
-        <button v-if="props.actionName === 'add'" type="submit">Add</button>
-        <button v-else-if="props.actionName === 'modify'" type="submit">Modify</button>
-        <SubmitConfirm v-model:show="dialogVisible" :action-name="props.actionName" @confirm="submitForm"
-            @cancel="closeDialog" />
-    </form>
+    <h3 v-else-if="props.actionName === 'delete'">Delete Service</h3>
+    <div v-if="apiMessage">{{ apiMessage }}</div>
+    <div v-if="apiError">{{ apiError }}</div>
+
+    <div class="details" v-if="showDetails">
+        <span v-if="props.actionName === 'modify' || props.actionName === 'delete'">Service Id: {{ serviceId }}</span>
+        <span v-if="props.actionName === 'delete'">Service Point: {{ servicePoint }}</span>
+        <span v-if="props.actionName === 'delete'">Client Name: {{ clientName }}</span>
+    </div>
+    <div class="data-form" v-if="showForm">
+        <form @submit.prevent="handleSubmit">
+            <div class='form-fields' v-if="props.actionName === 'add' || props.actionName === 'modify'">
+                <input class="client-name" type="text" placeholder="Client name" v-model="clientName"
+                    @input="searchSuggestions('Clients')">
+                <ul v-if="clientName.length > 0 && !apiMessage && !apiError" class="suggestions">
+                    <li class="suggestion" v-for="client in clientList" :key="client.id"
+                        @click="selectSuggestion('Clients', client.id, client.name)">{{ client.name }}
+                    </li>
+                </ul>
+                <input type="text" placeholder="Service location" v-model="servicePoint">
+                <select v-model="serviceTypeId" class="select-box">
+                    <option disabled value="">service type</option>
+                    <option placeholder="service type" v-for="serviceType in serviceTypes" :value="serviceType.id">{{
+                        serviceType.name }}</option>
+                </select>
+                <input type="integer" placeholder="bandwidth value in Mbps" v-model="bandwidth">
+                <input type="text" placeholder="Pop name" v-model="popName" @input="searchSuggestions('Pops')">
+                <ul v-if="popName.length > 0 && !apiMessage && !apiError" class="suggestions">
+                    <li class="suggestion" v-for="pop in popList" :key="pop.id"
+                        @click="selectSuggestion('Pops', pop.id, pop.name)">
+                        {{ pop.name }}
+                    </li>
+                </ul>
+                <input type="text" placeholder="extra info" v-model="extraInfo">
+            </div>
+            <div class="buttons">
+                <SubmitButton :action-name="props.actionName" />
+                <SubmitConfirm v-model:show="dialogVisible" :action-name="props.actionName" @confirm="submitForm"
+                    @cancel="closeDialog" />
+            </div>
+        </form>
+    </div>
 </template>
 
 <style scoped>
