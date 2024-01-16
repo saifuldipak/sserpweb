@@ -4,18 +4,15 @@
     import UserLogin from './components/UserLogin.vue';
     import ShowData from './components/ShowData.vue';
     import Add from './components/Add.vue';
-    import Modify from './components/Modify.vue';
     import Delete from './components/Delete.vue'
-    import Services from './components/Services.vue';
+    import Service from './components/Service.vue';
 
     const token = ref('')
-    const clientTypes = ref()
     const apiError = ref('')
     const data = ref()
     const searchString = ref('')
     const apiMessage = ref('')
     const showData = ref(false)
-    const itemType = ref('')
     const showDelete = ref(false)
     const itemData = ref()
     const showModify = ref(false)
@@ -110,7 +107,7 @@
         }
     }
 
-    const addItem = async () => {
+    /* const addItem = async () => {
         showData.value = false
         showModify.value = false
         showDelete.value = false
@@ -140,7 +137,7 @@
                 apiError.value = error.message
             }
         }
-    }
+    } */
 
     const modifyItem = (itemId) => {
         getItemData(itemId)
@@ -196,7 +193,7 @@
         <div v-if="apiError">{{ apiError }}</div>
         <div v-if="apiMessage">{{ apiMessage }}</div>
         <ShowData v-if="showData" :view-name="viewName" :data="data" @modify-item="modifyItem" @delete-item="deleteItem" />
-        <Services v-if="viewName === 'Services' && actionName !== ''" :action-name="actionName" :item-data="itemData" />
+        <Service v-if="viewName === 'Services' && actionName !== ''" :action-name="actionName" :item-data="itemData" />
         <Add v-if="showAdd" :view-name="viewName" :data="data" />
         <Delete v-if="showDelete" :view-name="viewName" :item-data="itemData" @cancel="cancelDeleteItem" />
     </div>
