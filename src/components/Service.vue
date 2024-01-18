@@ -3,6 +3,7 @@
     import { createApiUrl, createRequest } from '@/functions.js'
     import SubmitConfirm from './SubmitConfirm.vue';
     import SubmitButton from './SubmitButton.vue';
+    import Notification from './Notification.vue';
 
     const apiMessage = ref('')
     const apiError = ref('')
@@ -23,6 +24,10 @@
     const dialogVisible = ref(false)
     const showDetails = ref(true)
     const showForm = ref(true)
+    const message = ref('')
+    const messageType = ref('')
+    const hideNotification = ref(false)
+    const showButton = ref(true)
 
     const props = defineProps({
         actionName: {
@@ -34,7 +39,40 @@
         }
     })
 
+    const hadChanged = () => {
+        if (props.itemData.client_id !== clientId.value) {
+            return true
+        }
+        if (props.itemData.point !== servicePoint.value) {
+            return true
+        }
+        if (props.itemData.service_type_id !== serviceTypeId.value) {
+            return true
+        }
+        if (props.itemData.bandwidth !== bandwidth.value) {
+            return true
+        }
+        if (props.itemData.pop_id !== popId.value) {
+            return true
+        }
+        if (props.itemData.extra_info !== extraInfo.value) {
+            return true
+        }
+
+        return false
+    }
+
     const submitForm = async () => {
+        if (props.actionName === 'modify') {
+            const dataModified = hadChanged()
+            if (!dataModified) {
+                apiMessage.value = 'Nothing modified'
+                closeDialog()
+                hideNotification.value = false
+                return
+            }
+        }
+
         let apiEndpoint = createApiUrl({ view: 'Services', action: props.actionName })
         let body, method
         if (props.actionName === 'add') {
@@ -73,25 +111,28 @@
 
             if (response.ok) {
                 if (props.actionName === 'add') {
-                    apiMessage.value = 'Service added'
+                    message.value = 'Service added'
                 }
                 else if (props.actionName === 'modify') {
-                    apiMessage.value = 'Service modified'
+                    message.value = 'Service modified'
                 }
                 else if (props.actionName === 'delete') {
-                    apiMessage.value = 'Service deleted'
-                    showDetails.value = false
-                    showForm.value = false
+                    message.value = 'Service deleted'
                 }
+                messageType.value = 'Info'
+                showDetails.value = false
+                showForm.value = false
             }
             else {
                 const data = await response.json()
-                apiMessage.value = data.detail
+                message.value = data.detail
+                messageType.value = 'Error'
             }
         }
         catch (error) {
             console.error(error)
-            apiError.value = error.message
+            message.value = error.message
+            messageType.value = 'Error'
         }
         finally {
             closeDialog()
@@ -128,12 +169,14 @@
                 }
                 else {
                     const data = await response.json()
-                    apiMessage.value = data.detail
+                    message.value = data.detail
+                    messageType.value = 'Error'
                 }
             }
             catch (error) {
                 console.error(error)
-                apiError.value = error.message
+                message.value = error.message
+                messageType.value = 'Error'
             }
         }
 
@@ -179,12 +222,14 @@
             }
             else {
                 const data = await response.json()
-                apiMessage.value = data.detail
+                message.value = data.detail
+                messageType.value = 'Error'
             }
         }
         catch (error) {
             console.error(error)
-            apiError.value = error.message
+            message.value = error.message
+            messageType.value = 'Error'
         }
 
         if (props.actionName === 'modify' || props.actionName === 'delete') {
@@ -211,9 +256,8 @@
     <h3 v-if="props.actionName === 'add'">Add Service</h3>
     <h3 v-else-if="props.actionName === 'modify'">Modify Service</h3>
     <h3 v-else-if="props.actionName === 'delete'">Delete Service</h3>
-    <div v-if="apiMessage">{{ apiMessage }}</div>
-    <div v-if="apiError">{{ apiError }}</div>
-
+    <Notification v-if="message && !hideNotification" :message="message" :message-type="messageType"
+        @hide-notification="hideNotification = true" />
     <div class="details" v-if="showDetails">
         <span v-if="props.actionName === 'modify' || props.actionName === 'delete'">Service Id: {{ serviceId }}</span>
         <span v-if="props.actionName === 'delete'">Service Point: {{ servicePoint }}</span>
@@ -245,7 +289,7 @@
                 </ul>
                 <input type="text" placeholder="extra info" v-model="extraInfo">
             </div>
-            <div class="buttons">
+            <div v-if="showButton">
                 <SubmitButton :action-name="props.actionName" />
                 <SubmitConfirm v-model:show="dialogVisible" :action-name="props.actionName" @confirm="submitForm"
                     @cancel="closeDialog" />
