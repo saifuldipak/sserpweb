@@ -16,6 +16,7 @@
 <template>
     <table v-if="props.data" :class="{ 'item-list-hide': itemDetails }">
         <tr v-for="item in props.data" :key="item.id">
+            <!-- First column -->
             <td v-if="props.viewName === 'Clients'">
                 <a href="#" @click="itemDetails = item">{{ item.name }}</a>
             </td>
@@ -31,8 +32,10 @@
             <td v-else-if="props.viewName === 'Pops'">
                 <a href="#" @click="itemDetails = item">{{ item.point }}</a>
             </td>
+            <!-- Second column -->
             <td v-if="props.viewName === 'Clients'">{{ item.client_type.name }}</td>
             <td v-else-if="props.viewName === 'Services'">{{ item.clients.name }}</td>
+            <!-- Third column -->
             <td class="button-section">
                 <button class="modify" @click="$emit('modifyItem', item.id)">Modify</button>
                 <button class="delete" @click="$emit('deleteItem', item.id)">Delete</button>
