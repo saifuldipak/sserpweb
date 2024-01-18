@@ -7,6 +7,7 @@
     import Delete from './components/Delete.vue'
     import Service from './components/Service.vue';
     import Client from './components/Client.vue';
+    import Notification from './components/Notification.vue';
 
     const token = ref('')
     const apiError = ref('')
@@ -18,6 +19,9 @@
     const itemData = ref()
     const showModify = ref(false)
     const showAdd = ref(false)
+    const message = ref('')
+    const messageType = ref('')
+    const hideNotification = ref(false)
     const views = ref([
         { 'id': 1, 'name': 'Clients' },
         { 'id': 2, 'name': 'Services' },
@@ -76,8 +80,7 @@
     }
 
     const handleSearch = async () => {
-        apiError.value = ''
-        apiMessage.value = ''
+        message.value = ''
         data.value = []
         actionName.value = ''
         showAdd.value = false
@@ -93,10 +96,12 @@
             data.value = response
         }
         else if (code !== 200) {
-            apiMessage.value = response.detail
+            message.value = response.detail
+            messageType.value = 'Error'
         }
         else {
-            apiError.value = error.message
+            message.value = error.message
+            messageType.value = 'Error'
         }
     }
 
@@ -195,8 +200,8 @@
                 </div>
             </div>
         </div>
-        <div v-if="apiError">{{ apiError }}</div>
-        <div v-if="apiMessage">{{ apiMessage }}</div>
+        <Notification v-if="message && !hideNotification" :message="message" :message-type="messageType"
+            @hide-notification="hideNotification = true" />
         <ShowData v-if="showData" :view-name="viewName" :data="data" @modify-item="modifyItem" @delete-item="deleteItem" />
         <Client v-if="viewName === 'Clients' && actionName !== ''" :action-name="actionName" :item-data="itemData" />
         <Service v-if="viewName === 'Services' && actionName !== ''" :action-name="actionName" :item-data="itemData" />
