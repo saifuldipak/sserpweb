@@ -8,6 +8,7 @@
     import Service from './components/Service.vue';
     import Client from './components/Client.vue';
     import Notification from './components/Notification.vue';
+    import ServiceTypes from './components/ServiceTypes.vue';
 
     const token = ref('')
     const apiError = ref('')
@@ -59,24 +60,6 @@
         viewName.value = view
         data.value = []
         actionName.value = ''
-
-        if (viewName.value === 'Service Types') {
-            const method = 'GET'
-            const apiEndpoint = createApiUrl({ view: viewName.value, action: 'search' })
-            const request = createRequest(method)
-
-            const { code, response, error } = await callApi(apiEndpoint, request)
-            if (code === 200) {
-                data.value = response
-                showData.value = true
-            }
-            else if (code !== 200) {
-                apiMessage.value = response.detail
-            }
-            else {
-                apiError.value = error.message
-            }
-        }
     }
 
     const handleSearch = async () => {
@@ -87,6 +70,7 @@
         showModify.value = false
         showDelete.value = false
         showData.value = true
+        hideNotification.value = false
 
         const apiEndpoint = createApiUrl({ view: viewName.value, action: 'search', searchString: searchString.value })
         const request = createRequest('GET')
@@ -193,8 +177,7 @@
                 </div>
                 <div class="search-form">
                     <form class="search-form" @submit.prevent="handleSearch">
-                        <input class="search-input" type="text" placeholder="Enter text..." v-model="searchString"
-                            required />
+                        <input class="search-input" type="text" placeholder="Enter text..." v-model="searchString" />
                         <button type="submit">Search</button>
                     </form>
                 </div>
@@ -205,6 +188,8 @@
         <ShowData v-if="showData" :view-name="viewName" :data="data" @modify-item="modifyItem" @delete-item="deleteItem" />
         <Client v-if="viewName === 'Clients' && actionName !== ''" :action-name="actionName" :item-data="itemData" />
         <Service v-if="viewName === 'Services' && actionName !== ''" :action-name="actionName" :item-data="itemData" />
+        <ServiceTypes v-if="viewName === 'Service Types' && actionName !== ''" :action-name="actionName"
+            :item-data="itemData" />
         <Add v-if="showAdd" :view-name="viewName" :data="data" />
         <Delete v-if="showDelete" :view-name="viewName" :item-data="itemData" @cancel="cancelDeleteItem" />
     </div>
