@@ -143,6 +143,9 @@ export const createApiUrl = ({ view, action = "", searchString = "" }) => {
             case "Clients":
                 base = "client/";
                 break;
+            case "Service Types":
+                base = "service/type/";
+                break;
             case "Services":
                 base = "service/";
                 break;
