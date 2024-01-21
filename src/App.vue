@@ -8,7 +8,7 @@
     import Service from './components/Service.vue';
     import Client from './components/Client.vue';
     import Notification from './components/Notification.vue';
-    import ServiceTypes from './components/ServiceTypes.vue';
+    import ServiceType from './components/ServiceType.vue';
 
     const token = ref('')
     const apiError = ref('')
@@ -188,7 +188,7 @@
         <ShowData v-if="showData" :view-name="viewName" :data="data" @modify-item="modifyItem" @delete-item="deleteItem" />
         <Client v-if="viewName === 'Clients' && actionName !== ''" :action-name="actionName" :item-data="itemData" />
         <Service v-if="viewName === 'Services' && actionName !== ''" :action-name="actionName" :item-data="itemData" />
-        <ServiceTypes v-if="viewName === 'Service Types' && actionName !== ''" :action-name="actionName"
+        <ServiceType v-if="viewName === 'Service Types' && actionName !== ''" :action-name="actionName"
             :item-data="itemData" />
         <Add v-if="showAdd" :view-name="viewName" :data="data" />
         <Delete v-if="showDelete" :view-name="viewName" :item-data="itemData" @cancel="cancelDeleteItem" />
