@@ -9,6 +9,7 @@
     import Client from './components/Client.vue';
     import Notification from './components/Notification.vue';
     import ServiceType from './components/ServiceType.vue';
+    import Pop from './components/Pop.vue';
 
     const token = ref('')
     const apiError = ref('')
@@ -190,6 +191,7 @@
         <Service v-if="viewName === 'Services' && actionName !== ''" :action-name="actionName" :item-data="itemData" />
         <ServiceType v-if="viewName === 'Service Types' && actionName !== ''" :action-name="actionName"
             :item-data="itemData" />
+        <Pop v-if="viewName === 'Pops' && actionName !== ''" :action-name="actionName" :item-data="itemData" />
         <Add v-if="showAdd" :view-name="viewName" :data="data" />
         <Delete v-if="showDelete" :view-name="viewName" :item-data="itemData" @cancel="cancelDeleteItem" />
     </div>
