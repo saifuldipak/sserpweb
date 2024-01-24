@@ -166,11 +166,12 @@ export const createApiUrl = ({ view, action = "", searchString = "" }) => {
 };
 
 export const isEqualObjects = (object1, object2) => {
-    if (JSON.stringify(object1) !== JSON.stringify(object2)) {
-        return [false, "", ""];
-    } else {
-        const message = "Nothing modified";
-        const messageType = "Warning";
-        return [true, message, messageType];
+    for (const key in object1) {
+        if (object1[key] !== object2[key]) {
+            return [false, "", ""];
+        }
     }
+    const message = "Nothing modified";
+    const messageType = "Warning";
+    return [true, message, messageType];
 };
