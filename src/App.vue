@@ -61,6 +61,7 @@
         viewName.value = view
         data.value = []
         actionName.value = ''
+        hideNotification.value = true
     }
 
     const handleSearch = async () => {
@@ -151,6 +152,12 @@
         showDeleteComponent.value = false
         showData.value = true
     }
+
+    const showNotification = (msg, type) => {
+        message.value = msg
+        messageType.value = type
+        hideNotification.value = false
+    }
 </script>
 
 <template>
@@ -185,10 +192,11 @@
             </div>
         </div>
         <Notification v-if="message && !hideNotification" :message="message" :message-type="messageType"
-            @hide-notification="hideNotification = true" />
+            @remove-notification="hideNotification = true" />
         <ShowData v-if="showData" :view-name="viewName" :data="data" @modify-item="modifyItem" @delete-item="deleteItem" />
         <Client v-if="viewName === 'Clients' && actionName !== ''" :action-name="actionName" :item-data="itemData" />
-        <Service v-if="viewName === 'Services' && actionName !== ''" :action-name="actionName" :item-data="itemData" />
+        <Service v-if="viewName === 'Services' && actionName !== ''" :action-name="actionName" :item-data="itemData"
+            @show-notification="showNotification" />
         <ServiceType v-if="viewName === 'Service Types' && actionName !== ''" :action-name="actionName"
             :item-data="itemData" />
         <Pop v-if="viewName === 'Pops' && actionName !== ''" :action-name="actionName" :item-data="itemData" />
