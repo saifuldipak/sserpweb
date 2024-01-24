@@ -1,5 +1,5 @@
 <script setup>
-    import { onMounted, ref } from 'vue'
+    import { ref, watchEffect } from 'vue'
     import { createApiUrl, createRequest } from '@/functions.js'
 
     const message = ref('')
@@ -51,14 +51,12 @@
         itemId.value = id
         itemName.value = name
         itemList.value = []
-        emit('selectedItemId', itemId.value)
+        emit('selectedItemId', props.viewName, itemId.value, itemName.value)
     }
 
-    onMounted(() => {
+    watchEffect(() => {
         if (props.itemData) {
-            itemId.value = props.itemData.vendor_id
-            itemName.value = props.itemData.vendors.name
-            selectSuggestion(itemId.value, itemName.value)
+            selectSuggestion(props.itemData.id, props.itemData.name)
         }
     })
 </script>

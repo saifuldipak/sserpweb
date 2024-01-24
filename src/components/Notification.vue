@@ -1,5 +1,5 @@
 <script setup>
-    import { onMounted, ref } from 'vue'
+    import { ref, watchEffect } from 'vue'
 
     const banner = ref('')
     const classObject = ref({
@@ -18,17 +18,18 @@
         }
     })
 
-    defineEmits(['hideNotification'])
+    defineEmits(['removeNotification'])
 
-    onMounted(() => {
+    watchEffect(() => {
         if (props.messageType === 'Info') {
-            classObject.value.info = true
+            classObject.value = { info: true, warning: false, error: false }
         }
         else if (props.messageType === 'Warning') {
-            classObject.value.warning = true
+            classObject.value = { info: false, warning: true, error: false }
         }
         else if (props.messageType === 'Error') {
-            classObject.value.error = true
+            classObject.value = { info: false, warning: false, error: true }
+
         }
     })
 </script>
@@ -37,7 +38,7 @@
     <div class="message-container">
         <div class="banner" :class="classObject">
             {{ props.messageType }}
-            <button @click="$emit('hideNotification')">X</button>
+            <button @click="$emit('removeNotification')">X</button>
         </div>
         <div class="message">{{ props.message }}</div>
     </div>
