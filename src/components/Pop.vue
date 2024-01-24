@@ -140,8 +140,8 @@
         dialogVisible.value = true
     }
 
-    const selectedSuggesion = (selectedItemId) => {
-        vendorId.value = selectedItemId
+    const selectedSuggesion = (view, id, name) => {
+        vendorId.value = id
     }
 </script>
 
