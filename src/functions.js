@@ -164,3 +164,13 @@ export const createApiUrl = ({ view, action = "", searchString = "" }) => {
         return apiEndpoint;
     }
 };
+
+export const isEqualObjects = (object1, object2) => {
+    if (JSON.stringify(object1) !== JSON.stringify(object2)) {
+        return [false, "", ""];
+    } else {
+        const message = "Nothing modified";
+        const messageType = "Warning";
+        return [true, message, messageType];
+    }
+};
