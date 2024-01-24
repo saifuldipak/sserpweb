@@ -62,6 +62,16 @@
     }
 
     const submitForm = async () => {
+        const newServiceData = {
+            client_id: clientId.value,
+            point: servicePoint.value,
+            service_type_id: serviceTypeId.value,
+            bandwidth: bandwidth.value,
+            pop_id: popId.value,
+            extra_info: extraInfo.value
+        }
+
+
         if (props.actionName === 'add' || props.actionName === 'modify') {
             const inputsCorrect = checkInputs()
             if (!inputsCorrect) {
@@ -72,27 +82,21 @@
                 return
             }
         }
+
+        let modifiedServiceData
         if (props.actionName === 'modify') {
-            const oldData = {
+            const oldServiceData = {
                 id: props.itemData.id,
-                clientId: props.itemData.client_id,
-                servicePoint: props.itemData.point,
-                serviceTypeId: props.itemData.service_type_id,
+                client_id: props.itemData.client_id,
+                point: props.itemData.point,
+                service_type_id: props.itemData.service_type_id,
                 bandwidth: props.itemData.bandwidth,
-                popId: props.itemData.pop_id,
-                extraInfo: props.itemData.extra_info
-            }
-            const newData = {
-                id: serviceId.value,
-                clientId: clientId.value,
-                servicePoint: servicePoint.value,
-                serviceTypeId: serviceTypeId.value,
-                bandwidth: bandwidth.value,
-                popId: popId.value,
-                extraInfo: extraInfo.value
+                pop_id: props.itemData.pop_id,
+                extra_info: props.itemData.extra_info
             }
 
-            const [result, message, messageType] = isEqualObjects(oldData, newData)
+            modifiedServiceData = Object.assign({}, newServiceData, { id: serviceId.value })
+            const [result, message, messageType] = isEqualObjects(oldServiceData, modifiedServiceData)
             if (result) {
                 emit('showNotification', message, messageType)
                 closeDialog()
@@ -104,27 +108,11 @@
         let body, method
         if (props.actionName === 'add') {
             method = 'POST'
-            body = {
-                client_id: clientId.value,
-                point: servicePoint.value,
-                service_type_id: serviceTypeId.value,
-                bandwidth: bandwidth.value,
-                pop_id: popId.value,
-                extra_info: extraInfo.value
-            }
+            body = newServiceData
         }
         else if (props.actionName === 'modify') {
             method = 'PUT'
-            body = {
-                id: serviceId.value,
-                client_id: clientId.value,
-                point: servicePoint.value,
-                service_type_id: serviceTypeId.value,
-                bandwidth: bandwidth.value,
-                pop_id: popId.value,
-                extra_info: extraInfo.value
-
-            }
+            body = modifiedServiceData
         }
         else if (props.actionName === 'delete') {
             method = 'DELETE'
@@ -137,15 +125,7 @@
             const response = await fetch(apiEndpoint, request)
 
             if (response.ok) {
-                if (props.actionName === 'add') {
-                    message.value = 'Service added'
-                }
-                else if (props.actionName === 'modify') {
-                    message.value = 'Service modified'
-                }
-                else if (props.actionName === 'delete') {
-                    message.value = 'Service deleted'
-                }
+                message.value = 'Service ' + props.actionName + ' successful'
                 messageType.value = 'Info'
                 emit('showNotification', message.value, messageType.value)
                 showHeader.value = false
