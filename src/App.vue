@@ -132,6 +132,7 @@
     } */
 
     const addItem = () => {
+        hideNotification.value = true
         showData.value = false
         actionName.value = 'add'
     }
