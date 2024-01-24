@@ -1,6 +1,6 @@
 <script setup>
     import { onMounted, ref, watchEffect } from 'vue'
-    import { createApiUrl, createRequest } from '@/functions.js'
+    import { createApiUrl, createRequest, isEqualObjects } from '@/functions.js'
     import SubmitConfirm from './SubmitConfirm.vue';
     import SubmitButton from './SubmitButton.vue';
     import SearchSuggestion from './SearchSuggestion.vue';
@@ -47,29 +47,6 @@
 
     const emit = defineEmits(['showNotification'])
 
-    const hadChanged = () => {
-        if (props.itemData.client_id !== clientId.value) {
-            return true
-        }
-        if (props.itemData.point !== servicePoint.value) {
-            return true
-        }
-        if (props.itemData.service_type_id !== serviceTypeId.value) {
-            return true
-        }
-        if (props.itemData.bandwidth !== bandwidth.value) {
-            return true
-        }
-        if (props.itemData.pop_id !== popId.value) {
-            return true
-        }
-        if (props.itemData.extra_info !== extraInfo.value) {
-            return true
-        }
-
-        return false
-    }
-
     const checkInputs = () => {
         if (!clientId.value || !servicePoint.value || !serviceTypeId.value || !bandwidth.value || !popId.value) {
             return false
@@ -96,11 +73,28 @@
             }
         }
         if (props.actionName === 'modify') {
-            const dataModified = hadChanged()
-            if (!dataModified) {
-                message.value = 'Nothing modified'
-                messageType.value = 'Warning'
-                emit('showNotification', message.value, messageType.value)
+            const oldData = {
+                id: props.itemData.id,
+                clientId: props.itemData.client_id,
+                servicePoint: props.itemData.point,
+                serviceTypeId: props.itemData.service_type_id,
+                bandwidth: props.itemData.bandwidth,
+                popId: props.itemData.pop_id,
+                extraInfo: props.itemData.extra_info
+            }
+            const newData = {
+                id: serviceId.value,
+                clientId: clientId.value,
+                servicePoint: servicePoint.value,
+                serviceTypeId: serviceTypeId.value,
+                bandwidth: bandwidth.value,
+                popId: popId.value,
+                extraInfo: extraInfo.value
+            }
+
+            const [result, message, messageType] = isEqualObjects(oldData, newData)
+            if (result) {
+                emit('showNotification', message, messageType)
                 closeDialog()
                 return
             }
