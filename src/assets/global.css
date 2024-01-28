@@ -1,32 +1,4 @@
- /* Form style */
- .data-form {
-    width: 30%;
-    display: flex;
-    flex-direction: column;
-}
-
-.form-fields {
-    display: flex;
-    flex-direction: column;
-}
-
-.submit-buttons {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.form-fields input,
-select, button { 
-    display: block;
-    padding: 5px;
-    margin: 3px;
-}
-
-.form-fields button {
-    margin-top: 10px;
-}
-
+ 
 .details {
     width: 30%;
     display: flex;
