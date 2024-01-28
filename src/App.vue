@@ -10,6 +10,7 @@
     import Notification from './components/Notification.vue';
     import ServiceType from './components/ServiceType.vue';
     import Pop from './components/Pop.vue';
+    import AddModify from './components/AddModify.vue';
 
     const token = ref('')
     const apiError = ref('')
@@ -24,6 +25,8 @@
     const message = ref('')
     const messageType = ref('')
     const hideNotification = ref(false)
+    const showForm = ref(false)
+    const showAddModify = ref(false)
     const views = ref([
         { 'id': 1, 'name': 'Clients' },
         { 'id': 2, 'name': 'Services' },
@@ -62,6 +65,7 @@
         data.value = []
         actionName.value = ''
         hideNotification.value = true
+        showAddModify.value = false
     }
 
     const handleSearch = async () => {
@@ -73,6 +77,7 @@
         showDelete.value = false
         showData.value = true
         hideNotification.value = false
+        showAddModify.value = false
 
         const apiEndpoint = createApiUrl({ view: viewName.value, action: 'search', searchString: searchString.value })
         const request = createRequest('GET')
@@ -135,6 +140,7 @@
         hideNotification.value = true
         showData.value = false
         actionName.value = 'add'
+        showAddModify.value = true
     }
 
     const modifyItem = (itemId) => {
@@ -195,14 +201,8 @@
         <Notification v-if="message && !hideNotification" :message="message" :message-type="messageType"
             @remove-notification="hideNotification = true" />
         <ShowData v-if="showData" :view-name="viewName" :data="data" @modify-item="modifyItem" @delete-item="deleteItem" />
-        <Client v-if="viewName === 'Clients' && actionName !== ''" :action-name="actionName" :item-data="itemData" />
-        <Service v-if="viewName === 'Services' && actionName !== ''" :action-name="actionName" :item-data="itemData"
+        <AddModify v-if="showAddModify" :view-name="viewName" :action-name="actionName"
             @show-notification="showNotification" />
-        <ServiceType v-if="viewName === 'Service Types' && actionName !== ''" :action-name="actionName"
-            :item-data="itemData" />
-        <Pop v-if="viewName === 'Pops' && actionName !== ''" :action-name="actionName" :item-data="itemData" />
-        <Add v-if="showAdd" :view-name="viewName" :data="data" />
-        <Delete v-if="showDelete" :view-name="viewName" :item-data="itemData" @cancel="cancelDeleteItem" />
     </div>
     <div v-else>
         <UserLogin @login-success="updateToken" />
