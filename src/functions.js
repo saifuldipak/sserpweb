@@ -175,3 +175,30 @@ export const isEqualObjects = (object1, object2) => {
     const messageType = "Warning";
     return [true, message, messageType];
 };
+
+export const selectMethod = (action) => {
+    let method;
+    if (action === "add") {
+        method = "POST";
+    } else if (action === "modify") {
+        method = "PUT";
+    }
+    return method;
+};
+
+export const createBody = (viewName, actionName, itemData) => {
+    let body;
+    if (viewName === "Services") {
+        if (actionName === "add") {
+            body = {
+                client_id: itemData.clientId,
+                point: itemData.point,
+                service_type_id: itemData.serviceTypeId,
+                bandwidth: itemData.bandwidth,
+                pop_id: itemData.popId,
+                extra_info: itemData.extraInfo,
+            };
+        }
+    }
+    return body;
+};
