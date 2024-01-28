@@ -3,13 +3,7 @@
     import { callApi, createApiUrl, createRequest } from '@/functions.js';
     import UserLogin from './components/UserLogin.vue';
     import ShowData from './components/ShowData.vue';
-    import Add from './components/Add.vue';
-    import Delete from './components/Delete.vue'
-    import Service from './components/Service.vue';
-    import Client from './components/Client.vue';
     import Notification from './components/Notification.vue';
-    import ServiceType from './components/ServiceType.vue';
-    import Pop from './components/Pop.vue';
     import AddModify from './components/AddModify.vue';
 
     const token = ref('')
@@ -25,7 +19,6 @@
     const message = ref('')
     const messageType = ref('')
     const hideNotification = ref(false)
-    const showForm = ref(false)
     const showAddModify = ref(false)
     const views = ref([
         { 'id': 1, 'name': 'Clients' },
@@ -103,38 +96,6 @@
             }
         }
     }
-
-    /* const addItem = async () => {
-        showData.value = false
-        showModify.value = false
-        showDelete.value = false
-        showAdd.value = true
-        const request = createRequest('GET')
-
-        let apiEndpoint
-        if (viewName.value === 'Clients') {
-            apiEndpoint = createApiUrl({ view: 'Client Types', action: 'search' })
-        }
-        else if (viewName.value === 'Services') {
-            apiEndpoint = createApiUrl({ view: 'Service Types', action: 'search' })
-        }
-        else if (viewName.value === 'Vendors') {
-            data.value = vendors.value
-        }
-
-        if (viewName.value === 'Clients' || viewName.value === 'Services') {
-            const { code, response, error } = await callApi(apiEndpoint, request)
-            if (code === 200) {
-                data.value = response
-            }
-            else if (code !== 200) {
-                apiMessage.value = response.detail
-            }
-            else {
-                apiError.value = error.message
-            }
-        }
-    } */
 
     const addItem = () => {
         hideNotification.value = true
