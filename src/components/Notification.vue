@@ -64,6 +64,7 @@
     .banner button {
         margin: 0;
         padding: 2px;
+        width: 20px;
     }
 
     .message {
