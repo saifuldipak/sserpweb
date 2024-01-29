@@ -23,7 +23,7 @@
 
 <template>
     <div class="confirm" v-if="show">
-        <span v-if="props.actionName === 'add'">Are you sure you want to add?</span>
+        <div class="message" v-if="props.actionName === 'add'">Are you sure you want to add?</div>
         <div class="message" v-if="props.actionName === 'modify'">Are you sure you want to modify?</div>
         <div class="message" v-if="props.actionName === 'delete'">Are you sure you want to delete?</div>
         <div class="button-section">
@@ -35,6 +35,7 @@
   
 <style scoped>
     .confirm {
+        width: 30%;
         display: flex;
         flex-direction: column;
         background-color: lightgoldenrodyellow;
