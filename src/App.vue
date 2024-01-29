@@ -5,6 +5,7 @@
     import ShowData from './components/ShowData.vue';
     import Notification from './components/Notification.vue';
     import AddModify from './components/AddModify.vue';
+    import Delete from './components/Delete.vue';
 
     const token = ref('')
     const apiError = ref('')
@@ -168,6 +169,8 @@
             @remove-notification="hideNotification = true" />
         <ShowData v-if="showData" :view-name="viewName" :data="data" @modify-item="modifyItem" @delete-item="deleteItem" />
         <AddModify v-if="showAddModify" :view-name="viewName" :action-name="actionName"
+            @show-notification="showNotification" />
+        <Delete v-if="showDelete" :view-name="viewName" :item-data="itemData" @cancel="cancelDeleteItem"
             @show-notification="showNotification" />
     </div>
     <div v-else>
