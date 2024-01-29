@@ -65,6 +65,11 @@
         Id: {{ props.itemData.id }}
         Name: {{ props.itemData.name }}
     </div>
+    <div v-else-if="props.viewName === 'Services'">
+        Id: {{ props.itemData.id }}
+        Point: {{ props.itemData.point }}
+        Pop: {{ props.itemData.pops.name }}
+    </div>
     <SubmitConfirm v-model:show="dialogVisible" :action-name="actionName" @confirm="deleteItem"
         @cancel="closeDialog('return')" />
 </template>
