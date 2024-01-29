@@ -16,7 +16,6 @@
     const itemData = ref()
     const showModify = ref(false)
     const showAdd = ref(false)
-    const message = ref('')
     const messageType = ref('')
     const hideNotification = ref(false)
     const showAddModify = ref(false)
@@ -35,6 +34,10 @@
     ])
     const viewName = ref('')
     const actionName = ref('')
+    const notification = ref({
+        message: '',
+        type: ''
+    })
 
     function removeToken() {
         localStorage.removeItem('token');
@@ -62,7 +65,7 @@
     }
 
     const handleSearch = async () => {
-        message.value = ''
+        notification.value.message = ''
         data.value = []
         actionName.value = ''
         showAdd.value = false
@@ -80,8 +83,8 @@
             data.value = response
         }
         else if (code !== 200) {
-            message.value = response.detail
-            messageType.value = 'Error'
+            notification.value.message = response.detail
+            notification.value.type = 'Error'
         }
         else {
             message.value = error.message
@@ -113,18 +116,20 @@
     const deleteItem = (itemId) => {
         getItemData(itemId)
         showData.value = false
-        actionName.value = 'delete'
+        showDelete.value = true
     }
 
     const cancelDeleteItem = () => {
-        showDeleteComponent.value = false
+        showDelete.value = false
         showData.value = true
     }
 
     const showNotification = (msg, type) => {
-        message.value = msg
-        messageType.value = type
+        notification.value.message = msg
+        notification.value.type = type
         hideNotification.value = false
+        showAddModify.value = false
+        showDelete.value = false
     }
 </script>
 
@@ -159,7 +164,7 @@
                 </div>
             </div>
         </div>
-        <Notification v-if="message && !hideNotification" :message="message" :message-type="messageType"
+        <Notification v-if="notification.message && !hideNotification" :notification="notification"
             @remove-notification="hideNotification = true" />
         <ShowData v-if="showData" :view-name="viewName" :data="data" @modify-item="modifyItem" @delete-item="deleteItem" />
         <AddModify v-if="showAddModify" :view-name="viewName" :action-name="actionName"

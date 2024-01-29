@@ -4,9 +4,11 @@
     import { createApiUrl, createRequest } from '@/functions.js';
 
     const dialogVisible = ref(true)
-    const apiError = ref('')
-    const apiMessage = ref('')
-    const actionType = ref('delete')
+    const actionName = ref('delete')
+    const notification = ref({
+        message: '',
+        type: ''
+    })
 
     const props = defineProps({
         viewName: {
@@ -19,7 +21,7 @@
         },
     })
 
-    const emit = defineEmits(['cancel'])
+    const emit = defineEmits(['cancel', 'showNotification'])
 
     const closeDialog = (type = '') => {
         dialogVisible.value = false
@@ -29,39 +31,40 @@
     };
 
     const deleteItem = async () => {
-        apiError.value = ''
-        apiMessage.value = ''
-
-        const apiEndpoint = createApiUrl({ view: 'Clients', action: 'delete' }) + '/' + props.itemData.id
+        const apiEndpoint = createApiUrl({ view: props.viewName, action: 'delete' }) + '/' + props.itemData.id
         const method = 'DELETE'
         const request = createRequest(method)
 
         try {
             const response = await fetch(apiEndpoint, request)
             if (response.status === 200) {
-                apiMessage.value = 'Deleted'
+                notification.value.message = `${props.viewName} deleted`
+                notification.value.type = 'Info'
             }
             else {
-                const responseData = await response.json()
-                apiError.value = responseData.detail
+                const data = await response.json()
+                notification.value.message = data.detail
+                notification.value.type = 'Error'
             }
         }
         catch (error) {
             console.log(error)
-            apiError.value = error.message
+            notification.value.message = error.message
+            notification.value.type = 'Error'
         }
         finally {
             closeDialog()
         }
+
+        emit('showNotification', notification.value.message, notification.value.type)
     }
 </script>
 
 <template>
-    <div v-if="apiMessage">{{ apiMessage }}</div>
     <div v-if="props.viewName === 'Clients'">
         Id: {{ props.itemData.id }}
         Name: {{ props.itemData.name }}
-        <SubmitConfirm v-model:show="dialogVisible" :action-type="actionType" @confirm="deleteItem"
-            @cancel="closeDialog('return')" />
     </div>
+    <SubmitConfirm v-model:show="dialogVisible" :action-name="actionName" @confirm="deleteItem"
+        @cancel="closeDialog('return')" />
 </template>

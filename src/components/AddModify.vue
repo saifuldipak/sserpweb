@@ -17,6 +17,10 @@
         popId: '',
         extraInfo: ''
     })
+    const notification = ref({
+        message: '',
+        type: ''
+    })
 
 
     const props = defineProps({
@@ -45,14 +49,14 @@
             }
             else {
                 const data = await response.json()
-                message.value = data.detail
-                messageType.value = 'Error'
+                notification.value.message = data.detail
+                notification.value.type = 'Error'
             }
         }
         catch (error) {
             console.error(error)
-            message.value = error.message
-            messageType.value = 'Error'
+            notification.value.message = error.message
+            notification.value.type = 'Error'
         }
     })
 
