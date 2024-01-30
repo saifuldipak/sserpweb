@@ -1,28 +1,36 @@
 <script setup>
-    import ContactDetails from './ContactDetails.vue';
-    import AddressDetails from './AddressDetails.vue';
+    import { ref } from 'vue'
+    import ContactDetails from './ContactDetails.vue'
+    import AddressDetails from './AddressDetails.vue'
+
+    const itemDetails = ref()
 
     const props = defineProps({
-        item: Object
+        itemDetails: {
+            type: Object,
+            required: true
+        }
     })
+
+    const emit = defineEmits(['closeComponent', 'showDetails'])
 
 </script>
 
 <template>
-    <ul v-if="props.item" class="item-details">
-        <li>Name: {{ props.item.name }}</li>
-        <li>Type: {{ props.item.client_type.name }}</li>
+    <button @click="emit('closeComponent', 'ClientDetails')">X</button>
+    <ul v-if="props.itemDetails" class="item-details">
+        <li>Name: {{ props.itemDetails.name }}</li>
+        <li>Type: {{ props.itemDetails.client_types.name }}</li>
         <li>Services:
-            <ul v-for="service in props.item.services">
-                <li>{{ service.point }} ({{ service.bandwidth }}Mbps) ({{ service.extra_info }})
-                </li>
+            <ul v-for="service in props.itemDetails.services" :key="service.id">
+                <li>{{ service.point }}</li>
             </ul>
         </li>
-        <li v-if="props.item.contacts">Contacts:
-            <ContactDetails :contacts="props.item.contacts" />
+        <li v-if="props.itemDetails.contacts">Contacts:
+            <ContactDetails :contacts="props.itemDetails.contacts" />
         </li>
-        <li v-if="props.item.addresses">Addresses:
-            <AddressDetails :addresses="props.item.addresses" />
+        <li v-if="props.itemDetails.addresses">Addresses:
+            <AddressDetails :addresses="props.itemDetails.addresses" />
         </li>
     </ul>
 </template>
