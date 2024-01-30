@@ -6,10 +6,13 @@
     import Notification from './components/Notification.vue';
     import AddModify from './components/AddModify.vue';
     import Delete from './components/Delete.vue';
+    import ClientDetails from './components/ClientDetails.vue';
+    import ServiceDetails from './components/ServiceDetails.vue';
 
     const token = ref('')
     const apiError = ref('')
     const data = ref()
+    const itemList = ref()
     const searchString = ref('')
     const apiMessage = ref('')
     const showData = ref(false)
@@ -39,6 +42,9 @@
         message: '',
         type: ''
     })
+    const showClientDetails = ref(false)
+    const itemDetails = ref()
+    const showServiceDetails = ref(false)
 
     function removeToken() {
         localStorage.removeItem('token');
@@ -58,16 +64,17 @@
         showAdd.value = false
         showModify.value = false
         showDelete.value = false
-        viewName.value = view
-        data.value = []
-        actionName.value = ''
-        hideNotification.value = true
+        showData.value = false
         showAddModify.value = false
+        hideNotification.value = true
+        viewName.value = view
+        itemList.value = []
+        actionName.value = ''
     }
 
     const handleSearch = async () => {
         notification.value.message = ''
-        data.value = []
+        itemList.value = []
         actionName.value = ''
         showAdd.value = false
         showModify.value = false
@@ -75,13 +82,15 @@
         showData.value = true
         hideNotification.value = false
         showAddModify.value = false
+        showClientDetails.value = false
+        showServiceDetails.value = false
 
         const apiEndpoint = createApiUrl({ view: viewName.value, action: 'search', searchString: searchString.value })
         const request = createRequest('GET')
 
         const { code, response, error } = await callApi(apiEndpoint, request)
         if (code === 200) {
-            data.value = response
+            itemList.value = response
         }
         else if (code !== 200) {
             notification.value.message = response.detail
@@ -94,9 +103,9 @@
     }
 
     const getItemData = (id) => {
-        for (const item of data.value) {
+        for (const item of itemList.value) {
             if (item.id === id) {
-                itemData.value = item
+                itemList.value = item
             }
         }
     }
@@ -131,6 +140,28 @@
         hideNotification.value = false
         showAddModify.value = false
         showDelete.value = false
+    }
+
+    const showDetails = (item) => {
+        itemDetails.value = item
+        showData.value = false
+        if (viewName.value === 'Clients') {
+            showClientDetails.value = true
+        }
+        else if (viewName.value === 'Services') {
+            showServiceDetails.value = true
+        }
+    }
+
+    const closeComponent = (component) => {
+        if (component === 'ClientDetails') {
+            showClientDetails.value = false
+            showData.value = true
+        }
+        else if (component === 'ServiceDetails') {
+            showServiceDetails.value = false
+            showData.value = true
+        }
     }
 </script>
 
@@ -167,11 +198,15 @@
         </div>
         <Notification v-if="notification.message && !hideNotification" :notification="notification"
             @remove-notification="hideNotification = true" />
-        <ShowData v-if="showData" :view-name="viewName" :data="data" @modify-item="modifyItem" @delete-item="deleteItem" />
+        <ShowData v-if="showData" :view-name="viewName" :item-list="itemList" @show-details="showDetails"
+            @modify-item="modifyItem" @delete-item="deleteItem" />
         <AddModify v-if="showAddModify" :view-name="viewName" :action-name="actionName"
             @show-notification="showNotification" />
         <Delete v-if="showDelete" :view-name="viewName" :item-data="itemData" @cancel="cancelDeleteItem"
             @show-notification="showNotification" />
+        <ClientDetails v-if="showClientDetails" :item-details="itemDetails" @close-component="closeComponent"
+            @show-details="showDetails" />
+        <ServiceDetails v-if="showServiceDetails" :item-details="itemDetails" @close-component="closeComponent" />
     </div>
     <div v-else>
         <UserLogin @login-success="updateToken" />
