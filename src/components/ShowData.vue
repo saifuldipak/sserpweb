@@ -1,36 +1,31 @@
 <script setup>
     import { ref } from 'vue'
-    import ClientDetails from './ClientDetails.vue';
-    import ServiceDetails from './ServiceDetails.vue';
+
+    const itemData = ref()
 
     const props = defineProps({
-        data: Array,
-        viewName: String
+        itemList: {
+            type: Array,
+            required: true
+        },
+        viewName: {
+            type: String,
+            required: true
+        }
     })
 
-    const itemDetails = ref()
-
-    const emit = defineEmits(['modifyItem', 'deleteItem'])
+    const emit = defineEmits(['showDetails', 'modifyItem', 'deleteItem'])
 </script>
 
 <template>
-    <table v-if="props.data" :class="{ 'item-list-hide': itemDetails }">
-        <tr v-for="item in props.data" :key="item.id">
+    <table v-if="props.itemList.length > 0">
+        <tr v-for="item in props.itemList" :key="item.id">
             <!-- First column -->
-            <td v-if="props.viewName === 'Clients'">
-                <a href="#" @click="itemDetails = item">{{ item.name }}</a>
+            <td v-if="props.viewName !== 'Services'">
+                <a href="#" @click="emit('showDetails', item)">{{ item.name }}</a>
             </td>
-            <td v-else-if="props.viewName === 'Services'">
-                <a href="#" @click="itemDetails = item">{{ item.point }}</a>
-            </td>
-            <td v-else-if="props.viewName === 'Service Types'">
-                {{ item.name }}
-            </td>
-            <td v-else-if="props.viewName === 'Vendors'">
-                <a href="#" @click="itemDetails = item">{{ item.name }}</a>
-            </td>
-            <td v-else-if="props.viewName === 'Pops'">
-                <a href="#" @click="itemDetails = item">{{ item.name }}</a>
+            <td v-else>
+                <a href="#" @click="emit('showDetails', item)">{{ item.point }}</a>
             </td>
             <!-- Second column -->
             <td v-if="props.viewName === 'Clients'">{{ item.client_types.name }}</td>
@@ -47,11 +42,6 @@
             </td>
         </tr>
     </table>
-    <div v-if="itemDetails">
-        <button @click="itemDetails = ''">X</button>
-        <ClientDetails v-if="props.viewName === 'Clients'" :item="itemDetails" />
-        <ServiceDetails v-if="props.viewName === 'Services'" :item="itemDetails" />
-    </div>
 </template>
 
 <style scoped>
