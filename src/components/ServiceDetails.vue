@@ -3,23 +3,27 @@
     import ContactDetails from './ContactDetails.vue'
 
     const props = defineProps({
-        item: Object
+        itemDetails: {
+            type: Object,
+            required: true
+        }
     })
-
+    const emit = defineEmits(['closeComponent'])
 </script>
 
 <template>
-    <ul v-if="props.item" class="item-details">
-        <li>Service point: {{ props.item.point }}</li>
-        <li>Service type: {{ props.item.service_types.name }}</li>
-        <li>Bandwidth: {{ props.item.bandwidth }}</li>
-        <li>Client name: {{ props.item.clients.name }}</li>
-        <li>Pop: {{ props.item.pops.name }}</li>
-        <li v-if="props.item.contacts">Contacts:
-            <ContactDetails :contacts="props.item.contacts" />
+    <button @click="emit('closeComponent', 'ServiceDetails')">X</button>
+    <ul v-if="props.itemDetails" class="item-details">
+        <li>Service point: {{ props.itemDetails.point }}</li>
+        <li>Service type: {{ props.itemDetails.service_types.name }}</li>
+        <li>Bandwidth: {{ props.itemDetails.bandwidth }}</li>
+        <li>Client name: {{ props.itemDetails.clients.name }}</li>
+        <li>Pop: {{ props.itemDetails.pops.name }}</li>
+        <li v-if="props.itemDetails.contacts">Contacts:
+            <ContactDetails :contacts="props.itemDetails.contacts" />
         </li>
-        <li v-if="props.item.addresses">Addresses:
-            <AddressDetails :addresses="props.item.addresses" />
+        <li v-if="props.itemDetails.addresses">Addresses:
+            <AddressDetails :addresses="props.itemDetails.addresses" />
         </li>
     </ul>
 </template>
