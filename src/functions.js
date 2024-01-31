@@ -160,7 +160,7 @@ export const createApiUrl = ({ view, action = "", searchString = "" }) => {
                 break;
         }
 
-        apiEndpoint = apiEndpoint + base + action;
+        apiEndpoint = apiEndpoint + base + action.toLowerCase();
         return apiEndpoint;
     }
 };
@@ -168,19 +168,17 @@ export const createApiUrl = ({ view, action = "", searchString = "" }) => {
 export const isEqualObjects = (object1, object2) => {
     for (const key in object1) {
         if (object1[key] !== object2[key]) {
-            return [false, "", ""];
+            return false;
         }
     }
-    const message = "Nothing modified";
-    const messageType = "Warning";
-    return [true, message, messageType];
+    return true;
 };
 
 export const selectMethod = (action) => {
     let method;
-    if (action === "add") {
+    if (action === "Add") {
         method = "POST";
-    } else if (action === "modify") {
+    } else if (action === "Modify") {
         method = "PUT";
     }
     return method;
@@ -199,6 +197,20 @@ export const createBody = (viewName, actionName, itemData) => {
                 extra_info: itemData.extraInfo,
             };
         }
+    } else if (viewName === "Clients") {
+        if (actionName === "Add") {
+            body = {
+                name: itemData.name,
+                client_type_id: itemData.clientTypeId,
+            };
+        } else if (actionName === "Modify") {
+            body = {
+                id: itemData.id,
+                name: itemData.name,
+                client_type_id: itemData.clientTypeId,
+            };
+        }
     }
+
     return body;
 };
