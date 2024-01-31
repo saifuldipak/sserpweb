@@ -23,9 +23,9 @@
 
 <template>
     <div class="confirm" v-if="show">
-        <div class="message" v-if="props.actionName === 'add'">Are you sure you want to add?</div>
-        <div class="message" v-if="props.actionName === 'modify'">Are you sure you want to modify?</div>
-        <div class="message" v-if="props.actionName === 'delete'">Are you sure you want to delete?</div>
+        <div class="message" v-if="props.actionName === 'Add'">Are you sure you want to add?</div>
+        <div class="message" v-if="props.actionName === 'Modify'">Are you sure you want to modify?</div>
+        <div class="message" v-if="props.actionName === 'Delete'">Are you sure you want to delete?</div>
         <div class="button-section">
             <button @click="confirm">Confirm</button>
             <button @click="cancel">Cancel</button>
