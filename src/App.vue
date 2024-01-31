@@ -8,6 +8,8 @@
     import Delete from './components/Delete.vue';
     import ClientDetails from './components/ClientDetails.vue';
     import ServiceDetails from './components/ServiceDetails.vue';
+    import Add from './components/Add.vue'
+    import Modify from './components/Modify.vue';
 
     const token = ref('')
     const apiError = ref('')
@@ -105,7 +107,7 @@
     const getItemData = (id) => {
         for (const item of itemList.value) {
             if (item.id === id) {
-                itemList.value = item
+                itemData.value = item
             }
         }
     }
@@ -113,14 +115,15 @@
     const addItem = () => {
         hideNotification.value = true
         showData.value = false
-        actionName.value = 'add'
-        showAddModify.value = true
+        actionName.value = 'Add'
+        showAdd.value = true
     }
 
     const modifyItem = (itemId) => {
         getItemData(itemId)
         showData.value = false
-        actionName.value = 'modify'
+        actionName.value = 'Modify'
+        showModify.value = true
     }
 
     const deleteItem = (itemId) => {
@@ -200,7 +203,9 @@
             @remove-notification="hideNotification = true" />
         <ShowData v-if="showData" :view-name="viewName" :item-list="itemList" @show-details="showDetails"
             @modify-item="modifyItem" @delete-item="deleteItem" />
-        <AddModify v-if="showAddModify" :view-name="viewName" :action-name="actionName"
+        <Add v-if="showAdd" :view-name="viewName" :action-name="actionName" :item-data="itemData"
+            @show-notification="showNotification" />
+        <Modify v-if="showModify" :view-name="viewName" :action-name="actionName" :item-data="itemData"
             @show-notification="showNotification" />
         <Delete v-if="showDelete" :view-name="viewName" :item-data="itemData" @cancel="cancelDeleteItem"
             @show-notification="showNotification" />
