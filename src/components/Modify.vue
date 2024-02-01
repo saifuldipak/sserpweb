@@ -1,33 +1,21 @@
 <script setup>
     import { ref, onMounted } from 'vue'
-    import { createApiUrl, createRequest, selectMethod, createBody, isEqualObjects } from '@/functions.js'
+    import { createApiUrl, createRequest, isEqualObjects } from '@/functions.js'
     import SubmitConfirm from './SubmitConfirm.vue';
     import ClientForm from './ClientForm.vue';
+    import ServiceForm from './ServiceForm.vue';
 
     const message = ref()
     const messageType = ref()
-    const serviceTypes = ref()
+    const serviceTypes = ref([])
     const clientTypes = ref([])
     const dialogVisible = ref(false)
-    const serviceData = ref({
-        id: '',
-        clientId: '',
-        point: '',
-        serviceTypeId: '',
-        bandwidth: '',
-        popId: '',
-        extraInfo: ''
-    })
-    const clientData = ref({
-        id: '',
-        name: '',
-        clientTypeId: ''
-    })
+    const serviceData = ref({})
+    const clientData = ref({})
     const notification = ref({
         message: '',
         type: ''
     })
-
 
     const props = defineProps({
         viewName: {
@@ -50,9 +38,10 @@
         messageType.value = ''
 
         if (props.viewName === 'Clients') {
-            clientData.value.id = props.itemData.id
-            clientData.value.name = props.itemData.name
-            clientData.value.clientTypeId = props.itemData.client_type_id
+            clientData.value = { ...props.itemData }
+        }
+        else if (props.viewName === 'Services') {
+            serviceData.value = { ...props.itemData }
         }
 
         const request = createRequest('GET')
@@ -90,39 +79,38 @@
     })
 
     const closeDialog = () => {
-        dialogVisible.value = false;
-    };
+        dialogVisible.value = false
+    }
 
     const handleSubmit = async () => {
         dialogVisible.value = true
     }
 
     const submitForm = async () => {
-        let formData
-        if (props.viewName === 'Services') {
-            formData = serviceData.value
-        }
-        else if (props.viewName === 'Clients') {
+        let formData, propertiesToDelete
+
+        if (props.viewName === 'Clients') {
             formData = clientData.value
+            propertiesToDelete = ['services', 'client_types', 'contacts', 'addresses']
+        }
+        else if (props.viewName === 'Services') {
+            formData = serviceData.value
+            propertiesToDelete = ['service_types', 'pops', 'clients', 'contacts', 'addresses']
         }
 
-        const receivedData = {
-            id: props.itemData.id,
-            name: props.itemData.name,
-            clientTypeId: props.itemData.client_type_id
-        }
-
-        const result = isEqualObjects(receivedData, formData)
+        const result = isEqualObjects(props.itemData, formData)
         if (result) {
             emit('showNotification', 'Nothing modified', 'Warning')
             closeDialog()
             return
         }
 
+        for (const property of propertiesToDelete) {
+            delete formData[property]
+        }
+
         const apiEndpoint = createApiUrl({ view: props.viewName, action: props.actionName })
-        const body = createBody(props.viewName, props.actionName, formData)
-        const method = selectMethod(props.actionName)
-        const request = createRequest(method, body)
+        const request = createRequest('PUT', formData)
 
         try {
             const response = await fetch(apiEndpoint, request)
@@ -157,6 +145,8 @@
             <div class="form-fields">
                 <ClientForm v-if="props.viewName === 'Clients'" :view-name="props.viewName" :action-name="props.actionName"
                     :client-types="clientTypes" v-model="clientData" />
+                <ServiceForm v-if="props.viewName === 'Services'" :view-name="props.viewName"
+                    :action-name="props.actionName" :service-types="serviceTypes" v-model="serviceData" />
                 <button v-if="props.viewName !== ''" type="submit">Submit</button>
             </div>
             <div>
