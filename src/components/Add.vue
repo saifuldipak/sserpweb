@@ -3,25 +3,26 @@
     import { createApiUrl, createRequest, selectMethod, createBody } from '@/functions.js'
     import SubmitConfirm from './SubmitConfirm.vue';
     import ClientForm from './ClientForm.vue';
+    import ServiceForm from './ServiceForm.vue';
 
     const message = ref()
     const messageType = ref()
-    const serviceTypes = ref()
+    const serviceTypes = ref([])
     const clientTypes = ref([])
     const dialogVisible = ref(false)
     const serviceData = ref({
         id: '',
-        clientId: '',
+        client_id: '',
         point: '',
-        serviceTypeId: '',
+        service_type_id: '',
         bandwidth: '',
-        popId: '',
-        extraInfo: ''
+        pop_id: '',
+        extra_info: ''
     })
     const clientData = ref({
         id: '',
         name: '',
-        clientTypeId: ''
+        client_type_id: ''
     })
     const notification = ref({
         message: '',
@@ -88,19 +89,16 @@
     }
 
     const submitForm = async () => {
-        let bodyData
+        let formData
         if (props.viewName === 'Services') {
-            bodyData = serviceData.value
+            formData = serviceData.value
         }
         else if (props.viewName === 'Clients') {
-            bodyData = clientData.value
+            formData = clientData.value
         }
 
         const apiEndpoint = createApiUrl({ view: props.viewName, action: props.actionName })
-        const body = createBody(props.viewName, props.actionName, bodyData)
-        const method = selectMethod(props.actionName)
-        const request = createRequest(method, body)
-
+        const request = createRequest('POST', formData)
         try {
             const response = await fetch(apiEndpoint, request)
 
@@ -134,6 +132,8 @@
             <div class="form-fields">
                 <ClientForm v-if="props.viewName === 'Clients'" :view-name="props.viewName" :action-name="props.actionName"
                     :client-types="clientTypes" v-model="clientData" />
+                <ServiceForm v-if="props.viewName === 'Services'" :view-name="props.viewName"
+                    :action-name="props.actionName" :service-types="serviceTypes" v-model="serviceData" />
                 <button v-if="props.viewName !== ''" type="submit">Submit</button>
             </div>
             <div>
