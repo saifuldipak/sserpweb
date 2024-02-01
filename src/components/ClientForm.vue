@@ -22,7 +22,7 @@
 <template>
     <h4>{{ props.actionName }}</h4>
     <input type="text" placeholder="Client name" v-model="client.name">
-    <select v-model="client.clientTypeId">
+    <select v-model="client.client_type_id">
         <option disabled value="">client types</option>
         <option placeholder="client types" v-for="clientType in props.clientTypes" :value="clientType.id">{{
             clientType.name }}</option>
