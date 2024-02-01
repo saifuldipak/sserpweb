@@ -174,7 +174,7 @@ export const isEqualObjects = (object1, object2) => {
     return true;
 };
 
-export const selectMethod = (action) => {
+/* export const selectMethod = (action) => {
     let method;
     if (action === "Add") {
         method = "POST";
@@ -214,3 +214,4 @@ export const createBody = (viewName, actionName, itemData) => {
 
     return body;
 };
+ */
