@@ -64,13 +64,23 @@
 <template>
     <input class="client-name" type="text" :placeholder="props.itemName" v-model="itemName" @input="searchSuggestions">
     <ul v-if="itemName.length > 0" class="suggestions">
-        <li class="suggestion" v-for="item in itemList" :key="item.id" @click="selectSuggestion(item.id, item.name)">{{
-            item.name }}
-        </li>
+        <div v-if="props.itemName !== 'Services'">
+            <li class="suggestion" v-for="item in itemList" :key="item.id" @click="selectSuggestion(item.id, item.name)">{{
+                item.name }}
+            </li>
+        </div>
+        <div v-else>
+            <li class="suggestion" v-for="item in itemList" :key="item.id" @click="selectSuggestion(item.id, item.point)">{{
+                item.point }}
+            </li>
+
+        </div>
     </ul>
 </template>
 
 <style scoped>
+    @import "@/assets/form.css";
+
     .client-name {
         position: relative;
     }
