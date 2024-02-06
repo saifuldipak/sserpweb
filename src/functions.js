@@ -48,26 +48,46 @@ export const callApi = async (apiEndpoint, request) => {
 
 //create query parameters
 export const createQueryParameters = (view, searchString) => {
-    let firstQueryArgument, secondQueryArgument;
-    if (view === "Clients") {
-        firstQueryArgument = "client_name";
-        secondQueryArgument = "client_type";
-    } else if (view === "Services") {
-        firstQueryArgument = "service_point";
-        secondQueryArgument = "client_name";
-    } else if (view === "Pops") {
-        firstQueryArgument = "pop_name";
-        secondQueryArgument = "pop_owner";
-    } else if (view === "Vendors") {
-        firstQueryArgument = "vendor_name";
-        secondQueryArgument = "vendor_type";
+    let firstQueryArgument, secondQueryArgument, thirdQueryArgument;
+    switch (view) {
+        case "Clients":
+            firstQueryArgument = "client_name";
+            secondQueryArgument = "client_type";
+            break;
+        case "Services":
+            firstQueryArgument = "service_point";
+            secondQueryArgument = "client_name";
+            break;
+        case "Service Types":
+            firstQueryArgument = "client_name";
+            secondQueryArgument = "client_type";
+            break;
+        case "Pops":
+            firstQueryArgument = "pop_name";
+            secondQueryArgument = "pop_owner";
+            break;
+        case "Vendors":
+            firstQueryArgument = "vendor_name";
+            secondQueryArgument = "vendor_type";
+            break;
+        case "Addresses":
+            firstQueryArgument = "client_name";
+            secondQueryArgument = "service_point";
+            thirdQueryArgument = "vendor_name";
+            break;
+        case "Contacts":
+            firstQueryArgument = "client_name";
+            secondQueryArgument = "client_type";
+            break;
     }
 
     const firstRegex = new RegExp(`${firstQueryArgument}:([^ ]+)`, "i");
     const secondRegex = new RegExp(`${secondQueryArgument}:([^ ]+)`, "i");
+    const thirdRegex = new RegExp(`${thirdQueryArgument}:([^ ]+)`, "i");
 
     const firstMatch = searchString.match(firstRegex);
     const secondMatch = searchString.match(secondRegex);
+    const thirdMatch = searchString.match(thirdRegex);
 
     let queryParameters = "?";
     if (firstMatch) {
@@ -84,7 +104,14 @@ export const createQueryParameters = (view, searchString) => {
         queryParameters = queryParameters + "&" + secondQueryArgument + "=";
     }
 
-    if (!firstMatch && !secondMatch) {
+    if (thirdMatch) {
+        queryParameters =
+            queryParameters + "&" + thirdQueryArgument + "=" + thirdMatch[1];
+    } else {
+        queryParameters = queryParameters + "&" + thirdQueryArgument + "=";
+    }
+
+    if (!firstMatch && !secondMatch && !thirdMatch) {
         queryParameters = "?" + firstQueryArgument + "=" + searchString;
     }
 
@@ -94,6 +121,21 @@ export const createQueryParameters = (view, searchString) => {
 //create api url for different types of views('Clients' , 'Services' etc.) and
 //actions('search', 'add', 'modify' etc.)
 export const createApiUrl = ({ view, action = "", searchString = "" }) => {
+    if (action) {
+        const actionNames = ["search", "Add", "Modify", "Delete"];
+        let match = false;
+        for (const item of actionNames) {
+            if (action === item) {
+                match = true;
+                break;
+            }
+        }
+
+        if (!match) {
+            throw new Error(`Unknown action: ${action}`);
+        }
+    }
+
     let apiEndpoint = API_HOST;
 
     if (view === "token") {
@@ -125,8 +167,11 @@ export const createApiUrl = ({ view, action = "", searchString = "" }) => {
             case "Addresses":
                 apiEndpoint = apiEndpoint + "address";
                 break;
+            case "Contacts":
+                apiEndpoint = apiEndpoint + "contact";
+                break;
             default:
-                throw new Error("Unknown view for action 'search'");
+                throw new Error("Unknown view");
         }
 
         if (searchString) {
@@ -158,6 +203,11 @@ export const createApiUrl = ({ view, action = "", searchString = "" }) => {
             case "Addresses":
                 base = "address/";
                 break;
+            case "Contacts":
+                base = "contact/";
+                break;
+            default:
+                throw new Error("Unknown view");
         }
 
         apiEndpoint = apiEndpoint + base + action.toLowerCase();
