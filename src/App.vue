@@ -4,7 +4,6 @@
     import UserLogin from './components/UserLogin.vue';
     import ShowData from './components/ShowData.vue';
     import Notification from './components/Notification.vue';
-    import AddModify from './components/AddModify.vue';
     import Delete from './components/Delete.vue';
     import ClientDetails from './components/ClientDetails.vue';
     import ServiceDetails from './components/ServiceDetails.vue';
@@ -26,18 +25,15 @@
     const hideNotification = ref(false)
     const showAddModify = ref(false)
     const views = ref([
-        { 'id': 1, 'name': 'Clients' },
-        { 'id': 2, 'name': 'Services' },
-        { 'id': 3, 'name': 'Service Types' },
-        { 'id': 4, 'name': 'Vendors' },
-        { 'id': 5, 'name': 'Pops' },
-        { id: 6, name: 'Addresses' }
+        { id: 1, name: 'Clients' },
+        { id: 2, name: 'Services' },
+        { id: 3, name: 'Service Types' },
+        { id: 4, name: 'Vendors' },
+        { id: 5, name: 'Pops' },
+        { id: 6, name: 'Addresses' },
+        { id: 7, name: 'Contacts' }
     ])
-    const vendors = ref([
-        { id: 1, name: 'LSP' },
-        { id: 2, name: 'NTTN' },
-        { id: 3, name: 'ISP' }
-    ])
+
     const viewName = ref('')
     const actionName = ref('')
     const notification = ref({
