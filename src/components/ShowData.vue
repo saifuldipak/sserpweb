@@ -1,8 +1,4 @@
 <script setup>
-    import { ref } from 'vue'
-
-    const itemData = ref()
-
     const props = defineProps({
         itemList: {
             type: Array,
@@ -27,9 +23,17 @@
             <td v-else>
                 <a href="#" @click="emit('showDetails', item)">{{ item.point }}</a>
             </td>
+            <td v-if="props.viewName === 'Addresses'">
+                <a href="#" @click="emit('showDetails', item)">{{ item.area }}, {{ item.thana }}, {{ item.district }}</a>
+            </td>
             <!-- Second column -->
             <td v-if="props.viewName === 'Clients'">{{ item.client_types.name }}</td>
             <td v-else-if="props.viewName === 'Services'">{{ item.clients.name }}</td>
+            <td v-else-if="props.viewName === 'Addresses'">
+                <div v-if="item.client_id">{{ item.clients.name }}</div>
+                <div v-else-if="item.service_id">{{ item.services.point }}</div>
+                <div v-else-if="item.vendor_id">{{ item.vendors.name }}</div>
+            </td>
             <!-- Third column -->
             <td v-if="props.viewName === 'Pops'"> {{ item.vendors.name }}</td>
             <!-- Fourth column -->
@@ -45,16 +49,6 @@
 </template>
 
 <style scoped>
-    .item-list {
-        width: 50%;
-        display: flex;
-        justify-content: left;
-    }
-
-    .item-list-hide {
-        display: none;
-    }
-
     td {
         padding: 0;
         padding-left: 10px;
