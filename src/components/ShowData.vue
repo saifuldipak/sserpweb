@@ -29,7 +29,7 @@
             <!-- Second column -->
             <td v-if="props.viewName === 'Clients'">{{ item.client_types.name }}</td>
             <td v-else-if="props.viewName === 'Services'">{{ item.clients.name }}</td>
-            <td v-else-if="props.viewName === 'Addresses'">
+            <td v-else-if="props.viewName === 'Addresses' || props.viewName === 'Contacts'">
                 <div v-if="item.client_id">{{ item.clients.name }}</div>
                 <div v-else-if="item.service_id">{{ item.services.point }}</div>
                 <div v-else-if="item.vendor_id">{{ item.vendors.name }}</div>
