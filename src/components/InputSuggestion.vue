@@ -71,7 +71,7 @@
         </div>
         <div v-else>
             <li class="suggestion" v-for="item in itemList" :key="item.id" @click="selectSuggestion(item.id, item.point)">{{
-                item.point }}
+                item.point }}, {{ item.clients.name }}
             </li>
 
         </div>
