@@ -4,7 +4,7 @@
     import { createApiUrl, createRequest } from '@/functions.js';
 
     const dialogVisible = ref(true)
-    const actionName = ref('delete')
+    const actionName = ref('Delete')
     const notification = ref({
         message: '',
         type: ''
@@ -31,7 +31,7 @@
     };
 
     const deleteItem = async () => {
-        const apiEndpoint = createApiUrl({ view: props.viewName, action: 'delete' }) + '/' + props.itemData.id
+        const apiEndpoint = createApiUrl({ view: props.viewName, action: actionName.value }) + '/' + props.itemData.id
         const method = 'DELETE'
         const request = createRequest(method)
 
@@ -56,7 +56,7 @@
             closeDialog()
         }
 
-        emit('showNotification', notification.value.message, notification.value.type)
+        emit('showNotification', notification)
     }
 </script>
 
@@ -69,6 +69,20 @@
         Id: {{ props.itemData.id }}
         Point: {{ props.itemData.point }}
         Pop: {{ props.itemData.pops.name }}
+    </div>
+    <div v-else-if="props.viewName === 'Service Types'">
+        Id: {{ props.itemData.id }}
+        Service type: {{ props.itemData.name }}
+    </div>
+    <div v-else-if="props.viewName === 'Vendors'">
+        Id: {{ props.itemData.id }}
+        Name: {{ props.itemData.name }}
+        Type: {{ props.itemData.type }}
+    </div>
+    <div v-else-if="props.viewName === 'Pops'">
+        Id: {{ props.itemData.id }}
+        Name: {{ props.itemData.name }}
+        Type: {{ props.itemData.vendors.name }}
     </div>
     <SubmitConfirm v-model:show="dialogVisible" :action-name="actionName" @confirm="deleteItem"
         @cancel="closeDialog('return')" />
