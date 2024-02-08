@@ -22,6 +22,13 @@
     })
 
     const handleSearch = async () => {
+        if (!searchString.value) {
+            notification.value.message = 'Must provide search parameter, please see help for details'
+            notification.value.type = 'Warning'
+            emit('showNotification', notification)
+            return
+        }
+
         const apiEndpoint = createApiUrl({ view: props.viewName, action: 'search', searchString: searchString.value })
         const request = createRequest('GET')
         try {
@@ -34,13 +41,13 @@
                 const responseMessage = await response.json()
                 notification.value.message = responseMessage.detail
                 notification.value.type = 'Error'
-                emit('showNotification', notification.value, notification.type)
+                emit('showNotification', notification)
             }
         }
         catch (error) {
             notification.value.message = error.message
             notification.value.type = 'Error'
-            emit('showNotification', notification.value, notification.type)
+            emit('showNotification', notification)
         }
     }
 </script>
