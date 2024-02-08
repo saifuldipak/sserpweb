@@ -48,7 +48,10 @@ export const callApi = async (apiEndpoint, request) => {
 
 //create query parameters
 export const createQueryParameters = (view, searchString) => {
-    let firstQueryArgument, secondQueryArgument, thirdQueryArgument;
+    let firstQueryArgument,
+        secondQueryArgument,
+        thirdQueryArgument,
+        fourthQueryArgument;
     switch (view) {
         case "Clients":
             firstQueryArgument = "client_name";
@@ -76,18 +79,22 @@ export const createQueryParameters = (view, searchString) => {
             thirdQueryArgument = "vendor_name";
             break;
         case "Contacts":
-            firstQueryArgument = "client_name";
-            secondQueryArgument = "client_type";
+            firstQueryArgument = "contact_name";
+            secondQueryArgument = "client_name";
+            thirdQueryArgument = "service_point";
+            fourthQueryArgument = "vendor_name";
             break;
     }
 
     const firstRegex = new RegExp(`${firstQueryArgument}:([^ ]+)`, "i");
     const secondRegex = new RegExp(`${secondQueryArgument}:([^ ]+)`, "i");
     const thirdRegex = new RegExp(`${thirdQueryArgument}:([^ ]+)`, "i");
+    const fourthRegex = new RegExp(`${fourthQueryArgument}:([^ ]+)`, "i");
 
     const firstMatch = searchString.match(firstRegex);
     const secondMatch = searchString.match(secondRegex);
     const thirdMatch = searchString.match(thirdRegex);
+    const fourthMatch = searchString.match(fourthRegex);
 
     let queryParameters = "?";
     if (firstMatch) {
@@ -111,7 +118,14 @@ export const createQueryParameters = (view, searchString) => {
         queryParameters = queryParameters + "&" + thirdQueryArgument + "=";
     }
 
-    if (!firstMatch && !secondMatch && !thirdMatch) {
+    if (fourthMatch) {
+        queryParameters =
+            queryParameters + "&" + fourthQueryArgument + "=" + fourthMatch[1];
+    } else {
+        queryParameters = queryParameters + "&" + fourthQueryArgument + "=";
+    }
+
+    if (!firstMatch && !secondMatch && !thirdMatch && !fourthMatch) {
         queryParameters = "?" + firstQueryArgument + "=" + searchString;
     }
 
