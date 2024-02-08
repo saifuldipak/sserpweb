@@ -23,10 +23,7 @@
     const showDetails = ref(false)
     const viewName = ref('')
     const actionName = ref('')
-    const notification = ref({
-        message: '',
-        type: ''
-    })
+    const notification = ref()
     const views = ref([
         { id: 1, name: 'Clients' },
         { id: 2, name: 'Services' },
@@ -93,9 +90,8 @@
         showData.value = true
     }
 
-    const handleNotification = (msg, type) => {
-        notification.value.message = msg
-        notification.value.type = type
+    const handleNotification = (receivedNotification) => {
+        notification.value = receivedNotification
         showNotification.value = true
         showDelete.value = false
     }
@@ -118,8 +114,18 @@
     }
 
     const showSearchResult = (searchResult) => {
+        removeAllComponents()
         itemList.value = searchResult
         showData.value = true
+    }
+
+    const removeAllComponents = () => {
+        showAdd.value = false
+        showModify.value = false
+        showDelete.value = false
+        showData.value = false
+        showDetails.value = false
+        showNotification.value = false
     }
 </script>
 
@@ -147,11 +153,11 @@
                     <button class="add-button" @click="addItem">+Add</button>
                 </div>
                 <div class="right-items">
-                    <Search :view-name="viewName" @show-data="showSearchResult" @show-notification="showNotification" />
+                    <Search :view-name="viewName" @show-data="showSearchResult" @show-notification="handleNotification" />
                 </div>
             </div>
         </div>
-        <Notification v-if="notification.message && showNotification" :notification="notification"
+        <Notification v-if="showNotification" :notification="notification"
             @remove-notification="showNotification = false" />
         <ShowData v-if="showData" :view-name="viewName" :item-list="itemList" @show-details="viewDetails"
             @modify-item="modifyItem" @delete-item="deleteItem" />
