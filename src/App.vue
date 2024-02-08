@@ -1,29 +1,32 @@
 <script setup>
     import { ref } from 'vue';
-    import { callApi, createApiUrl, createRequest } from '@/functions.js';
     import UserLogin from './components/UserLogin.vue';
     import ShowData from './components/ShowData.vue';
     import Notification from './components/Notification.vue';
     import Delete from './components/Delete.vue';
-    import ClientDetails from './components/ClientDetails.vue';
-    import ServiceDetails from './components/ServiceDetails.vue';
     import Add from './components/Add.vue'
     import Modify from './components/Modify.vue';
+    import ShowDetails from './components/ShowDetails.vue';
+    import Search from './components/Search.vue';
 
     const token = ref('')
     const apiError = ref('')
-    const data = ref()
     const itemList = ref()
     const searchString = ref('')
-    const apiMessage = ref('')
     const showData = ref(false)
     const showDelete = ref(false)
     const itemData = ref()
     const showModify = ref(false)
     const showAdd = ref(false)
-    const messageType = ref('')
-    const hideNotification = ref(false)
-    const showAddModify = ref(false)
+    const showNotification = ref(false)
+    const itemDetails = ref()
+    const showDetails = ref(false)
+    const viewName = ref('')
+    const actionName = ref('')
+    const notification = ref({
+        message: '',
+        type: ''
+    })
     const views = ref([
         { id: 1, name: 'Clients' },
         { id: 2, name: 'Services' },
@@ -34,70 +37,27 @@
         { id: 7, name: 'Contacts' }
     ])
 
-    const viewName = ref('')
-    const actionName = ref('')
-    const notification = ref({
-        message: '',
-        type: ''
-    })
-    const showClientDetails = ref(false)
-    const itemDetails = ref()
-    const showServiceDetails = ref(false)
-
-    function removeToken() {
+    const removeToken = () => {
         localStorage.removeItem('token');
         token.value = ''
         viewName.value = ''
     }
 
-    function updateToken() {
+    const updateToken = () => {
         token.value = localStorage.getItem('token')
         apiError.value = ''
     }
 
-    async function clickedLink(view) {
-        apiError.value = ''
-        apiMessage.value = ''
-        searchString.value = ''
+    const clickedLink = (view) => {
         showAdd.value = false
         showModify.value = false
         showDelete.value = false
         showData.value = false
-        showAddModify.value = false
-        hideNotification.value = true
+        showNotification.value = false
+        showDetails.value = false
+        itemList.value = []
+        actionName.value = ''
         viewName.value = view
-        itemList.value = []
-        actionName.value = ''
-    }
-
-    const handleSearch = async () => {
-        notification.value.message = ''
-        itemList.value = []
-        actionName.value = ''
-        showAdd.value = false
-        showModify.value = false
-        showDelete.value = false
-        showData.value = true
-        hideNotification.value = false
-        showAddModify.value = false
-        showClientDetails.value = false
-        showServiceDetails.value = false
-
-        const apiEndpoint = createApiUrl({ view: viewName.value, action: 'search', searchString: searchString.value })
-        const request = createRequest('GET')
-
-        const { code, response, error } = await callApi(apiEndpoint, request)
-        if (code === 200) {
-            itemList.value = response
-        }
-        else if (code !== 200) {
-            notification.value.message = response.detail
-            notification.value.type = 'Error'
-        }
-        else {
-            message.value = error.message
-            messageType.value = 'Error'
-        }
     }
 
     const getItemData = (id) => {
@@ -109,7 +69,7 @@
     }
 
     const addItem = () => {
-        hideNotification.value = true
+        showNotification.value = false
         showData.value = false
         actionName.value = 'Add'
         showAdd.value = true
@@ -133,34 +93,33 @@
         showData.value = true
     }
 
-    const showNotification = (msg, type) => {
+    const handleNotification = (msg, type) => {
         notification.value.message = msg
         notification.value.type = type
-        hideNotification.value = false
-        showAddModify.value = false
+        showNotification.value = true
         showDelete.value = false
     }
 
-    const showDetails = (item) => {
+    const viewDetails = (item) => {
         itemDetails.value = item
         showData.value = false
-        if (viewName.value === 'Clients') {
-            showClientDetails.value = true
-        }
-        else if (viewName.value === 'Services') {
-            showServiceDetails.value = true
-        }
+        showDetails.value = true
     }
 
     const closeComponent = (component) => {
-        if (component === 'ClientDetails') {
-            showClientDetails.value = false
-            showData.value = true
-        }
-        else if (component === 'ServiceDetails') {
-            showServiceDetails.value = false
-            showData.value = true
-        }
+        showDetails.value = false
+        showData.value = true
+    }
+
+    const customSearch = (view, searchItem) => {
+        clickedLink(view)
+        searchString.value = searchItem
+        handleSearch()
+    }
+
+    const showSearchResult = (searchResult) => {
+        itemList.value = searchResult
+        showData.value = true
     }
 </script>
 
@@ -182,32 +141,28 @@
             </li>
         </ul>
         <div v-if="viewName">
-            <div class="search-bar">
+            <div class="action-bar">
                 <div class="left-items">
                     <h1 class="heading">{{ viewName }}</h1>
                     <button class="add-button" @click="addItem">+Add</button>
                 </div>
-                <div class="search-form">
-                    <form class="search-form" @submit.prevent="handleSearch">
-                        <input class="search-input" type="text" placeholder="Enter text..." v-model="searchString" />
-                        <button type="submit">Search</button>
-                    </form>
+                <div class="right-items">
+                    <Search :view-name="viewName" @show-data="showSearchResult" @show-notification="showNotification" />
                 </div>
             </div>
         </div>
-        <Notification v-if="notification.message && !hideNotification" :notification="notification"
-            @remove-notification="hideNotification = true" />
-        <ShowData v-if="showData" :view-name="viewName" :item-list="itemList" @show-details="showDetails"
+        <Notification v-if="notification.message && showNotification" :notification="notification"
+            @remove-notification="showNotification = false" />
+        <ShowData v-if="showData" :view-name="viewName" :item-list="itemList" @show-details="viewDetails"
             @modify-item="modifyItem" @delete-item="deleteItem" />
         <Add v-if="showAdd" :view-name="viewName" :action-name="actionName" :item-data="itemData"
-            @show-notification="showNotification" />
+            @show-notification="handleNotification" />
         <Modify v-if="showModify" :view-name="viewName" :action-name="actionName" :item-data="itemData"
-            @show-notification="showNotification" />
+            @show-notification="handleNotification" />
         <Delete v-if="showDelete" :view-name="viewName" :item-data="itemData" @cancel="cancelDeleteItem"
-            @show-notification="showNotification" />
-        <ClientDetails v-if="showClientDetails" :item-details="itemDetails" @close-component="closeComponent"
-            @show-details="showDetails" />
-        <ServiceDetails v-if="showServiceDetails" :item-details="itemDetails" @close-component="closeComponent" />
+            @show-notification="handleNotification" />
+        <ShowDetails v-if="showDetails" :view-name="viewName" :item-details="itemDetails" @close-component="closeComponent"
+            @search-item="customSearch" />
     </div>
     <div v-else>
         <UserLogin @login-success="updateToken" />
@@ -274,7 +229,7 @@
         display: block;
     }
 
-    .search-bar {
+    .action-bar {
         display: flex;
         flex-direction: row;
         align-items: center;
