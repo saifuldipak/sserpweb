@@ -1,11 +1,9 @@
 <script setup>
-    import { ref, onMounted, watchEffect } from 'vue'
+    import { ref, onMounted } from 'vue'
     import { createApiUrl, createRequest } from '@/functions.js'
     import SubmitConfirm from './SubmitConfirm.vue';
     import Forms from './Forms.vue'
 
-    const message = ref()
-    const messageType = ref()
     const serviceTypes = ref([])
     const clientTypes = ref([])
     const dialogVisible = ref(false)
@@ -105,8 +103,6 @@
     const emit = defineEmits(['showNotification'])
 
     onMounted(async () => {
-        message.value = ''
-        messageType.value = ''
         const request = createRequest('GET')
 
         let apiEndpoint
@@ -232,22 +228,23 @@
             const response = await fetch(apiEndpoint, request)
 
             if (response.ok) {
-                message.value = props.viewName + ' ' + props.actionName + ' ' + ' successful'
-                messageType.value = 'Info'
-                emit('showNotification', message.value, messageType.value)
+                notification.value.message = props.viewName + ' ' + props.actionName + ' ' + ' successful'
+                notification.value.type = 'Info'
+                emit('showNotification', notification)
             }
             else {
                 const data = await response.json()
                 console.error(data)
-                message.value = `API error: ${data.detail}`
-                messageType.value = 'Error'
-                emit('showNotification', message.value, messageType.value)
+                notification.value.message = `API error: ${data.detail}`
+                notification.value.type = 'Error'
+                emit('showNotification', notification)
             }
         }
         catch (error) {
             console.error(error)
-            message.value = error.message
-            messageType.value = 'Error'
+            notification.value.message = error.message
+            notification.value.type = 'Error'
+            emit('showNotification', notification)
         }
         finally {
             closeDialog()
