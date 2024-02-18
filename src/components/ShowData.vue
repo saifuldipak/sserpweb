@@ -40,9 +40,13 @@
             <td v-if="props.viewName === 'Pops'"> {{ item.extra_info }}</td>
             <!-- Fifth column -->
             <td class="button-section">
-                <button v-if="props.viewName !== 'Service Types'" class="modify"
-                    @click="$emit('modifyItem', item.id)">Modify</button>
-                <button class="delete" @click="$emit('deleteItem', item.id)">Delete</button>
+                <a href="#" v-if="props.viewName !== 'Service Types'" class="modify"
+                    @click="$emit('modifyItem', item.id)"><span class="material-symbols-outlined modify-icon">
+                        edit
+                    </span></a>
+                <a class="delete" @click="$emit('deleteItem', item.id)"><span class="material-symbols-outlined delete-icon">
+                        delete
+                    </span></a>
             </td>
         </tr>
     </table>
@@ -60,12 +64,11 @@
         justify-content: space-around;
     }
 
-    .modify {
-        background-color: yellow;
+    .modify-icon {
+        color: rgb(215, 199, 15);
     }
 
-    .delete {
-        background-color: red;
-        color: white;
+    .delete-icon {
+        color: red;
     }
 </style>
