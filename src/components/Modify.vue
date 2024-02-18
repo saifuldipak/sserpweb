@@ -2,8 +2,7 @@
     import { ref, onMounted } from 'vue'
     import { createApiUrl, createRequest, isEqualObjects } from '@/functions.js'
     import SubmitConfirm from './SubmitConfirm.vue';
-    import ClientForm from './ClientForm.vue';
-    import ServiceForm from './ServiceForm.vue';
+    import Forms from './Forms.vue';
 
     const message = ref()
     const messageType = ref()
@@ -17,6 +16,57 @@
         type: ''
     })
 
+    const formData = ref({
+        client: {
+            name: '',
+            client_type_id: ''
+        },
+        service: {
+            client_id: '',
+            point: '',
+            service_type_id: '',
+            bandwidth: '',
+            pop_id: '',
+            extra_info: ''
+        },
+        serviceTypes: {
+            name: '',
+            description: ''
+        },
+        vendor: {
+            name: '',
+            type: ''
+        },
+        pop: {
+            name: '',
+            owner: 0,
+            extra_info: ''
+        },
+        address: {
+            flat: '',
+            floor: '',
+            holding: '',
+            street: '',
+            area: '',
+            thana: '',
+            district: '',
+            client_id: '',
+            service_id: '',
+            vendor_id: '',
+            extra_info: ''
+        },
+        contact: {
+            name: '',
+            designation: '',
+            type: '',
+            phone1: '',
+            phone2: '',
+            phone3: '',
+            client_id: 0,
+            service_id: 0,
+            vendor_id: 0
+        }
+    })
     const props = defineProps({
         viewName: {
             type: String,
@@ -38,7 +88,7 @@
         messageType.value = ''
 
         if (props.viewName === 'Clients') {
-            clientData.value = { ...props.itemData }
+            formData.value.client = { ...props.itemData }
         }
         else if (props.viewName === 'Services') {
             serviceData.value = { ...props.itemData }
@@ -87,51 +137,55 @@
     }
 
     const submitForm = async () => {
-        let formData, propertiesToDelete
+        let formInput, propertiesToDelete
 
         if (props.viewName === 'Clients') {
-            formData = clientData.value
+            formInput = formData.value.client
             propertiesToDelete = ['services', 'client_types', 'contacts', 'addresses']
         }
         else if (props.viewName === 'Services') {
-            formData = serviceData.value
+            formInput = serviceData.value
             propertiesToDelete = ['service_types', 'pops', 'clients', 'contacts', 'addresses']
         }
 
-        const result = isEqualObjects(props.itemData, formData)
+        const result = isEqualObjects(props.itemData, formInput)
         if (result) {
-            emit('showNotification', 'Nothing modified', 'Warning')
+            notification.value.message = 'Nothing modified'
+            notification.value.type = 'Warning'
+            emit('showNotification', notification.value)
             closeDialog()
             return
         }
 
         for (const property of propertiesToDelete) {
-            delete formData[property]
+            delete formInput[property]
         }
 
         const apiEndpoint = createApiUrl({ view: props.viewName, action: props.actionName })
-        const request = createRequest('PUT', formData)
+        const request = createRequest('PUT', formInput)
 
         try {
             const response = await fetch(apiEndpoint, request)
 
             if (response.ok) {
-                message.value = props.viewName + ' ' + props.actionName + ' ' + ' successful'
-                messageType.value = 'Info'
-                emit('showNotification', message.value, messageType.value)
+                notification.value.message = props.viewName + ' ' + props.actionName + ' ' + ' successful'
+                notification.value.type = 'Info'
+                emit('showNotification', notification.value)
             }
             else {
                 const data = await response.json()
                 console.error(data)
-                message.value = 'API error'
-                messageType.value = 'Error'
-                emit('showNotification', message.value, messageType.value)
+                notification.value.message = 'API error'
+                notification.value.type = 'Error'
+                console.log(notification.value)
+                emit('showNotification', notification.value)
             }
         }
         catch (error) {
             console.error(error)
-            message.value = error.message
-            messageType.value = 'Error'
+            notification.value.message = error.message
+            notification.value.type = 'Error'
+            emit('showNotification', notification.value)
         }
         finally {
             closeDialog()
@@ -143,11 +197,10 @@
     <div class="data-form">
         <form @submit.prevent="handleSubmit">
             <div class="form-fields">
-                <ClientForm v-if="props.viewName === 'Clients'" :view-name="props.viewName" :action-name="props.actionName"
-                    :client-types="clientTypes" v-model="clientData" />
-                <ServiceForm v-if="props.viewName === 'Services'" :view-name="props.viewName"
-                    :action-name="props.actionName" :service-types="serviceTypes" v-model="serviceData" />
+                <Forms v-if="props.viewName === 'Clients'" :view-name="props.viewName" :action-name="props.actionName"
+                    :client-types="clientTypes" v-model="formData" />
                 <button v-if="props.viewName !== ''" type="submit">Submit</button>
+
             </div>
             <div>
                 <SubmitConfirm v-model:show="dialogVisible" :action-name="props.actionName" @confirm="submitForm"

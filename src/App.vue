@@ -94,6 +94,9 @@
         notification.value = receivedNotification
         showNotification.value = true
         showDelete.value = false
+        if (notification.value.type === 'Info') {
+            showModify.value = false
+        }
     }
 
     const viewDetails = (item) => {
