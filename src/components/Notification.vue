@@ -18,13 +18,13 @@
     defineEmits(['removeNotification'])
 
     watchEffect(() => {
-        if (props.notification.type === 'Info') {
+        if (props.notification.value.type === 'Info') {
             classObject.value = { info: true, warning: false, error: false }
         }
-        else if (props.notification.type === 'Warning') {
+        else if (props.notification.value.type === 'Warning') {
             classObject.value = { info: false, warning: true, error: false }
         }
-        else if (props.notification.type === 'Error') {
+        else if (props.notification.value.type === 'Error') {
             classObject.value = { info: false, warning: false, error: true }
 
         }
@@ -34,10 +34,10 @@
 <template>
     <div class="message-container">
         <div class="banner" :class="classObject">
-            {{ props.notification.type }}
+            {{ props.notification.value.type }}
             <button @click="$emit('removeNotification')">X</button>
         </div>
-        <div class="message">{{ props.notification.message }}</div>
+        <div class="message">{{ props.notification.value.message }}</div>
     </div>
 </template>
 
