@@ -15,7 +15,7 @@
         }
     })
 
-    const emit = defineEmits(['showData', 'showNotification'])
+    const emit = defineEmits(['showData', 'showNotification', 'showHelpMessage'])
 
     watch(props, () => {
         searchString.value = ''
@@ -37,7 +37,7 @@
                 itemList.value = await response.json()
                 emit('showData', itemList.value)
             }
-            else if (response.status !== 200) {
+            else {
                 const responseMessage = await response.json()
                 notification.value.message = responseMessage.detail
                 notification.value.type = 'Error'
@@ -53,17 +53,66 @@
 </script>
 
 <template>
-    <form class="search-form" @submit.prevent="handleSearch">
-        <input class="search-input" type="text" placeholder="Enter text..." v-model="searchString" />
-        <button type="submit">Search</button>
-    </form>
+    <div class="search">
+        <div class="search-box">
+            <span class="material-symbols-outlined search-icon">
+                search
+            </span>
+            <form @submit.prevent="handleSearch">
+                <input type="text" placeholder="Enter text..." v-model="searchString" required />
+            </form>
+        </div>
+        <a href="#" @click="$emit('showHelpMessage')"><img src="@/components/icons/help.png" title="search help" /></a>
+    </div>
 </template>
 
 <style>
-    .search-form {
+    .search {
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: space-between;
+        justify-content: flex-end;
+    }
+
+    .search a {
+        display: block;
+        padding-left: 5px;
+    }
+
+    .help-icon {
+        margin: 0;
+        background-color: lightgrey;
+    }
+
+    .search-box {
+        display: flex;
+        flex-direction: row;
+        border: 1px solid lightgrey;
+        border-radius: 5px;
+    }
+
+    .search-box form {
+        width: 100%;
+    }
+
+    .search-box input {
+        border: none;
+        width: 100px;
+    }
+
+    .search-box input:focus {
+        outline: none;
+    }
+
+    .search-icon {
+        background-color: lightgrey;
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
+    }
+
+    @media only screen and (min-width: 768px) {
+        .search-box input {
+            width: 300px;
+        }
     }
 </style>
