@@ -44,7 +44,8 @@
                     @click="$emit('modifyItem', item.id)"><span class="material-symbols-outlined modify-icon">
                         edit
                     </span></a>
-                <a class="delete" @click="$emit('deleteItem', item.id)"><span class="material-symbols-outlined delete-icon">
+                <a href="#" class="delete" @click="$emit('deleteItem', item.id)"><span
+                        class="material-symbols-outlined delete-icon">
                         delete
                     </span></a>
             </td>
