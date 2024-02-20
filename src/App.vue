@@ -8,6 +8,7 @@
     import Modify from './components/Modify.vue';
     import ShowDetails from './components/ShowDetails.vue';
     import Search from './components/Search.vue';
+    import HelpMessage from './components/HelpMessage.vue';
 
     const token = ref('')
     const apiError = ref('')
@@ -24,6 +25,7 @@
     const viewName = ref('')
     const actionName = ref('')
     const notification = ref()
+    const showHelpMessage = ref(false)
     const views = ref([
         { id: 1, name: 'Clients' },
         { id: 2, name: 'Services' },
@@ -46,12 +48,7 @@
     }
 
     const clickedLink = (view) => {
-        showAdd.value = false
-        showModify.value = false
-        showDelete.value = false
-        showData.value = false
-        showNotification.value = false
-        showDetails.value = false
+        removeAllComponents()
         itemList.value = []
         actionName.value = ''
         viewName.value = view
@@ -129,11 +126,12 @@
         showData.value = false
         showDetails.value = false
         showNotification.value = false
+        showHelpMessage.value = false
     }
 </script>
 
 <template>
-    <div v-if="token">
+    <div class="main-container" v-if="token">
         <ul class="menu-bar">
             <li class="menu dropdown">
                 <img src="./components/icons/menu_button_2.png" class="icon">
@@ -149,17 +147,17 @@
                 </div>
             </li>
         </ul>
-        <div v-if="viewName">
-            <div class="action-bar">
-                <div class="left-items">
-                    <h1 class="heading">{{ viewName }}</h1>
-                    <button class="add-button" @click="addItem">+Add</button>
-                </div>
-                <div class="right-items">
-                    <Search :view-name="viewName" @show-data="showSearchResult" @show-notification="handleNotification" />
-                </div>
+        <div v-if="viewName" class="action-bar">
+            <div class="left-items">
+                <h1 class="heading">{{ viewName }}</h1>
+                <button class="add-button" @click="addItem">+Add</button>
+            </div>
+            <div class="right-items">
+                <Search :view-name="viewName" @show-data="showSearchResult" @show-notification="handleNotification"
+                    @show-help-message="showHelpMessage = true" />
             </div>
         </div>
+        <HelpMessage v-if="showHelpMessage" :view-name="viewName" @close-help-message="showHelpMessage = false" />
         <Notification v-if="showNotification" :notification="notification"
             @remove-notification="showNotification = false" />
         <ShowData v-if="showData" :view-name="viewName" :item-list="itemList" @show-details="viewDetails"
@@ -179,7 +177,15 @@
 </template>
 
 <style scoped>
+    .main-container {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+    }
+
     ul.menu-bar {
+        width: 100%;
         list-style-type: none;
         margin: 0;
         padding: 0;
@@ -239,6 +245,7 @@
     }
 
     .action-bar {
+        width: 100%;
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -246,7 +253,6 @@
     }
 
     .left-items {
-        width: 20%;
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -258,11 +264,10 @@
         padding-right: 10px;
     }
 
-    .search-form {
-        width: 30%;
+    .right-items {
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: space-between;
+        justify-content: space-around;
     }
 </style>                                                                                                                                                                                                                                                                                                   */
