@@ -63,10 +63,15 @@
     }
 
     const addItem = () => {
-        showNotification.value = false
-        showData.value = false
-        actionName.value = 'Add'
-        showAdd.value = true
+        //removeAllComponents()
+        if (showAdd.value === true) {
+            showAdd.value = false
+            actionName.value = ''
+        }
+        else {
+            showAdd.value = true
+            actionName.value = 'Add'
+        }
     }
 
     const modifyItem = (itemId) => {
@@ -91,6 +96,7 @@
         notification.value = receivedNotification
         showNotification.value = true
         showDelete.value = false
+        showAdd.value = false
         if (notification.value.type === 'Info') {
             showModify.value = false
         }
@@ -150,7 +156,9 @@
         <div v-if="viewName" class="action-bar">
             <div class="left-items">
                 <h1 class="heading">{{ viewName }}</h1>
-                <button class="add-button" @click="addItem">+Add</button>
+                <a href="#" @click="addItem"><span class="material-symbols-outlined add-button">
+                        add_box
+                    </span></a>
             </div>
             <div class="right-items">
                 <Search :view-name="viewName" @show-data="showSearchResult" @show-notification="handleNotification"
@@ -269,5 +277,9 @@
         flex-direction: row;
         align-items: center;
         justify-content: space-around;
+    }
+
+    .add-button {
+        color: green;
     }
 </style>                                                                                                                                                                                                                                                                                                   */
