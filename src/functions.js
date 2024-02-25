@@ -129,6 +129,7 @@ export const createQueryParameters = (view, searchString) => {
         queryParameters = "?" + firstQueryArgument + "=" + searchString;
     }
 
+    queryParameters = queryParameters + "&" + "page=0" + "&" + "page_size=20";
     return queryParameters;
 };
 
