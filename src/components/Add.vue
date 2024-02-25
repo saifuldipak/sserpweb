@@ -7,9 +7,11 @@
     const serviceTypes = ref([])
     const clientTypes = ref([])
     const dialogVisible = ref(false)
+    const hideMessageBox = ref(true)
+    const hideFormElements = ref(false)
     const notification = ref({
-        message: '',
-        type: ''
+        type: '',
+        message: ''
     })
     const formData = ref({
         client: {
@@ -138,11 +140,15 @@
     })
 
     const closeDialog = () => {
-        dialogVisible.value = false;
+        dialogVisible.value = false
+        hideMessageBox.value = true
+        hideFormElements.value = false
     };
 
     const handleSubmit = async () => {
         dialogVisible.value = true
+        hideMessageBox.value = false
+        hideFormElements.value = true
     }
 
     const submitForm = async () => {
@@ -253,19 +259,19 @@
 </script>
 
 <template>
-    <div class="data-form">
-        <form @submit.prevent="handleSubmit">
-            <div class="form-fields">
+    <div class="form">
+        <div :class="{ 'form-elements-inactive': hideFormElements }">
+            <form @submit.prevent="handleSubmit">
                 <Forms :view-name="props.viewName" :action-name="props.actionName" :client-types="clientTypes"
                     :service-types="serviceTypes" :vendor-types="vendorTypes" :contact-types="contactTypes"
                     v-model="formData" />
                 <button v-if="props.viewName !== ''" type="submit">Submit</button>
-            </div>
-            <div>
-                <SubmitConfirm v-model:show="dialogVisible" :action-name="props.actionName" @confirm="submitForm"
-                    @cancel="closeDialog" />
-            </div>
-        </form>
+            </form>
+        </div>
+        <div :class="{ 'message-box': true, 'message-box-hide': hideMessageBox }">
+            <SubmitConfirm v-model:show="dialogVisible" :action-name="props.actionName" @confirm="submitForm"
+                @cancel="closeDialog" />
+        </div>
     </div>
 </template>
 
