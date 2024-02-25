@@ -41,12 +41,14 @@
                 const responseMessage = await response.json()
                 notification.value.message = responseMessage.detail
                 notification.value.type = 'Error'
+                emit('showData', itemList.value)
                 emit('showNotification', notification)
             }
         }
         catch (error) {
             notification.value.message = error.message
             notification.value.type = 'Error'
+            emit('showData', itemList.value)
             emit('showNotification', notification)
         }
     }
