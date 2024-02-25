@@ -11,14 +11,6 @@
     });
 
     const emit = defineEmits(['confirm', 'cancel'])
-
-    const confirm = () => {
-        emit('confirm');
-    };
-
-    const cancel = () => {
-        emit('cancel');
-    };
 </script>
 
 <template>
@@ -27,18 +19,16 @@
         <div class="message" v-if="props.actionName === 'Modify'">Are you sure you want to modify?</div>
         <div class="message" v-if="props.actionName === 'Delete'">Are you sure you want to delete?</div>
         <div class="button-section">
-            <button @click="confirm">Confirm</button>
-            <button @click="cancel">Cancel</button>
+            <button @click="$emit('confirm')">Yes</button>
+            <button @click="$emit('cancel')">No</button>
         </div>
     </div>
 </template>
   
 <style scoped>
     .confirm {
-        width: 30%;
         display: flex;
         flex-direction: column;
-        background-color: lightgoldenrodyellow;
         text-align: center;
     }
 
