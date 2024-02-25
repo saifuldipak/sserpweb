@@ -63,7 +63,7 @@
     }
 
     const addItem = () => {
-        //removeAllComponents()
+        showData.value = false
         if (showAdd.value === true) {
             showAdd.value = false
             actionName.value = ''
@@ -92,8 +92,8 @@
         showData.value = true
     }
 
-    const handleNotification = (receivedNotification) => {
-        notification.value = receivedNotification
+    const handleNotification = (notificationReceived) => {
+        notification.value = notificationReceived.value
         showNotification.value = true
         showDelete.value = false
         showAdd.value = false
