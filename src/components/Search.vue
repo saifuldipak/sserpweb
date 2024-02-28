@@ -1,11 +1,8 @@
 <script setup>
     import { ref, watch } from 'vue'
     import { createApiUrl, createRequest } from '@/functions.js'
+    import { notification } from '../store';
 
-    const notification = ref({
-        message: '',
-        type: ''
-    })
     const searchString = ref('')
     const itemList = ref([])
     const props = defineProps({
@@ -41,15 +38,14 @@
                 const responseMessage = await response.json()
                 notification.value.message = responseMessage.detail
                 notification.value.type = 'Error'
+                itemList.value = []
                 emit('showData', itemList.value)
-                emit('showNotification', notification)
             }
         }
         catch (error) {
             notification.value.message = error.message
             notification.value.type = 'Error'
             emit('showData', itemList.value)
-            emit('showNotification', notification)
         }
     }
 </script>
@@ -61,7 +57,8 @@
                 search
             </span>
             <form @submit.prevent="handleSearch">
-                <input type="text" placeholder="Enter text..." v-model="searchString" required />
+                <input name="search-input" type="text" placeholder="Enter text..." v-model="searchString" required
+                    autocomplete="on" />
             </form>
         </div>
         <a href="#" @click="$emit('showHelpMessage')"><img src="@/components/icons/help.png" title="search help" /></a>

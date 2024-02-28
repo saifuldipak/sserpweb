@@ -3,16 +3,13 @@
     import { createApiUrl, createRequest } from '@/functions.js'
     import SubmitConfirm from './SubmitConfirm.vue';
     import Forms from './Forms.vue'
+    import { notification } from '../store';
 
     const serviceTypes = ref([])
     const clientTypes = ref([])
     const dialogVisible = ref(false)
     const hideMessageBox = ref(true)
     const hideFormElements = ref(false)
-    const notification = ref({
-        type: '',
-        message: ''
-    })
     const formData = ref({
         client: {
             name: '',
@@ -102,7 +99,6 @@
         },
     })
 
-    const emit = defineEmits(['showNotification'])
 
     onMounted(async () => {
         const request = createRequest('GET')
@@ -168,7 +164,6 @@
             else {
                 notification.value.message = "You must fill one of 'Clients', 'Services' or 'Vendors'"
                 notification.value.messageType = 'Warning'
-                emit('showNotification', notification.value.message, notification.value.messageType)
                 return
             }
         }
@@ -189,7 +184,6 @@
             else {
                 notification.value.message = "You must fill one of 'Clients', 'Services' or 'Vendors'"
                 notification.value.messageType = 'Warning'
-                emit('showNotification', notification.value.message, notification.value.messageType)
                 return
             }
 
@@ -236,21 +230,18 @@
             if (response.ok) {
                 notification.value.message = props.viewName + ' ' + props.actionName + ' ' + ' successful'
                 notification.value.type = 'Info'
-                emit('showNotification', notification)
             }
             else {
                 const data = await response.json()
                 console.error(data)
                 notification.value.message = `API error: ${data.detail}`
                 notification.value.type = 'Error'
-                emit('showNotification', notification)
             }
         }
         catch (error) {
             console.error(error)
             notification.value.message = error.message
             notification.value.type = 'Error'
-            emit('showNotification', notification)
         }
         finally {
             closeDialog()

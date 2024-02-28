@@ -2,13 +2,10 @@
     import { ref } from 'vue';
     import SubmitConfirm from './SubmitConfirm.vue'
     import { createApiUrl, createRequest } from '@/functions.js';
+    import { notification } from '../store';
 
     const dialogVisible = ref(true)
     const actionName = ref('Delete')
-    const notification = ref({
-        message: '',
-        type: ''
-    })
 
     const props = defineProps({
         viewName: {
@@ -48,7 +45,7 @@
             }
         }
         catch (error) {
-            console.log(error)
+            console.error(error)
             notification.value.message = error.message
             notification.value.type = 'Error'
         }

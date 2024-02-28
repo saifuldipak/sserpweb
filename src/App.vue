@@ -9,6 +9,7 @@
     import ShowDetails from './components/ShowDetails.vue';
     import Search from './components/Search.vue';
     import HelpMessage from './components/HelpMessage.vue';
+    import { notification } from './store';
 
     const token = ref('')
     const apiError = ref('')
@@ -24,7 +25,6 @@
     const showDetails = ref(false)
     const viewName = ref('')
     const actionName = ref('')
-    const notification = ref()
     const showHelpMessage = ref(false)
     const views = ref([
         { id: 1, name: 'Clients' },
@@ -92,16 +92,6 @@
         showData.value = true
     }
 
-    const handleNotification = (notificationReceived) => {
-        notification.value = notificationReceived.value
-        showNotification.value = true
-        showDelete.value = false
-        showAdd.value = false
-        if (notification.value.type === 'Info') {
-            showModify.value = false
-        }
-    }
-
     const viewDetails = (item) => {
         itemDetails.value = item
         showData.value = false
@@ -161,21 +151,16 @@
                     </span></a>
             </div>
             <div class="right-items">
-                <Search :view-name="viewName" @show-data="showSearchResult" @show-notification="handleNotification"
-                    @show-help-message="showHelpMessage = true" />
+                <Search :view-name="viewName" @show-data="showSearchResult" @show-help-message="showHelpMessage = true" />
             </div>
         </div>
         <HelpMessage v-if="showHelpMessage" :view-name="viewName" @close-help-message="showHelpMessage = false" />
-        <Notification v-if="showNotification" :notification="notification"
-            @remove-notification="showNotification = false" />
+        <Notification v-if="notification.message" @remove-notification="showNotification = false" />
         <ShowData v-if="showData" :view-name="viewName" :item-list="itemList" @show-details="viewDetails"
             @modify-item="modifyItem" @delete-item="deleteItem" />
-        <Add v-if="showAdd" :view-name="viewName" :action-name="actionName" :item-data="itemData"
-            @show-notification="handleNotification" />
-        <Modify v-if="showModify" :view-name="viewName" :action-name="actionName" :item-data="itemData"
-            @show-notification="handleNotification" />
-        <Delete v-if="showDelete" :view-name="viewName" :item-data="itemData" @cancel="cancelDeleteItem"
-            @show-notification="handleNotification" />
+        <Add v-if="showAdd" :view-name="viewName" :action-name="actionName" :item-data="itemData" />
+        <Modify v-if="showModify" :view-name="viewName" :action-name="actionName" :item-data="itemData" />
+        <Delete v-if="showDelete" :view-name="viewName" :item-data="itemData" @cancel="cancelDeleteItem" />
         <ShowDetails v-if="showDetails" :view-name="viewName" :item-details="itemDetails" @close-component="closeComponent"
             @search-item="customSearch" />
     </div>

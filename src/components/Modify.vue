@@ -3,6 +3,7 @@
     import { createApiUrl, createRequest, isEqualObjects } from '@/functions.js'
     import SubmitConfirm from './SubmitConfirm.vue';
     import Forms from './Forms.vue';
+    import { notification } from '../store';
 
     const message = ref()
     const messageType = ref()
@@ -10,12 +11,6 @@
     const clientTypes = ref([])
     const dialogVisible = ref(false)
     const serviceData = ref({})
-    const clientData = ref({})
-    const notification = ref({
-        message: '',
-        type: ''
-    })
-
     const formData = ref({
         client: {
             name: '',
@@ -170,22 +165,18 @@
             if (response.ok) {
                 notification.value.message = props.viewName + ' ' + props.actionName + ' ' + ' successful'
                 notification.value.type = 'Info'
-                emit('showNotification', notification.value)
             }
             else {
                 const data = await response.json()
                 console.error(data)
                 notification.value.message = 'API error'
                 notification.value.type = 'Error'
-                console.log(notification.value)
-                emit('showNotification', notification.value)
             }
         }
         catch (error) {
             console.error(error)
             notification.value.message = error.message
             notification.value.type = 'Error'
-            emit('showNotification', notification.value)
         }
         finally {
             closeDialog()
