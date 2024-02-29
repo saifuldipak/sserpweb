@@ -22,7 +22,6 @@
         if (!searchString.value) {
             notification.value.message = 'Must provide search parameter, please see help for details'
             notification.value.type = 'Warning'
-            emit('showNotification', notification)
             return
         }
 

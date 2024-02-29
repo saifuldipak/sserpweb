@@ -18,7 +18,7 @@
         },
     })
 
-    const emit = defineEmits(['cancel', 'showNotification'])
+    const emit = defineEmits(['cancel'])
 
     const closeDialog = (type = '') => {
         dialogVisible.value = false
@@ -52,8 +52,6 @@
         finally {
             closeDialog()
         }
-
-        emit('showNotification', notification)
     }
 </script>
 
