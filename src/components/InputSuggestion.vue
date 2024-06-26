@@ -1,79 +1,74 @@
 <script setup>
-    import { ref, watchEffect } from 'vue'
-    import { createApiUrl, createRequest } from '@/functions.js'
+    import { ref, watchEffect } from "vue";
+    import { createApiUrl, createRequest } from "@/functions.js";
 
-    const message = ref('')
-    const messageType = ref('')
-    const itemList = ref()
-    const itemName = ref('')
-    const itemId = ref()
+    const message = ref("");
+    const messageType = ref("");
+    const itemList = ref();
+    const itemName = ref("");
+    const itemId = ref();
 
     const props = defineProps({
         itemName: {
             type: String,
-            required: true
+            required: true,
         },
         itemData: {
-            type: Object
-        }
-    })
+            type: Object,
+        },
+    });
 
-    const emit = defineEmits(['selectedItemId'])
+    const emit = defineEmits(["selectedItemId"]);
 
     const searchSuggestions = async () => {
-        message.value = ''
-        messageType.value = ''
+        message.value = "";
+        messageType.value = "";
 
         if (itemName.value.length > 2) {
-            const apiEndpoint = createApiUrl({ view: props.itemName, action: 'search', searchString: itemName.value })
-            const request = createRequest('GET')
+            const apiEndpoint = createApiUrl({ view: props.itemName, action: "search", searchString: itemName.value });
+            const request = createRequest("GET");
 
             try {
-                const response = await fetch(apiEndpoint, request)
+                const response = await fetch(apiEndpoint, request);
                 if (response.status === 200) {
-                    itemList.value = await response.json()
+                    itemList.value = await response.json();
+                } else {
+                    const data = await response.json();
+                    message.value = data.detail;
+                    messageType.value = "Error";
                 }
-                else {
-                    const data = await response.json()
-                    message.value = data.detail
-                    messageType.value = 'Error'
-                }
-            }
-            catch (error) {
-                console.error(error)
-                message.value = error.message
-                messageType.value = 'Error'
+            } catch (error) {
+                console.error(error);
+                message.value = error.message;
+                messageType.value = "Error";
             }
         }
-    }
+    };
 
     const selectSuggestion = (id, name) => {
-        itemId.value = id
-        itemName.value = name
-        itemList.value = []
-        emit('selectedItemId', props.itemName, itemId.value, itemName.value)
-    }
+        itemId.value = id;
+        itemName.value = name;
+        itemList.value = [];
+        emit("selectedItemId", props.itemName, itemId.value, itemName.value);
+    };
 
     watchEffect(() => {
         if (props.itemData) {
-            selectSuggestion(props.itemData.id, props.itemData.name)
+            selectSuggestion(props.itemData.id, props.itemData.name);
         }
-    })
+    });
 </script>
 
 <template>
-    <input class="client-name" type="text" :placeholder="props.itemName" v-model="itemName" @input="searchSuggestions">
+    <input class="client-name" type="text" :placeholder="props.itemName" v-model="itemName" @input="searchSuggestions" />
     <ul v-if="itemName.length > 0" class="suggestions">
         <div v-if="props.itemName !== 'Services'">
-            <li class="suggestion" v-for="item in itemList" :key="item.id" @click="selectSuggestion(item.id, item.name)">{{
-                item.name }}
-            </li>
+            <li class="suggestion" v-for="item in itemList" :key="item.id" @click="selectSuggestion(item.id, item.name)">{{ item.name }}</li>
         </div>
         <div v-else>
-            <li class="suggestion" v-for="item in itemList" :key="item.id" @click="selectSuggestion(item.id, item.point)">{{
-                item.point }}, {{ item.clients.name }}
+            <li class="suggestion" v-for="item in itemList" :key="item.id" @click="selectSuggestion(item.id, item.point)">
+                {{ item.point }}, {{ item.clients.name }}
             </li>
-
         </div>
     </ul>
 </template>
