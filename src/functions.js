@@ -275,3 +275,23 @@ export const createBody = (viewName, actionName, itemData) => {
     return body;
 };
  */
+
+export const createNotificationMessage = (viewName, actionName) => {
+    if (viewName === "Client Types") {
+        if (actionName === "Add") {
+            return "Client type added successfully";
+        } else if (actionName === "Modify") {
+            return "Client type modified successfully";
+        } else if (actionName === "Delete") {
+            return "Client type deleted successfully";
+        }
+    } else if (viewName === "Clients") {
+        if (actionName === "Add") {
+            return "Client added successfully";
+        } else if (actionName === "Modify") {
+            return "Client modified successfully";
+        } else if (actionName === "Delete") {
+            return "Client deleted successfully";
+        }
+    }
+};
