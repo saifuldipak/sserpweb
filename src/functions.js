@@ -48,10 +48,7 @@ export const callApi = async (apiEndpoint, request) => {
 
 //create query parameters
 export const createQueryParameters = (view, searchString) => {
-    let firstQueryArgument,
-        secondQueryArgument,
-        thirdQueryArgument,
-        fourthQueryArgument;
+    let firstQueryArgument, secondQueryArgument, thirdQueryArgument, fourthQueryArgument;
     switch (view) {
         case "Clients":
             firstQueryArgument = "client_name";
@@ -98,29 +95,25 @@ export const createQueryParameters = (view, searchString) => {
 
     let queryParameters = "?";
     if (firstMatch) {
-        queryParameters =
-            queryParameters + firstQueryArgument + "=" + firstMatch[1];
+        queryParameters = queryParameters + firstQueryArgument + "=" + firstMatch[1];
     } else {
         queryParameters = queryParameters + firstQueryArgument + "=";
     }
 
     if (secondMatch) {
-        queryParameters =
-            queryParameters + "&" + secondQueryArgument + "=" + secondMatch[1];
+        queryParameters = queryParameters + "&" + secondQueryArgument + "=" + secondMatch[1];
     } else {
         queryParameters = queryParameters + "&" + secondQueryArgument + "=";
     }
 
     if (thirdMatch) {
-        queryParameters =
-            queryParameters + "&" + thirdQueryArgument + "=" + thirdMatch[1];
+        queryParameters = queryParameters + "&" + thirdQueryArgument + "=" + thirdMatch[1];
     } else {
         queryParameters = queryParameters + "&" + thirdQueryArgument + "=";
     }
 
     if (fourthMatch) {
-        queryParameters =
-            queryParameters + "&" + fourthQueryArgument + "=" + fourthMatch[1];
+        queryParameters = queryParameters + "&" + fourthQueryArgument + "=" + fourthMatch[1];
     } else {
         queryParameters = queryParameters + "&" + fourthQueryArgument + "=";
     }
@@ -154,36 +147,35 @@ export const createApiUrl = ({ view, action = "", searchString = "" }) => {
     let apiEndpoint = API_HOST;
 
     if (view === "token") {
-        apiEndpoint = apiEndpoint + "token";
+        apiEndpoint = apiEndpoint + "/token";
         return apiEndpoint;
     }
 
     if (action === "search") {
-        apiEndpoint = apiEndpoint + "search/";
         switch (view) {
             case "Clients":
-                apiEndpoint = apiEndpoint + "client";
+                apiEndpoint = apiEndpoint + "/clients";
                 break;
             case "Services":
-                apiEndpoint = apiEndpoint + "service";
+                apiEndpoint = apiEndpoint + "/services";
                 break;
             case "Client Types":
-                apiEndpoint = apiEndpoint + "client/type";
+                apiEndpoint = apiEndpoint + "/client/types";
                 break;
             case "Service Types":
-                apiEndpoint = apiEndpoint + "service/type";
+                apiEndpoint = apiEndpoint + "/service/types";
                 break;
             case "Vendors":
-                apiEndpoint = apiEndpoint + "vendor";
+                apiEndpoint = apiEndpoint + "/vendors";
                 break;
             case "Pops":
-                apiEndpoint = apiEndpoint + "pop";
+                apiEndpoint = apiEndpoint + "/pops";
                 break;
             case "Addresses":
-                apiEndpoint = apiEndpoint + "address";
+                apiEndpoint = apiEndpoint + "/addresses";
                 break;
             case "Contacts":
-                apiEndpoint = apiEndpoint + "contact";
+                apiEndpoint = apiEndpoint + "/contacts";
                 break;
             default:
                 throw new Error("Unknown view");
@@ -197,35 +189,38 @@ export const createApiUrl = ({ view, action = "", searchString = "" }) => {
         return apiEndpoint;
     }
 
-    let base;
+    let resource;
     if (action !== "search") {
         switch (view) {
             case "Clients":
-                base = "client/";
+                resource = "/client";
                 break;
             case "Service Types":
-                base = "service/type/";
+                resource = "service/type/";
                 break;
             case "Services":
-                base = "service/";
+                resource = "service/";
                 break;
             case "Vendors":
-                base = "vendor/";
+                resource = "vendor/";
                 break;
             case "Pops":
-                base = "pop/";
+                resource = "pop/";
                 break;
             case "Addresses":
-                base = "address/";
+                resource = "address/";
                 break;
             case "Contacts":
-                base = "contact/";
+                resource = "contact/";
+                break;
+            case "Client Types":
+                resource = "client/type/";
                 break;
             default:
                 throw new Error("Unknown view");
         }
 
-        apiEndpoint = apiEndpoint + base + action.toLowerCase();
+        apiEndpoint = apiEndpoint + resource;
         return apiEndpoint;
     }
 };
