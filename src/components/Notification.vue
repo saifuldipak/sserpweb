@@ -1,32 +1,30 @@
 <script setup>
-    import { ref, watchEffect } from 'vue'
-    import { notification } from '../store';
+    import { ref, watchEffect } from "vue";
+    import { notification } from "../store";
 
     const classObject = ref({
         info: false,
         warning: false,
-        error: false
-    })
+        error: false,
+    });
 
-    defineEmits(['removeNotification'])
+    const emit = defineEmits(["removeNotification"]);
 
     watchEffect(() => {
-        if (notification.value.type === 'Info') {
-            classObject.value = { info: true, warning: false, error: false }
+        if (notification.value.type === "Info") {
+            classObject.value = { info: true, warning: false, error: false };
+        } else if (notification.value.type === "Warning") {
+            classObject.value = { info: false, warning: true, error: false };
+        } else if (notification.value.type === "Error") {
+            classObject.value = { info: false, warning: false, error: true };
         }
-        else if (notification.value.type === 'Warning') {
-            classObject.value = { info: false, warning: true, error: false }
-        }
-        else if (notification.value.type === 'Error') {
-            classObject.value = { info: false, warning: false, error: true }
-
-        }
-    })
+    });
 
     const removeNotification = () => {
-        notification.value.message = ''
-        notification.value.type = ''
-    }
+        notification.value.message = "";
+        notification.value.type = "";
+        emit("removeNotification");
+    };
 </script>
 
 <template>
