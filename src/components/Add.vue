@@ -3,42 +3,13 @@
     import { createApiUrl, createRequest, createNotificationMessage } from "@/functions.js";
     import SubmitConfirm from "./SubmitConfirm.vue";
     import Forms from "./Forms.vue";
-    import { notification, formData } from "../store";
+    import { notification, formData, vendorTypes, contactTypes } from "../store";
 
     const serviceTypes = ref([]);
     const clientTypes = ref([]);
     const dialogVisible = ref(false);
     const hideMessageBox = ref(true);
     const hideFormElements = ref(false);
-    const vendorTypes = [
-        {
-            id: 1,
-            type: "LSP",
-        },
-        {
-            id: 2,
-            type: "ISP",
-        },
-        {
-            id: 3,
-            type: "NTTN",
-        },
-    ];
-
-    const contactTypes = [
-        {
-            id: 1,
-            type: "Admin",
-        },
-        {
-            id: 2,
-            type: "Technical",
-        },
-        {
-            id: 3,
-            type: "Billing",
-        },
-    ];
 
     const props = defineProps({
         viewName: {
@@ -54,8 +25,10 @@
     const emit = defineEmits(["showNotification"]);
 
     onMounted(async () => {
-        const request = createRequest("GET");
+        formData.value.vendor.name = "";
+        formData.value.vendor.type = "";
 
+        const request = createRequest("GET");
         let apiEndpoint;
         if (props.viewName === "Services") {
             apiEndpoint = createApiUrl({ view: "Service Types", action: "search" });
