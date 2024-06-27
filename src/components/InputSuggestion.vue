@@ -54,7 +54,7 @@
 
     watchEffect(() => {
         if (props.itemData) {
-            selectSuggestion(props.itemData.id, props.itemData.name);
+            itemName.value = props.itemData.name;
         }
     });
 </script>
