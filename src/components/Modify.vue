@@ -3,7 +3,7 @@
     import { createApiUrl, createRequest, isEqualObjects, createNotificationMessage } from "@/functions.js";
     import SubmitConfirm from "./SubmitConfirm.vue";
     import Forms from "./Forms.vue";
-    import { notification } from "../store";
+    import { notification, formData, vendorTypes, contactTypes } from "../store";
 
     const message = ref();
     const messageType = ref();
@@ -13,57 +13,7 @@
     const serviceData = ref({});
     const hideMessageBox = ref(true);
     const itemName = ref("");
-    const formData = ref({
-        client: {
-            name: "",
-            client_type_id: "",
-        },
-        service: {
-            client_id: "",
-            point: "",
-            service_type_id: "",
-            bandwidth: "",
-            pop_id: "",
-            extra_info: "",
-        },
-        serviceTypes: {
-            name: "",
-            description: "",
-        },
-        vendor: {
-            name: "",
-            type: "",
-        },
-        pop: {
-            name: "",
-            owner: 0,
-            extra_info: "",
-        },
-        address: {
-            flat: "",
-            floor: "",
-            holding: "",
-            street: "",
-            area: "",
-            thana: "",
-            district: "",
-            client_id: "",
-            service_id: "",
-            vendor_id: "",
-            extra_info: "",
-        },
-        contact: {
-            name: "",
-            designation: "",
-            type: "",
-            phone1: "",
-            phone2: "",
-            phone3: "",
-            client_id: 0,
-            service_id: 0,
-            vendor_id: 0,
-        },
-    });
+
     const props = defineProps({
         viewName: {
             type: String,
@@ -86,8 +36,10 @@
 
         if (props.viewName === "Clients") {
             formData.value.client = { ...props.itemData };
-        } else if (props.viewName === "Services") {
-            serviceData.value = { ...props.itemData };
+        } else if (props.viewName === "Vendors") {
+            formData.value.vendor = { ...props.itemData };
+        } else if (props.viewName === "Pops") {
+            formData.value.pop = { ...props.itemData };
         }
 
         const request = createRequest("GET");
@@ -147,9 +99,12 @@
         if (props.viewName === "Clients") {
             formInput = formData.value.client;
             propertiesToDelete = ["services", "client_types", "contacts", "addresses"];
-        } else if (props.viewName === "Services") {
-            formInput = serviceData.value;
-            propertiesToDelete = ["service_types", "pops", "clients", "contacts", "addresses"];
+        } else if (props.viewName === "Vendors") {
+            formInput = formData.value.vendor;
+            propertiesToDelete = ["contacts", "addresses"];
+        } else if (props.viewName === "Pops") {
+            formInput = formData.value.pop;
+            propertiesToDelete = ["vendors", "contacts", "addresses"];
         }
 
         const result = isEqualObjects(props.itemData, formInput);
@@ -196,10 +151,12 @@
         <form @submit.prevent="handleSubmit">
             <div class="form-fields">
                 <Forms
-                    v-if="props.viewName === 'Clients'"
                     :view-name="props.viewName"
                     :action-name="props.actionName"
                     :client-types="clientTypes"
+                    :service-types="serviceTypes"
+                    :vendor-types="vendorTypes"
+                    :contact-types="contactTypes"
                     v-model="formData"
                 />
                 <button v-if="props.viewName !== ''" type="submit">Submit</button>
