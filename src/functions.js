@@ -196,25 +196,25 @@ export const createApiUrl = ({ view, action = "", searchString = "" }) => {
                 resource = "/client";
                 break;
             case "Service Types":
-                resource = "service/type/";
+                resource = "/service/type";
                 break;
             case "Services":
-                resource = "service/";
+                resource = "/service";
                 break;
             case "Vendors":
-                resource = "vendor/";
+                resource = "/vendor";
                 break;
             case "Pops":
-                resource = "pop/";
+                resource = "/pop";
                 break;
             case "Addresses":
-                resource = "address/";
+                resource = "/address";
                 break;
             case "Contacts":
-                resource = "contact/";
+                resource = "/contact";
                 break;
             case "Client Types":
-                resource = "client/type/";
+                resource = "/client/type";
                 break;
             default:
                 throw new Error("Unknown view");
@@ -277,21 +277,28 @@ export const createBody = (viewName, actionName, itemData) => {
  */
 
 export const createNotificationMessage = (viewName, actionName) => {
+    let item = "";
     if (viewName === "Client Types") {
-        if (actionName === "Add") {
-            return "Client type added successfully";
-        } else if (actionName === "Modify") {
-            return "Client type modified successfully";
-        } else if (actionName === "Delete") {
-            return "Client type deleted successfully";
-        }
+        item = "Client type";
     } else if (viewName === "Clients") {
-        if (actionName === "Add") {
-            return "Client added successfully";
-        } else if (actionName === "Modify") {
-            return "Client modified successfully";
-        } else if (actionName === "Delete") {
-            return "Client deleted successfully";
-        }
+        item = "Client";
+    } else if (viewName === "Vendors") {
+        item = "Vendor";
+    } else if (viewName === "Services") {
+        item = "Service";
+    } else if (viewName === "Pops") {
+        item = "Pop";
+    } else if (viewName === "Addresses") {
+        item = "Address";
+    } else if (viewName === "Contacts") {
+        item = "Contact";
+    }
+
+    if (actionName === "Add") {
+        return `${item} added successfully`;
+    } else if (actionName === "Modify") {
+        return `${item} modified successfully`;
+    } else if (actionName === "Delete") {
+        return `${item} deleted successfully`;
     }
 };
