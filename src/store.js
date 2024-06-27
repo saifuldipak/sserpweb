@@ -60,3 +60,33 @@ export const formData = ref({
         description: "",
     },
 });
+
+export const vendorTypes = [
+    {
+        id: 1,
+        type: "LSP",
+    },
+    {
+        id: 2,
+        type: "ISP",
+    },
+    {
+        id: 3,
+        type: "NTTN",
+    },
+];
+
+export const contactTypes = [
+    {
+        id: 1,
+        type: "Admin",
+    },
+    {
+        id: 2,
+        type: "Technical",
+    },
+    {
+        id: 3,
+        type: "Billing",
+    },
+];
