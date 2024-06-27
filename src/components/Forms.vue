@@ -103,7 +103,7 @@
     </div>
     <div v-else-if="props.viewName === 'Pops'">
         <input type="text" placeholder="Pop name" v-model="formData.pop.name" />
-        <InputSuggestion :item-name="'Vendors'" @selected-item-id="selectedSuggestion" />
+        <InputSuggestion :item-name="'Vendors'" :item-data="formData.pop.vendors" @selected-item-id="selectedSuggestion" />
         <input type="text" placeholder="Additional information (optional)" v-model="formData.pop.extraInfo" />
     </div>
     <div v-else-if="props.viewName === 'Addresses'">
