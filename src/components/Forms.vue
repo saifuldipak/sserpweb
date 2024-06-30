@@ -77,7 +77,12 @@
     </div>
     <div v-else-if="props.viewName === 'Services'">
         <InputSuggestion v-if="props.actionName === 'Add'" :item-name="'Clients'" @selected-item-id="selectedSuggestion" />
-        <InputSuggestion v-else-if="props.actionName === 'Modify'" :item-name="'Clients'" :item-data="service.clients" @selected-item-id="selectedSuggestion" />
+        <InputSuggestion
+            v-else-if="props.actionName === 'Modify'"
+            :item-name="'Clients'"
+            :item-data="formData.service.clients"
+            @selected-item-id="selectedSuggestion"
+        />
         <input type="text" placeholder="Service location" v-model="formData.service.point" />
         <select v-model="formData.service.service_type_id">
             <option disabled value="">select service type</option>
@@ -85,7 +90,12 @@
         </select>
         <input type="integer" placeholder="bandwidth value in Mbps" v-model="formData.service.bandwidth" />
         <InputSuggestion v-if="props.actionName === 'Add'" :item-name="'Pops'" @selected-item-id="selectedSuggestion" />
-        <InputSuggestion v-else-if="props.actionName === 'Modify'" :item-name="'Pops'" :item-data="service.pops" @selected-item-id="selectedSuggestion" />
+        <InputSuggestion
+            v-else-if="props.actionName === 'Modify'"
+            :item-name="'Pops'"
+            :item-data="formData.service.pops"
+            @selected-item-id="selectedSuggestion"
+        />
         <input type="text" placeholder="extra info" v-model="formData.service.extra_info" />
     </div>
     <div v-else-if="props.viewName === 'Service Types'">
@@ -114,9 +124,9 @@
         <input type="text" placeholder="Area" v-model="formData.address.area" required />
         <input type="text" placeholder="Thana" v-model="formData.address.thana" required />
         <input type="text" placeholder="District" v-model="formData.address.district" required />
-        <InputSuggestion :item-name="'Clients'" @selected-item-id="selectedSuggestion" />
-        <InputSuggestion :item-name="'Services'" @selected-item-id="selectedSuggestion" />
-        <InputSuggestion :item-name="'Vendors'" @selected-item-id="selectedSuggestion" />
+        <InputSuggestion :item-name="'Clients'" :item-data="formData.address.clients" @selected-item-id="selectedSuggestion" />
+        <InputSuggestion :item-name="'Services'" :item-data="formData.address.services" @selected-item-id="selectedSuggestion" />
+        <InputSuggestion :item-name="'Vendors'" :item-data="formData.address.vendors" @selected-item-id="selectedSuggestion" />
         <input type="text" placeholder="Addition infomation (if any)" v-model="formData.address.extra_info" />
     </div>
     <div v-else-if="props.viewName === 'Contacts'">
@@ -131,9 +141,9 @@
         <input type="text" placeholder="Phone 1" v-model="formData.contact.phone1" required />
         <input type="text" placeholder="Phone 2 (optional)" v-model="formData.contact.phone2" />
         <input type="text" placeholder="Phone 3 (optional)" v-model="formData.contact.phone3" />
-        <InputSuggestion :item-name="'Clients'" @selected-item-id="selectedSuggestion" />
-        <InputSuggestion :item-name="'Services'" @selected-item-id="selectedSuggestion" />
-        <InputSuggestion :item-name="'Vendors'" @selected-item-id="selectedSuggestion" />
+        <InputSuggestion :item-name="'Clients'" :item-data="formData.contact.clients" @selected-item-id="selectedSuggestion" />
+        <InputSuggestion :item-name="'Services'" :item-data="formData.contact.services" @selected-item-id="selectedSuggestion" />
+        <InputSuggestion :item-name="'Vendors'" :item-data="formData.contact.vendors" @selected-item-id="selectedSuggestion" />
     </div>
     <div v-else-if="props.viewName === 'Client Types'">
         <input type="text" placeholder="Client types" v-model="formData.clientTypes.name" />
