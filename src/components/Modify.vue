@@ -40,6 +40,12 @@
             formData.value.vendor = { ...props.itemData };
         } else if (props.viewName === "Pops") {
             formData.value.pop = { ...props.itemData };
+        } else if (props.viewName === "Services") {
+            formData.value.service = { ...props.itemData };
+        } else if (props.viewName === "Addresses") {
+            formData.value.address = { ...props.itemData };
+        } else if (props.viewName === "Contacts") {
+            formData.value.contact = { ...props.itemData };
         }
 
         const request = createRequest("GET");
@@ -81,7 +87,7 @@
         if (props.viewName === "Clients") {
             itemName.value = formData.value.client.name;
         } else if (props.viewName === "Services") {
-            itemName.value = serviceData.value.point;
+            itemName.value = formData.value.service.point;
         } else if (props.viewName === "Vendors") {
             itemName.value = formData.value.vendor.name;
         } else if (props.viewName === "Pops") {
@@ -105,8 +111,18 @@
         } else if (props.viewName === "Pops") {
             formInput = formData.value.pop;
             propertiesToDelete = ["vendors", "contacts", "addresses"];
+        } else if (props.viewName === "Services") {
+            formInput = formData.value.service;
+            propertiesToDelete = ["service_types", "clients", "pops", "contacts", "addresses"];
+        } else if (props.viewName === "Addresses") {
+            formInput = formData.value.address;
+            propertiesToDelete = ["clients", "services", "vendors", "contacts"];
+        } else if (props.viewName === "Contacts") {
+            formInput = formData.value.contact;
+            propertiesToDelete = ["clients", "services", "vendors", "pops"];
         }
 
+        //check if form submitted data is different than the data in the database
         const result = isEqualObjects(props.itemData, formInput);
         if (result) {
             notification.value.message = "Nothing modified";
@@ -116,13 +132,14 @@
             return;
         }
 
+        //remove nested properties
         for (const property of propertiesToDelete) {
             delete formInput[property];
         }
 
+        //write data to database via API
         const apiEndpoint = createApiUrl({ view: props.viewName, action: props.actionName });
         const request = createRequest("PUT", formInput);
-
         try {
             const response = await fetch(apiEndpoint, request);
 
