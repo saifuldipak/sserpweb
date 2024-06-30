@@ -292,6 +292,8 @@ export const createNotificationMessage = (viewName, actionName) => {
         item = "Address";
     } else if (viewName === "Contacts") {
         item = "Contact";
+    } else if (viewName === "Service Types") {
+        item = "Service type";
     }
 
     if (actionName === "Add") {
