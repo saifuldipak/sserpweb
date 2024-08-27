@@ -34,7 +34,8 @@
         { id: 5, name: "Pops" },
         { id: 6, name: "Addresses" },
         { id: 7, name: "Contacts" },
-        { id: 8, name: "Client Types" },
+        { id: 8, name: "Account Managers" },
+        { id: 9, name: "Client Types" },
     ]);
 
     const removeToken = () => {
