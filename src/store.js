@@ -51,9 +51,15 @@ export const formData = ref({
         phone1: "",
         phone2: "",
         phone3: "",
+        email: "",
         client_id: 0,
         service_id: 0,
         vendor_id: 0,
+    },
+    accountManager: {
+        client_id: 0,
+        contact_id: 0,
+        contact_name: "",
     },
     clientTypes: {
         name: "",
