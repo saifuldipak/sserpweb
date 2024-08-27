@@ -81,6 +81,10 @@ export const createQueryParameters = (view, searchString) => {
             thirdQueryArgument = "service_point";
             fourthQueryArgument = "vendor_name";
             break;
+        case "Account Managers":
+            firstQueryArgument = "contact_name";
+            secondQueryArgument = "client_name";
+            break;
     }
 
     const firstRegex = new RegExp(`${firstQueryArgument}:([^ ]+)`, "i");
@@ -177,6 +181,9 @@ export const createApiUrl = ({ view, action = "", searchString = "" }) => {
             case "Contacts":
                 apiEndpoint = apiEndpoint + "/contacts";
                 break;
+            case "Account Managers":
+                apiEndpoint = apiEndpoint + "/account_managers";
+                break;
             default:
                 throw new Error("Unknown view");
         }
@@ -212,6 +219,9 @@ export const createApiUrl = ({ view, action = "", searchString = "" }) => {
                 break;
             case "Contacts":
                 resource = "/contact";
+                break;
+            case "Account Managers":
+                resource = "/account_manager";
                 break;
             case "Client Types":
                 resource = "/client/type";
