@@ -59,10 +59,15 @@
                 formData.value.contact.vendor_id = itemId;
             }
         }
-    };
 
-    const onMounted = () => {
-        console.log(props.viewName);
+        if (props.viewName === "Account Managers") {
+            if (itemName === "Clients") {
+                formData.value.accountManager.client_id = itemId;
+            } else if (itemName === "Contacts") {
+                formData.value.accountManager.contact_id = itemId;
+                formData.value.accountManager.contact_name = itemName;
+            }
+        }
     };
 </script>
 
@@ -141,9 +146,14 @@
         <input type="text" placeholder="Phone 1" v-model="formData.contact.phone1" required />
         <input type="text" placeholder="Phone 2 (optional)" v-model="formData.contact.phone2" />
         <input type="text" placeholder="Phone 3 (optional)" v-model="formData.contact.phone3" />
+        <input type="text" placeholder="Email address" v-model="formData.contact.email" />
         <InputSuggestion :item-name="'Clients'" :item-data="formData.contact.clients" @selected-item-id="selectedSuggestion" />
         <InputSuggestion :item-name="'Services'" :item-data="formData.contact.services" @selected-item-id="selectedSuggestion" />
         <InputSuggestion :item-name="'Vendors'" :item-data="formData.contact.vendors" @selected-item-id="selectedSuggestion" />
+    </div>
+    <div v-else-if="props.viewName === 'Account Managers'">
+        <InputSuggestion :item-name="'Clients'" :item-data="formData.accountManager.clients" @selected-item-id="selectedSuggestion" />
+        <InputSuggestion :item-name="'Contacts'" :item-data="formData.accountManager.contacts" @selected-item-id="selectedSuggestion" />
     </div>
     <div v-else-if="props.viewName === 'Client Types'">
         <input type="text" placeholder="Client types" v-model="formData.clientTypes.name" />
