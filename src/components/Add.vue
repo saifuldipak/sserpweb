@@ -10,6 +10,7 @@
     const dialogVisible = ref(false);
     const hideMessageBox = ref(true);
     const hideFormElements = ref(false);
+    const itemName = ref("");
 
     const props = defineProps({
         viewName: {
@@ -62,7 +63,49 @@
         hideFormElements.value = false;
     };
 
+    let requestBody;
     const handleSubmit = async () => {
+        switch (props.viewName) {
+            case "Clients":
+                itemName.value = formData.value.client.name;
+                requestBody = formData.value.client;
+                break;
+            case "Services":
+                itemName.value = formData.value.service.point;
+                requestBody = formData.value.service;
+                break;
+            case "Service Types":
+                itemName.value = formData.value.serviceTypes.name;
+                requestBody = formData.value.serviceTypes;
+                break;
+            case "Vendors":
+                itemName.value = formData.value.vendor.name;
+                requestBody = formData.value.vendor;
+                break;
+            case "Pops":
+                itemName.value = formData.value.pop.name;
+                requestBody = formData.value.pop;
+                break;
+            case "Addresses":
+                itemName.value = formData.value.address.flat;
+                requestBody = formData.value.address;
+                break;
+            case "Contacts":
+                itemName.value = formData.value.contact.name;
+                requestBody = formData.value.contact;
+                break;
+            case "Account Managers":
+                itemName.value = formData.value.accountManager.client_id;
+                requestBody = formData.value.accountManager;
+                break;
+            case "Client Types":
+                itemName.value = formData.value.clientTypes.name;
+                requestBody = formData.value.clientTypes;
+                break;
+            default:
+                break;
+        }
+        console.log(formData.value);
         dialogVisible.value = true;
         hideMessageBox.value = false;
         hideFormElements.value = true;
@@ -110,36 +153,6 @@
             }
         }
 
-        let requestBody;
-        switch (props.viewName) {
-            case "Clients":
-                requestBody = formData.value.client;
-                break;
-            case "Services":
-                requestBody = formData.value.service;
-                break;
-            case "Service Types":
-                requestBody = formData.value.serviceTypes;
-                break;
-            case "Vendors":
-                requestBody = formData.value.vendor;
-                break;
-            case "Pops":
-                requestBody = formData.value.pop;
-                break;
-            case "Addresses":
-                requestBody = formData.value.address;
-                break;
-            case "Contacts":
-                requestBody = formData.value.contact;
-                break;
-            case "Client Types":
-                requestBody = formData.value.clientTypes;
-                break;
-            default:
-                break;
-        }
-
         const apiEndpoint = createApiUrl({ view: props.viewName, action: props.actionName });
         const request = createRequest("POST", requestBody);
         try {
@@ -181,7 +194,7 @@
                 <button v-if="props.viewName !== ''" type="submit">Submit</button>
             </form>
         </div>
-        <SubmitConfirm v-model:show="dialogVisible" :action-name="props.actionName" @confirm="submitForm" @cancel="closeDialog" />
+        <SubmitConfirm v-model:show="dialogVisible" :action-name="props.actionName" :item-name="itemName" @confirm="submitForm" @cancel="closeDialog" />
     </div>
 </template>
 
