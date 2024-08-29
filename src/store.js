@@ -95,4 +95,8 @@ export const contactTypes = [
         id: 3,
         type: "Billing",
     },
+    {
+        id: 4,
+        type: "Sales",
+    },
 ];
