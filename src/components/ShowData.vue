@@ -21,13 +21,13 @@
                 <a href="#" @click="emit('showDetails', item)">{{ item.point }}</a>
             </td>
             <td v-else-if="props.viewName === 'Account Managers'">
-                <a href="#" @click="emit('showDetails', item.contacts)">{{ item.contacts.name }}</a>
+                <a href="#" @click="emit('showDetails', item.contacts, 'Contacts')">{{ item.contacts.name }}</a>
             </td>
             <td v-else-if="props.viewName === 'Addresses'">
                 <a href="#" @click="emit('showDetails', item)">{{ item.area }}, {{ item.thana }}, {{ item.district }}</a>
             </td>
             <td v-else>
-                <a href="#" @click="emit('showDetails', item)">{{ item.name }}</a>
+                <a href="#" @click="emit('showDetails', item, props.viewName)">{{ item.name }}</a>
             </td>
 
             <!-- Second column -->
@@ -47,9 +47,14 @@
             <td v-if="props.viewName === 'Pops'">{{ item.extra_info }}</td>
             <!-- Fifth column -->
             <td class="button-section">
-                <a href="#" v-if="props.viewName !== 'Service Types'" class="modify" @click="$emit('modifyItem', item.id)"
-                    ><span class="material-symbols-outlined modify-icon"> edit </span></a
+                <a
+                    href="#"
+                    v-if="props.viewName !== 'Service Types' && props.viewName !== 'Account Managers'"
+                    class="modify"
+                    @click="$emit('modifyItem', item.id)"
                 >
+                    <span class="material-symbols-outlined modify-icon"> edit </span>
+                </a>
                 <a href="#" class="delete" @click="$emit('deleteItem', item.id)"><span class="material-symbols-outlined delete-icon"> delete </span></a>
             </td>
         </tr>
