@@ -1,6 +1,6 @@
 <script setup>
     import { ref, onMounted } from "vue";
-    import { createApiUrl, createRequest, createNotificationMessage } from "@/functions.js";
+    import { createApiUrl, createRequest, createNotificationMessage, resetFormData } from "@/functions.js";
     import SubmitConfirm from "./SubmitConfirm.vue";
     import Forms from "./Forms.vue";
     import { notification, formData, vendorTypes, contactTypes } from "../store";
@@ -26,43 +26,7 @@
     const emit = defineEmits(["showNotification"]);
 
     onMounted(async () => {
-        if (props.viewName === "Clients") {
-            formData.value.client.name = "";
-            formData.value.client.client_type_id = 0;
-        } else if (props.viewName === "Client Types") {
-            formData.value.clientTypes.name = "";
-            formData.value.clientTypes.description = "";
-        } else if (props.viewName === "Contacts") {
-            formData.value.contact.name = "";
-            formData.value.contact.designation = "";
-            formData.value.contact.type = "";
-            formData.value.contact.phone1 = "";
-            formData.value.contact.phone2 = "";
-            formData.value.contact.phone3 = "";
-            formData.value.contact.email = "";
-            formData.value.contact.client_id = 0;
-            formData.value.contact.service_id = 0;
-            formData.value.contact.vendor_id = 0;
-        } else if (props.viewName === "Contact Types") {
-            formData.value.contactTypes.name = "";
-            formData.value.contactTypes.description = "";
-        } else if (props.viewName === "Pops") {
-            formData.value.pop.name = "";
-            formData.value.pop.owner = 0;
-            formData.value.pop.extra_info = "";
-        } else if (props.viewName === "Vendors") {
-            formData.value.vendor.name = "";
-            formData.value.vendor.type = "";
-        } else if (props.viewName === "Address") {
-            formData.value.address.flat = "";
-            formData.value.address.floor = "";
-            formData.value.address.holding = "";
-            formData.value.address.street = "";
-            formData.value.address.area = "";
-            formData.value.address.thana = "";
-            formData.value.address.district = "";
-            formData.value.address.extra_info = "";
-        }
+        resetFormData(formData.value);
 
         const request = createRequest("GET");
         let apiEndpoint;
@@ -140,7 +104,6 @@
             default:
                 break;
         }
-        console.log(formData.value);
         dialogVisible.value = true;
         hideMessageBox.value = false;
         hideFormElements.value = true;
