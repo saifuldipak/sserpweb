@@ -22,6 +22,7 @@
     const showAdd = ref(false);
     const showNotification = ref(false);
     const itemDetails = ref();
+    const itemName = ref();
     const showDetails = ref(false);
     const viewName = ref("");
     const actionName = ref("");
@@ -93,8 +94,9 @@
         showData.value = true;
     };
 
-    const viewDetails = (item) => {
+    const viewDetails = (item, name) => {
         itemDetails.value = item;
+        itemName.value = name;
         showData.value = false;
         showDetails.value = true;
     };
@@ -164,7 +166,14 @@
         <Add v-if="showAdd" :view-name="viewName" :action-name="actionName" :item-data="itemData" @show-notification="showNotification = true" />
         <Modify v-if="showModify" :view-name="viewName" :action-name="actionName" :item-data="itemData" @show-notification="showNotification = true" />
         <Delete v-if="showDelete" :view-name="viewName" :item-data="itemData" @cancel="cancelDeleteItem" @show-notification="showNotification = true" />
-        <ShowDetails v-if="showDetails" :view-name="viewName" :item-details="itemDetails" @close-component="closeComponent" @search-item="customSearch" />
+        <ShowDetails
+            v-if="showDetails"
+            :view-name="viewName"
+            :item-name="itemName"
+            :item-details="itemDetails"
+            @close-component="closeComponent"
+            @search-item="customSearch"
+        />
     </div>
     <div v-else>
         <UserLogin @login-success="updateToken" />
