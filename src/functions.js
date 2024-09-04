@@ -314,3 +314,15 @@ export const createNotificationMessage = (viewName, actionName) => {
         return `${item} deleted successfully`;
     }
 };
+
+export const resetFormData = (formData) => {
+    for (const key in formData) {
+        if (typeof formData[key] === "object" && formData[key] !== null) {
+            resetFormData(formData[key]); // Recursively reset nested objects
+        } else if (typeof formData[key] === "string") {
+            formData[key] = "";
+        } else if (typeof formData[key] === "number") {
+            formData[key] = 0;
+        }
+    }
+};
