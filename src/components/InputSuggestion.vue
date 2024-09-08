@@ -1,6 +1,7 @@
 <script setup>
     import { ref, watchEffect } from "vue";
-    import { createApiUrl, createRequest } from "@/functions.js";
+    import { createRequest } from "@/functions.js";
+    import { API_HOST } from "../config";
 
     const message = ref("");
     const messageType = ref("");
@@ -9,25 +10,31 @@
     const itemId = ref();
 
     const props = defineProps({
-        itemName: {
+        searchItem: {
             type: String,
             required: true,
         },
         itemData: {
             type: Object,
         },
+        viewName: {
+            type: String,
+            required: true,
+        },
     });
 
-    const emit = defineEmits(["selectedItemId"]);
+    const emit = defineEmits(["selectedItem"]);
 
     const searchSuggestions = async () => {
         message.value = "";
         messageType.value = "";
+        let apiEndpoint;
+        if (props.searchItem === "client name") {
+            apiEndpoint = API_HOST + "/clients?" + `client_name=${itemName.value}`;
+        }
 
         if (itemName.value.length > 2) {
-            const apiEndpoint = createApiUrl({ view: props.itemName, action: "search", searchString: itemName.value });
             const request = createRequest("GET");
-
             try {
                 const response = await fetch(apiEndpoint, request);
                 if (response.status === 200) {
@@ -49,18 +56,21 @@
         itemId.value = id;
         itemName.value = name;
         itemList.value = [];
-        emit("selectedItemId", props.itemName, itemId.value, itemName.value);
+        emit("selectedItem", id, name);
     };
 
     watchEffect(() => {
         if (props.itemData) {
             itemName.value = props.itemData.name;
         }
+        if (props.viewName) {
+            itemName.value = "";
+        }
     });
 </script>
 
 <template>
-    <input class="client-name" type="text" :placeholder="props.itemName" v-model="itemName" @input="searchSuggestions" />
+    <input class="client-name" type="text" :placeholder="searchItem" v-model="itemName" @input="searchSuggestions" />
     <ul v-if="itemName.length > 0" class="suggestions">
         <div v-if="props.itemName !== 'Services'">
             <li class="suggestion" v-for="item in itemList" :key="item.id" @click="selectSuggestion(item.id, item.name)">{{ item.name }}</li>
