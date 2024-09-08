@@ -9,12 +9,11 @@
     import ShowDetails from "./components/ShowDetails.vue";
     import Search from "./components/Search.vue";
     import HelpMessage from "./components/HelpMessage.vue";
-    import { notification } from "./store";
 
     const token = ref("");
     const apiError = ref("");
     const itemList = ref();
-    const searchString = ref("");
+    const searchString = ref();
     const showData = ref(false);
     const showDelete = ref(false);
     const itemData = ref();
@@ -27,6 +26,7 @@
     const viewName = ref("");
     const actionName = ref("");
     const showHelpMessage = ref(false);
+    const showSearch = ref(false);
     const views = ref([
         { id: 1, name: "Clients" },
         { id: 2, name: "Services" },
@@ -50,11 +50,11 @@
         apiError.value = "";
     };
 
-    const clickedLink = (view) => {
+    const clickedLink = (view, searchItem) => {
         removeAllComponents();
-        itemList.value = [];
-        actionName.value = "";
         viewName.value = view;
+        searchString.value = searchItem.toString();
+        showSearch.value = true;
     };
 
     const getItemData = (id) => {
@@ -65,14 +65,13 @@
         }
     };
 
-    const addItem = () => {
-        showData.value = false;
-        if (showAdd.value === true) {
-            showAdd.value = false;
-            actionName.value = "";
-        } else {
+    const showForm = (component) => {
+        if (component === "add") {
             showAdd.value = true;
-            actionName.value = "Add";
+            showSearch.value = false;
+        } else if (component === "search") {
+            showSearch.value = true;
+            showAdd.value = false;
         }
     };
 
@@ -135,7 +134,7 @@
             <li class="menu dropdown">
                 <img src="./components/icons/menu_button_2.png" class="icon" />
                 <div class="dropdown-content">
-                    <a href="#" v-for="view in views" :key="view.id" @click="clickedLink(view.name)">{{ view.name }}</a>
+                    <a href="#" v-for="view in views" :key="view.id" @click="clickedLink(view.name, '')">{{ view.name }}</a>
                 </div>
             </li>
             <li class="profile dropdown">
@@ -149,20 +148,14 @@
         <div v-if="viewName" class="action-bar">
             <div class="left-items">
                 <h1 class="heading">{{ viewName }}</h1>
-                <a href="#" @click="addItem"><span class="material-symbols-outlined add-button"> add_box </span></a>
             </div>
-            <div class="right-items">
-                <Search
-                    :view-name="viewName"
-                    @show-data="showSearchResult"
-                    @show-help-message="showHelpMessage = true"
-                    @show-notification="showNotification = true"
-                />
+            <div>
+                <a href="#" @click="showForm('add')"><span class="material-symbols-outlined add-button"> add_box </span></a>
+                <a href="#" @click="showForm('search')"><span class="material-symbols-outlined"> search </span></a>
             </div>
         </div>
-        <HelpMessage v-if="showHelpMessage" :view-name="viewName" @close-help-message="showHelpMessage = false" />
+        <!-- <HelpMessage v-if="showHelpMessage" :view-name="viewName" @close-help-message="showHelpMessage = false" />
         <Notification v-if="showNotification" @remove-notification="showNotification = false" />
-        <ShowData v-if="showData" :view-name="viewName" :item-list="itemList" @show-details="viewDetails" @modify-item="modifyItem" @delete-item="deleteItem" />
         <Add v-if="showAdd" :view-name="viewName" :action-name="actionName" :item-data="itemData" @show-notification="showNotification = true" />
         <Modify v-if="showModify" :view-name="viewName" :action-name="actionName" :item-data="itemData" @show-notification="showNotification = true" />
         <Delete v-if="showDelete" :view-name="viewName" :item-data="itemData" @cancel="cancelDeleteItem" @show-notification="showNotification = true" />
@@ -173,7 +166,9 @@
             :item-details="itemDetails"
             @close-component="closeComponent"
             @search-item="customSearch"
-        />
+        /> -->
+        <Search v-if="showSearch" :view-name="viewName" :search-string="searchString" @change-view="clickedLink" @show-notification="showNotification = true" />
+        <!--<ShowData v-if="showData" :view-name="viewName" :item-list="itemList" @show-details="viewDetails" @modify-item="modifyItem" @delete-item="deleteItem" /> -->
     </div>
     <div v-else>
         <UserLogin @login-success="updateToken" />
