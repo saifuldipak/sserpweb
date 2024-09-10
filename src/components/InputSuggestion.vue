@@ -23,7 +23,7 @@
         },
     });
 
-    const emit = defineEmits(["selectedItem"]);
+    const emit = defineEmits(["selectedItem", "logout"]);
 
     const searchSuggestions = async () => {
         message.value = "";
@@ -31,6 +31,8 @@
         let apiEndpoint;
         if (props.searchItem === "client name") {
             apiEndpoint = API_HOST + "/clients?" + `client_name=${itemName.value}`;
+        } else if (props.searchItem === "client type") {
+            apiEndpoint = API_HOST + "/client/types?" + `type_name=${itemName.value}`;
         }
 
         if (itemName.value.length > 2) {
@@ -39,6 +41,8 @@
                 const response = await fetch(apiEndpoint, request);
                 if (response.status === 200) {
                     itemList.value = await response.json();
+                } else if (response.status === 401) {
+                    emit("logout");
                 } else {
                     const data = await response.json();
                     message.value = data.detail;
@@ -56,7 +60,7 @@
         itemId.value = id;
         itemName.value = name;
         itemList.value = [];
-        emit("selectedItem", id, name);
+        emit("selectedItem", props.searchItem, id, name);
     };
 
     watchEffect(() => {
