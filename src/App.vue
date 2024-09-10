@@ -48,6 +48,7 @@
     const updateToken = () => {
         token.value = localStorage.getItem("token");
         apiError.value = "";
+        removeAllComponents();
     };
 
     const clickedLink = (view, searchItem) => {
@@ -154,7 +155,7 @@
                 <a href="#" @click="showForm('search')"><span class="material-symbols-outlined"> search </span></a>
             </div>
         </div>
-        <!-- <HelpMessage v-if="showHelpMessage" :view-name="viewName" @close-help-message="showHelpMessage = false" />
+        <HelpMessage v-if="showHelpMessage" :view-name="viewName" @close-help-message="showHelpMessage = false" />
         <Notification v-if="showNotification" @remove-notification="showNotification = false" />
         <Add v-if="showAdd" :view-name="viewName" :action-name="actionName" :item-data="itemData" @show-notification="showNotification = true" />
         <Modify v-if="showModify" :view-name="viewName" :action-name="actionName" :item-data="itemData" @show-notification="showNotification = true" />
@@ -166,9 +167,16 @@
             :item-details="itemDetails"
             @close-component="closeComponent"
             @search-item="customSearch"
-        /> -->
-        <Search v-if="showSearch" :view-name="viewName" :search-string="searchString" @change-view="clickedLink" @show-notification="showNotification = true" />
-        <!--<ShowData v-if="showData" :view-name="viewName" :item-list="itemList" @show-details="viewDetails" @modify-item="modifyItem" @delete-item="deleteItem" /> -->
+        />
+        <Search
+            v-if="showSearch"
+            :view-name="viewName"
+            :search-string="searchString"
+            @change-view="clickedLink"
+            @show-notification="showNotification = true"
+            @logout="removeToken"
+        />
+        <ShowData v-if="showData" :view-name="viewName" :item-list="itemList" @show-details="viewDetails" @modify-item="modifyItem" @delete-item="deleteItem" />
     </div>
     <div v-else>
         <UserLogin @login-success="updateToken" />
