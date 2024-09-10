@@ -2,9 +2,11 @@
     import { ref, onMounted } from "vue";
     import { createApiUrl, createRequest, createNotificationMessage, resetFormData } from "@/functions.js";
     import SubmitConfirm from "./SubmitConfirm.vue";
-    import Forms from "./Forms.vue";
-    import { notification, formData, vendorTypes, contactTypes } from "../store";
+    import { notification, formData } from "../store";
+    import { API_HOST } from "../config";
 
+    const clients = ref([]);
+    const isDisabled = ref(true);
     const serviceTypes = ref([]);
     const clientTypes = ref([]);
     const dialogVisible = ref(false);
@@ -66,6 +68,7 @@
     const handleSubmit = async () => {
         switch (props.viewName) {
             case "Clients":
+                formData.value.client.client_type_id = formData.value.clientTypes.id;
                 itemName.value = formData.value.client.name;
                 requestBody = formData.value.client;
                 break;
@@ -109,7 +112,7 @@
         hideFormElements.value = true;
     };
 
-    const submitForm = async () => {
+    /* const submitForm = async () => {
         if (props.viewName === "Addresses") {
             if (formData.value.address.client_id) {
                 formData.value.address.service_id = undefined;
@@ -174,29 +177,122 @@
         } finally {
             closeDialog();
         }
+    }; */
+
+    const callApi = async (apiEndpoint, requestMethod, requestBody = "") => {
+        let request;
+        if (requestMethod === "GET") {
+            request = createRequest(requestMethod);
+        } else if (requestMethod === "POST") {
+            request = createRequest(requestMethod, requestBody);
+        }
+
+        try {
+            const response = await fetch(apiEndpoint, request);
+            if (response.status === 200) {
+                if (requestMethod === "GET") {
+                    const searchResult = await response.json();
+                    return searchResult;
+                }
+                if (requestMethod === "POST") {
+                    notification.value.message = createNotificationMessage(props.viewName, "Add");
+                    notification.value.type = "Info";
+                    emit("showNotification");
+                }
+            } else if (response.status === 401) {
+                emit("logout");
+            } else {
+                if (response.status !== 404) {
+                    const data = await response.json();
+                    notification.value.message = data.detail;
+                    notification.value.type = "Error";
+                    emit("showNotification");
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            notification.value.message = error.message;
+            notification.value.type = "Error";
+            emit("showNotification");
+        }
+    };
+
+    const checkFormInputs = () => {
+        if (props.viewName === "Clients") {
+            if (formData.value.client.name && formData.value.clientTypes.name) {
+                isDisabled.value = false;
+            } else {
+                isDisabled.value = true;
+            }
+        }
+    };
+
+    let timeout = null;
+    const handleInput = (apiResource) => {
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+
+        timeout = setTimeout(() => {
+            searchItem(apiResource);
+        }, 2500);
+
+        checkFormInputs();
+    };
+
+    const searchItem = async (apiResource) => {
+        searchResult.value = [];
+        let apiEndpoint;
+        if (apiResource === "clients") {
+            apiEndpoint = API_HOST + `/${apiResource}` + `?client_name=${formData.value.client.name}`;
+            clients.value = callApi(apiEndpoint, "GET");
+        } else if (apiResource === "client/types") {
+            apiEndpoint = API_HOST + `/${apiResource}` + `?type_name=${formData.value.clientTypes.name}`;
+            clientTypes.value = callApi(apiEndpoint, "GET");
+        }
+    };
+
+    const setSuggestionValue = (searchItem, itemId, itemName) => {
+        if (searchItem === "client type") {
+            formData.value.client.client_type_id = itemId;
+        }
+        checkFormInputs();
+    };
+
+    const submitForm = () => {
+        let apiEndpoint;
+        if (props.viewName === "Clients") {
+            apiEndpoint = API_HOST + "/client";
+            callApi(apiEndpoint, "POST", requestBody);
+        }
+        closeDialog();
     };
 </script>
 
 <template>
     <div class="form">
+        Add
         <div :class="{ 'form-elements-inactive': hideFormElements }">
             <form @submit.prevent="handleSubmit">
-                <Forms
-                    :view-name="props.viewName"
-                    :action-name="props.actionName"
-                    :client-types="clientTypes"
-                    :service-types="serviceTypes"
-                    :vendor-types="vendorTypes"
-                    :contact-types="contactTypes"
-                    v-model="formData"
-                />
-                <button v-if="props.viewName !== ''" type="submit">Submit</button>
+                <div v-if="props.viewName === 'Clients'">
+                    <input type="text" placeholder="client name" v-model="formData.client.name" @input="handleInput('clients')" />
+                    <div v-if="clients.length > 0">client exists</div>
+                    <input type="text" placeholder="client type" v-model="formData.clientTypes.name" @input="handleInput('client/types')" />
+                    <div v-if="clientTypes.length === 0">client type not found</div>
+                    <!-- <InputSuggestion :view-name="props.viewName" :search-item="'client type'" @selected-item="setSuggestionValue" /> -->
+                </div>
+                <button v-if="props.viewName !== ''" type="submit" :class="{ 'disabled-btn': isDisabled }">Submit</button>
             </form>
         </div>
-        <SubmitConfirm v-model:show="dialogVisible" :action-name="props.actionName" :item-name="itemName" @confirm="submitForm" @cancel="closeDialog" />
+        <SubmitConfirm v-model:show="dialogVisible" :action-name="'Add'" :item-name="itemName" @confirm="submitForm" @cancel="closeDialog" />
     </div>
 </template>
 
 <style scoped>
     @import "@/assets/form.css";
+    .disabled-btn {
+        pointer-events: none;
+        opacity: 0.5;
+        /* cursor: not-allowed; */
+    }
 </style>
