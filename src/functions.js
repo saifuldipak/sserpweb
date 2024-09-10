@@ -51,8 +51,9 @@ export const createQueryParameters = (view, searchString) => {
     let firstQueryArgument, secondQueryArgument, thirdQueryArgument, fourthQueryArgument;
     switch (view) {
         case "Clients":
-            firstQueryArgument = "client_name";
-            secondQueryArgument = "client_type";
+            firstQueryArgument = "client_id";
+            secondQueryArgument = "client_name";
+            thirdQueryArgument = "client_type";
             break;
         case "Services":
             firstQueryArgument = "service_point";
