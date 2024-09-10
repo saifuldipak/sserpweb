@@ -5,7 +5,10 @@
     import { API_HOST } from "../config";
     import InputSuggestion from "./InputSuggestion.vue";
 
-    const clientDetails = ref([]);
+    const clientId = ref(0);
+    const clientType = ref("");
+    const showSearchField = ref(false);
+    const searchResult = ref([]);
     const accountManagers = ref([]);
     const props = defineProps({
         viewName: {
@@ -17,13 +20,13 @@
         },
     });
 
-    const emit = defineEmits(["showNotification", "changeView"]);
+    const emit = defineEmits(["showNotification", "changeView", "logout"]);
 
-    const searchItem = async (itemId, itemName) => {
+    const searchItem = async () => {
         let apiEndpoint;
         accountManagers.value = [];
         if (props.viewName === "Clients") {
-            apiEndpoint = API_HOST + "/clients?" + `client_id=${itemId}`;
+            apiEndpoint = API_HOST + "/clients?" + `client_id=${clientId.value}` + "&" + `client_type=${clientType.value}`;
         } else if (props.viewName === "Account Managers") {
             apiEndpoint = API_HOST + "/account_managers?" + `client_id=${itemId}`;
         }
@@ -32,11 +35,10 @@
         try {
             const response = await fetch(apiEndpoint, request);
             if (response.ok) {
-                if (props.viewName === "Clients") {
-                    clientDetails.value = await response.json();
-                } else if (props.viewName === "Account Managers") {
-                    accountManagers.value = await response.json();
-                }
+                searchResult.value = await response.json();
+                showSearchField.value = false;
+            } else if (response.status === 401) {
+                emit("logout");
             } else {
                 const responseMessage = await response.json();
                 notification.value.message = responseMessage.detail;
@@ -52,51 +54,70 @@
 
     watchEffect(() => {
         if (props.viewName) {
-            clientDetails.value = [];
-            accountManagers.value = [];
+            searchResult.value = [];
+            showSearchField.value = false;
         }
 
         if (props.searchString) {
             searchItem(props.searchString);
         }
     });
+
+    const toggleSearchField = () => {
+        if (showSearchField.value) {
+            showSearchField.value = false;
+        } else {
+            showSearchField.value = true;
+        }
+    };
+
+    const setItemValue = (searchItem, itemId, itemName) => {
+        if (searchItem === "client name") {
+            clientId.value = itemId;
+        } else if (searchItem === "client type") {
+            clientType.value = itemName;
+        }
+    };
 </script>
 
 <template>
     <div class="form">
         <div>Search</div>
-        <div class="form-fields">
-            <InputSuggestion :search-item="'client name'" :view-name="props.viewName" @selected-item="searchItem" />
-        </div>
+        <form @submit.prevent="searchItem">
+            <div class="first-search-input">
+                <div class="item1">
+                    <InputSuggestion :search-item="'client name'" :view-name="props.viewName" @selected-item="setItemValue" @logout="emit('logout')" />
+                </div>
+                <div class="item2">
+                    <span class="material-symbols-outlined tooltip" title="more search options" @click="toggleSearchField">add_circle</span>
+                </div>
+                <div v-if="showSearchField" class="item1">
+                    <InputSuggestion :search-item="'client type'" :view-name="props.viewName" @selected-item="setItemValue" />
+                    <input type="submit" value="Search" />
+                </div>
+            </div>
+        </form>
     </div>
-    <div v-if="clientDetails.length">
-        <div>{{ clientDetails[0].name }}</div>
-        <div>{{ clientDetails[0].client_types.name }}</div>
-        <div v-if="clientDetails[0].account_managers.length > 0">
-            <a href="#" @click="emit('changeView', 'Account Managers', clientDetails[0].id)"
-                >Account Managers ({{ clientDetails[0].account_managers.length }})</a
-            >
+    <div v-if="searchResult.length">
+        <div v-if="searchResult.length === 1">
+            <div v-if="props.viewName === 'Clients'">
+                <div>{{ searchResult[0].name }}</div>
+                <div>{{ searchResult[0].client_types.name }}</div>
+                <div v-if="searchResult[0].account_managers.length > 0">
+                    <a href="#" @click="emit('changeView', 'Account Managers', searchResult[0].id)"
+                        >Account Managers ({{ searchResult[0].account_managers.length }})</a
+                    >
+                </div>
+                <div v-else>Account Managers ({{ searchResult[0].account_managers.length }})</div>
+            </div>
         </div>
-        <div v-else>Account Managers ({{ clientDetails[0].account_managers.length }})</div>
-
-        <!--  <div>
-            <em>Addresses ({{ clientDetails[0].addresses.length }})</em>
+        <div v-else-if="searchResult.length > 0">
             <ol>
-                <li v-for="address in clientDetails[0].addresses" :key="address.id">{{ address.flat }}</li>
+                <li v-for="item in searchResult" :key="item.id">
+                    <div v-if="props.viewName === 'Clients'">{{ item.name }}, {{ item.client_types.name }}</div>
+                </li>
             </ol>
         </div>
-        <div>
-            <em>Contacts ({{ clientDetails[0].contacts.length }})</em>
-            <ol>
-                <li v-for="contact in clientDetails[0].contacts" :key="contact.id">{{ contact.name }}</li>
-            </ol>
-        </div>
-        <div>
-            <em>Services ({{ clientDetails[0].services.length }})</em>
-            <ol>
-                <li v-for="service in clientDetails[0].services" :key="service.id">{{ service.point }} ({{ service.extra_info }})</li>
-            </ol>
-        </div> -->
     </div>
     <div v-else-if="accountManagers.length > 0">
         {{ accountManagers[0].clients.name }}
@@ -113,4 +134,17 @@
 
 <style>
     @import "@/assets/form.css";
+    .first-search-input {
+        display: grid;
+        grid-template-columns: 6fr 1fr;
+    }
+
+    .item2 {
+        display: grid;
+        place-items: center;
+    }
+
+    .tooltip {
+        cursor: pointer;
+    }
 </style>
