@@ -157,7 +157,7 @@
         </div>
         <HelpMessage v-if="showHelpMessage" :view-name="viewName" @close-help-message="showHelpMessage = false" />
         <Notification v-if="showNotification" @remove-notification="showNotification = false" />
-        <Add v-if="showAdd" :view-name="viewName" :action-name="actionName" :item-data="itemData" @show-notification="showNotification = true" />
+        <Add v-if="showAdd" :view-name="viewName" @show-notification="showNotification = true" @logout="removeToken" />
         <Modify v-if="showModify" :view-name="viewName" :action-name="actionName" :item-data="itemData" @show-notification="showNotification = true" />
         <Delete v-if="showDelete" :view-name="viewName" :item-data="itemData" @cancel="cancelDeleteItem" @show-notification="showNotification = true" />
         <ShowDetails
