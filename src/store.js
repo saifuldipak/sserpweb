@@ -7,7 +7,6 @@ export const notification = ref({
 
 export const formData = ref({
     client: {
-        id: 0,
         name: "",
         client_type_id: "",
     },
