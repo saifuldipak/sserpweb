@@ -1,14 +1,17 @@
 <script setup>
-    import { ref, onMounted } from "vue";
-    import { createApiUrl, createRequest, createNotificationMessage, resetFormData } from "@/functions.js";
+    import { onMounted, ref, watchEffect } from "vue";
+    import { createRequest, resetFormData, createNotificationMessage } from "@/functions.js";
     import SubmitConfirm from "./SubmitConfirm.vue";
     import { notification, formData } from "../store";
     import { API_HOST } from "../config";
 
+    const clientNameOk = ref(false);
+    const clientTypeOk = ref(false);
+    const clientExists = ref(false);
+    const clientTypeExists = ref(true);
+    const clientTypes = ref([]);
     const clients = ref([]);
     const isDisabled = ref(true);
-    const serviceTypes = ref([]);
-    const clientTypes = ref([]);
     const dialogVisible = ref(false);
     const hideMessageBox = ref(true);
     const hideFormElements = ref(false);
@@ -19,44 +22,88 @@
             type: String,
             required: true,
         },
-        actionName: {
-            type: String,
-            required: true,
-        },
     });
 
-    const emit = defineEmits(["showNotification"]);
+    const emit = defineEmits(["showNotification", "logout"]);
 
-    onMounted(async () => {
-        resetFormData(formData.value);
+    onMounted(() => {
+        resetFormData(formData);
+    });
 
-        const request = createRequest("GET");
+    const checkFormInputs = () => {
+        if (props.viewName === "Clients") {
+            if (clientNameOk.value && clientTypeOk.value) {
+                isDisabled.value = false;
+            } else {
+                isDisabled.value = true;
+            }
+        }
+    };
+
+    let timeout = null;
+    const handleInput = (apiResource) => {
+        clearTimeout(timeout);
+
+        if (apiResource === "clients" && formData.value.client.name.length === 0) {
+            clientExists.value = false;
+            clientNameOk.value = false;
+        } else if (apiResource === "client/types" && formData.value.clientTypes.name.length === 0) {
+            clientTypeExists.value = true;
+            clientTypeOk.value = false;
+        } else {
+            timeout = setTimeout(async () => {
+                await searchItem(apiResource);
+                checkFormInputs();
+            }, 1500);
+        }
+        checkFormInputs();
+    };
+
+    const searchItem = async (apiResource) => {
         let apiEndpoint;
-        if (props.viewName === "Services") {
-            apiEndpoint = createApiUrl({ view: "Service Types", action: "search" });
-        } else if (props.viewName === "Clients") {
-            apiEndpoint = createApiUrl({ view: "Client Types", action: "search" });
+        if (apiResource === "clients") {
+            clients.value = [];
+            apiEndpoint = API_HOST + `/${apiResource}` + `?client_name=${formData.value.client.name}`;
+        } else if (apiResource === "client/types") {
+            clientTypes.value = [];
+            apiEndpoint = API_HOST + `/${apiResource}` + `?type_name=${formData.value.clientTypes.name}`;
         }
 
+        const request = createRequest("GET");
         try {
             const response = await fetch(apiEndpoint, request);
             if (response.status === 200) {
-                if (props.viewName === "Services") {
-                    serviceTypes.value = await response.json();
-                } else if (props.viewName === "Clients") {
+                if (apiResource === "clients") {
+                    clientExists.value = true;
+                    clientNameOk.value = false;
+                } else if (apiResource === "client/types") {
                     clientTypes.value = await response.json();
+                    clientTypeExists.value = true;
+                    clientTypeOk.value = true;
                 }
+            } else if (response.status === 404) {
+                if (apiResource === "clients") {
+                    clientExists.value = false;
+                    clientNameOk.value = true;
+                } else if (apiResource === "client/types") {
+                    clientTypeExists.value = false;
+                    clientTypeOk.value = false;
+                }
+            } else if (response.status === 401) {
+                emit("logout");
             } else {
                 const data = await response.json();
                 notification.value.message = data.detail;
                 notification.value.type = "Error";
+                emit("showNotification");
             }
         } catch (error) {
             console.error(error);
             notification.value.message = error.message;
             notification.value.type = "Error";
+            emit("showNotification");
         }
-    });
+    };
 
     const closeDialog = () => {
         dialogVisible.value = false;
@@ -65,10 +112,10 @@
     };
 
     let requestBody;
-    const handleSubmit = async () => {
+    const handleFormSubmit = () => {
         switch (props.viewName) {
             case "Clients":
-                formData.value.client.client_type_id = formData.value.clientTypes.id;
+                formData.value.client.client_type_id = clientTypes.value[0].id;
                 itemName.value = formData.value.client.name;
                 requestBody = formData.value.client;
                 break;
@@ -110,6 +157,33 @@
         dialogVisible.value = true;
         hideMessageBox.value = false;
         hideFormElements.value = true;
+    };
+
+    const submitForm = async () => {
+        let apiEndpoint;
+        if (props.viewName === "Clients") {
+            apiEndpoint = API_HOST + "/client";
+        }
+
+        const request = createRequest("POST", requestBody);
+        try {
+            const response = await fetch(apiEndpoint, request);
+            if (response.ok) {
+                notification.value.message = createNotificationMessage(props.viewName, "add");
+                notification.value.type = "Info";
+                emit("showNotification");
+            } else {
+                const data = await response.json();
+                throw new Error(data.detail);
+            }
+        } catch (error) {
+            console.error(error);
+            notification.value.message = error.message;
+            notification.value.type = "Error";
+            emit("showNotification");
+        }
+
+        closeDialog();
     };
 
     /* const submitForm = async () => {
@@ -179,7 +253,7 @@
         }
     }; */
 
-    const callApi = async (apiEndpoint, requestMethod, requestBody = "") => {
+    /* const callApi = async (apiEndpoint, requestMethod, requestBody = "") => {
         let request;
         if (requestMethod === "GET") {
             request = createRequest(requestMethod);
@@ -215,71 +289,19 @@
             notification.value.type = "Error";
             emit("showNotification");
         }
-    };
-
-    const checkFormInputs = () => {
-        if (props.viewName === "Clients") {
-            if (formData.value.client.name && formData.value.clientTypes.name) {
-                isDisabled.value = false;
-            } else {
-                isDisabled.value = true;
-            }
-        }
-    };
-
-    let timeout = null;
-    const handleInput = (apiResource) => {
-        if (timeout) {
-            clearTimeout(timeout);
-        }
-
-        timeout = setTimeout(() => {
-            searchItem(apiResource);
-        }, 2500);
-
-        checkFormInputs();
-    };
-
-    const searchItem = async (apiResource) => {
-        searchResult.value = [];
-        let apiEndpoint;
-        if (apiResource === "clients") {
-            apiEndpoint = API_HOST + `/${apiResource}` + `?client_name=${formData.value.client.name}`;
-            clients.value = callApi(apiEndpoint, "GET");
-        } else if (apiResource === "client/types") {
-            apiEndpoint = API_HOST + `/${apiResource}` + `?type_name=${formData.value.clientTypes.name}`;
-            clientTypes.value = callApi(apiEndpoint, "GET");
-        }
-    };
-
-    const setSuggestionValue = (searchItem, itemId, itemName) => {
-        if (searchItem === "client type") {
-            formData.value.client.client_type_id = itemId;
-        }
-        checkFormInputs();
-    };
-
-    const submitForm = () => {
-        let apiEndpoint;
-        if (props.viewName === "Clients") {
-            apiEndpoint = API_HOST + "/client";
-            callApi(apiEndpoint, "POST", requestBody);
-        }
-        closeDialog();
-    };
+    }; */
 </script>
 
 <template>
     <div class="form">
         Add
         <div :class="{ 'form-elements-inactive': hideFormElements }">
-            <form @submit.prevent="handleSubmit">
+            <form @submit.prevent="handleFormSubmit">
                 <div v-if="props.viewName === 'Clients'">
                     <input type="text" placeholder="client name" v-model="formData.client.name" @input="handleInput('clients')" />
-                    <div v-if="clients.length > 0">client exists</div>
+                    <div v-if="clientExists">client exists</div>
                     <input type="text" placeholder="client type" v-model="formData.clientTypes.name" @input="handleInput('client/types')" />
-                    <div v-if="clientTypes.length === 0">client type not found</div>
-                    <!-- <InputSuggestion :view-name="props.viewName" :search-item="'client type'" @selected-item="setSuggestionValue" /> -->
+                    <div v-if="!clientTypeExists">client type not found</div>
                 </div>
                 <button v-if="props.viewName !== ''" type="submit" :class="{ 'disabled-btn': isDisabled }">Submit</button>
             </form>
