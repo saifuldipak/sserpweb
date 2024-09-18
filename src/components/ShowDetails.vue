@@ -13,42 +13,42 @@
             type: Object,
             required: true,
         },
-        itemName: {
+        /* itemName: {
             type: String,
             required: true,
-        },
+        }, */
     });
 
-    const emit = defineEmits(["closeComponent", "searchItem"]);
+    const emit = defineEmits(["close", "searchItem"]);
 </script>
 
 <template>
     <div class="main-container">
         <div class="button-container">
-            <button @click="emit('closeComponent')">X</button>
+            <button @click="emit('close')">X</button>
         </div>
         <div class="data-container">
             <!-- Heading -->
             <div class="heading-container">
                 <!--Main heading -->
                 <div v-if="props.itemName === 'Contacts'" id="heading">{{ props.itemDetails.name }}</div>
-                <!-- <div v-if="props.viewName === 'Services'" id="heading">{{ props.itemDetails.point }}</div>
+                <div v-if="props.viewName === 'Services'" id="heading">{{ props.itemDetails.point }}</div>
                 <div v-else-if="props.viewName === 'Addresses'" id="heading">
                     <span v-if="props.itemDetails.clients">{{ props.itemDetails.clients.name }}</span>
                     <span v-else-if="props.itemDetails.services">{{ props.itemDetails.services.name }}</span>
                     <span v-else-if="props.itemDetails.vendors">{{ props.itemDetails.vendors.name }}</span>
                 </div>
-                <div v-else id="heading">{{ props.itemDetails.name }}</div> -->
+                <div v-else id="heading">{{ props.itemDetails.name }}</div>
                 <!-- Sub heading-->
                 <div v-if="props.itemName === 'Contacts'" id="sub-heading">{{ props.itemDetails.designation }}</div>
 
-                <!-- <div v-if="props.viewName === 'Clients'" id="sub-heading">{{ props.itemDetails.client_types.name }}</div>
+                <div v-if="props.viewName === 'Clients'" id="sub-heading">{{ props.itemDetails.client_types.name }}</div>
                 <div v-else-if="props.viewName === 'Services'" id="sub-heading">{{ props.itemDetails.clients.name }}</div>
                 <div v-else-if="props.viewName === 'Service Types'" id="sub-heading">{{ props.itemDetails.description }}</div>
                 <div v-else-if="props.viewName === 'Vendors'" id="sub-heading">{{ props.itemDetails.type }}</div>
                 <div v-else-if="props.viewName === 'Pops'" id="sub-heading">{{ props.itemDetails.vendors.name }}</div>
                 <div v-else-if="props.viewName === 'Contacts'" id="sub-heading">{{ props.itemDetails.designation }}</div>
-                <div v-else-if="props.viewName === 'Account Managers'" id="sub-heading">{{ props.itemDetails.designation }}</div> -->
+                <div v-else-if="props.viewName === 'Account Managers'" id="sub-heading">{{ props.itemDetails.designation }}</div>
             </div>
 
             <!-- Details -->
@@ -57,7 +57,7 @@
                 <span><strong>Phone:</strong> {{ props.itemDetails.phone1 }}</span>
                 <span><strong>Email:</strong> {{ props.itemDetails.email }}</span>
             </div>
-            <!-- <div v-if="props.viewName === 'Clients'" id="details">
+            <div v-if="props.viewName === 'Clients'" id="details">
                 <em>Services ({{ props.itemDetails.services.length }})</em>
                 <ol>
                     <li v-for="service in props.itemDetails.services" :key="service.id">{{ service.point }} ({{ service.extra_info }})</li>
@@ -83,7 +83,7 @@
                 <span><strong>Area:</strong> {{ props.itemDetails.area }}</span>
                 <span><strong>Thana:</strong> {{ props.itemDetails.thana }}</span>
                 <span><strong>District:</strong> {{ props.itemDetails.district }}</span>
-            </div> -->
+            </div>
 
             <!-- Contacts & Addresses list -->
             <div v-if="viewList.includes(props.viewName)" id="contacts">
