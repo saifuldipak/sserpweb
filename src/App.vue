@@ -1,7 +1,7 @@
 <script setup>
     import { ref } from "vue";
     import UserLogin from "./components/UserLogin.vue";
-    import ShowData from "./components/ShowData.vue";
+    //import ShowData from "./components/ShowData.vue";
     import Notification from "./components/Notification.vue";
     import Delete from "./components/Delete.vue";
     import Add from "./components/Add.vue";
@@ -9,7 +9,9 @@
     import ShowDetails from "./components/ShowDetails.vue";
     import Search from "./components/Search.vue";
     import HelpMessage from "./components/HelpMessage.vue";
+    import Edit from "./components/Edit.vue";
 
+    const showEdit = ref(false);
     const token = ref("");
     const apiError = ref("");
     const itemList = ref();
@@ -67,12 +69,15 @@
     };
 
     const showForm = (component) => {
-        if (component === "add") {
-            showAdd.value = true;
-            showSearch.value = false;
-        } else if (component === "search") {
+        showAdd.value = false;
+        showEdit.value = false;
+        showSearch.value = false;
+        if (component === "search") {
             showSearch.value = true;
-            showAdd.value = false;
+        } else if (component === "add") {
+            showAdd.value = true;
+        } else if (component === "edit") {
+            showEdit.value = true;
         }
     };
 
@@ -152,13 +157,14 @@
             </div>
             <div>
                 <a href="#" @click="showForm('add')"><span class="material-symbols-outlined add-button"> add_box </span></a>
+                <a href="#" @click="showForm('edit')"><span class="material-symbols-outlined edit-button">edit</span></a>
                 <a href="#" @click="showForm('search')"><span class="material-symbols-outlined"> search </span></a>
             </div>
         </div>
         <HelpMessage v-if="showHelpMessage" :view-name="viewName" @close-help-message="showHelpMessage = false" />
         <Notification v-if="showNotification" @remove-notification="showNotification = false" />
         <Add v-if="showAdd" :view-name="viewName" @show-notification="showNotification = true" @logout="removeToken" />
-        <Modify v-if="showModify" :view-name="viewName" :action-name="actionName" :item-data="itemData" @show-notification="showNotification = true" />
+        <Edit v-if="showEdit" :view-name="viewName" :item-data="itemData" @show-notification="showNotification = true" />
         <Delete v-if="showDelete" :view-name="viewName" :item-data="itemData" @cancel="cancelDeleteItem" @show-notification="showNotification = true" />
         <ShowDetails
             v-if="showDetails"
@@ -176,7 +182,7 @@
             @show-notification="showNotification = true"
             @logout="removeToken"
         />
-        <ShowData v-if="showData" :view-name="viewName" :item-list="itemList" @show-details="viewDetails" @modify-item="modifyItem" @delete-item="deleteItem" />
+        <!-- <ShowData v-if="showData" :view-name="viewName" :item-list="itemList" @show-details="viewDetails" @modify-item="modifyItem" @delete-item="deleteItem" /> -->
     </div>
     <div v-else>
         <UserLogin @login-success="updateToken" />
@@ -278,5 +284,9 @@
 
     .add-button {
         color: green;
+    }
+
+    .edit-button {
+        color: orange;
     }
 </style>
