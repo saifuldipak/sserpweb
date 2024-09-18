@@ -1,6 +1,6 @@
 <script setup>
     const props = defineProps({
-        itemList: {
+        searchResults: {
             type: Array,
             required: true,
         },
@@ -14,8 +14,8 @@
 </script>
 
 <template>
-    <table v-if="props.itemList.length > 0">
-        <tr v-for="item in props.itemList" :key="item.id">
+    <table v-if="props.searchResults.length > 0">
+        <tr v-for="item in props.searchResults" :key="item.id">
             <!-- First column -->
             <td v-if="props.viewName === 'Services'">
                 <a href="#" @click="emit('showDetails', item)">{{ item.point }}</a>
@@ -27,7 +27,7 @@
                 <a href="#" @click="emit('showDetails', item)">{{ item.area }}, {{ item.thana }}, {{ item.district }}</a>
             </td>
             <td v-else>
-                <a href="#" @click="emit('showDetails', item, props.viewName)">{{ item.name }}</a>
+                <a href="#" @click="emit('showDetails', item)">{{ item.name }}</a>
             </td>
 
             <!-- Second column -->
@@ -46,7 +46,7 @@
             <!-- Fourth column -->
             <td v-if="props.viewName === 'Pops'">{{ item.extra_info }}</td>
             <!-- Fifth column -->
-            <td class="button-section">
+            <!-- <td class="button-section">
                 <a
                     href="#"
                     v-if="props.viewName !== 'Service Types' && props.viewName !== 'Account Managers'"
@@ -56,7 +56,7 @@
                     <span class="material-symbols-outlined modify-icon"> edit </span>
                 </a>
                 <a href="#" class="delete" @click="$emit('deleteItem', item.id)"><span class="material-symbols-outlined delete-icon"> delete </span></a>
-            </td>
+            </td> -->
         </tr>
     </table>
 </template>
