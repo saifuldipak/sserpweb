@@ -17,10 +17,10 @@
         itemData: {
             type: Object,
         },
-        viewName: {
+        /* viewName: {
             type: String,
             required: true,
-        },
+        }, */
     });
 
     const emit = defineEmits(["selectedItem", "logout"]);
