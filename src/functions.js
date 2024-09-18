@@ -31,7 +31,7 @@ export const createRequest = function (method, body = "") {
 };
 
 //make api call & return response code and data
-export const callApi = async (apiEndpoint, request) => {
+/* export const callApi = async (apiEndpoint, request) => {
     const result = { code: "", response: "", error: "" };
 
     try {
@@ -44,7 +44,7 @@ export const callApi = async (apiEndpoint, request) => {
     }
 
     return result;
-};
+}; */
 
 //create query parameters
 export const createQueryParameters = (view, searchString) => {
@@ -325,5 +325,43 @@ export const resetFormData = (formData) => {
         } else if (typeof formData[key] === "number") {
             formData[key] = 0;
         }
+    }
+};
+
+export const callApi = async (requestType, resource, queryString = "", pageSize = "", reuestBody = "") => {
+    let apiEndpoint, request, result;
+    apiEndpoint = API_HOST + resource;
+    if (requestType === "GET") {
+        if (pageSize) {
+            apiEndpoint = apiEndpoint + `?page_size=${pageSize}`;
+        } else {
+            apiEndpoint = apiEndpoint + `?page_size=20`;
+        }
+
+        if (queryString) {
+            apiEndpoint = apiEndpoint + "&" + queryString;
+        }
+        request = createRequest(requestType);
+    }
+
+    try {
+        const response = await fetch(apiEndpoint, request);
+        if (response.ok) {
+            if (requestType === "GET") {
+                result = await response.json();
+            } else if (requestType === "POST") {
+                result = response.status;
+            }
+            return result;
+        } else if (response.status === 401) {
+            emit("logout");
+        } else if (response.status === 404) {
+            throw new Error("Not found");
+        } else {
+            data = await response.json();
+            throw new Error(data.detail);
+        }
+    } catch (error) {
+        throw new Error(error.message);
     }
 };
