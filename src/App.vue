@@ -1,5 +1,5 @@
 <script setup>
-    import { ref } from "vue";
+    import { ref, watchEffect } from "vue";
     import UserLogin from "./components/UserLogin.vue";
     //import ShowData from "./components/ShowData.vue";
     import Notification from "./components/Notification.vue";
@@ -10,10 +10,10 @@
     import Search from "./components/Search.vue";
     import HelpMessage from "./components/HelpMessage.vue";
     import Edit from "./components/Edit.vue";
+    import { apiError } from "./store";
 
     const showEdit = ref(false);
     const token = ref("");
-    const apiError = ref("");
     const itemList = ref();
     const searchString = ref();
     const showData = ref(false);
@@ -132,6 +132,12 @@
         showNotification.value = false;
         showHelpMessage.value = false;
     };
+
+    watchEffect(() => {
+        if (apiError.value === "Unauthorized") {
+            removeToken();
+        }
+    });
 </script>
 
 <template>

@@ -1,5 +1,6 @@
 import { ref } from "vue";
 
+export const apiError = ref();
 export const notification = ref({
     type: "",
     message: "",

@@ -1,11 +1,13 @@
 import { API_HOST } from "./config";
+import { apiError } from "./store";
 
 //create request json object for api call
 export const createRequest = function (method, body = "") {
     const token = localStorage.getItem("token");
     if (!token) {
         console.log("JWT not found in local storage");
-        emit("auth-required");
+        apiError.value = "Unauthorized";
+        return;
     }
 
     let request;
@@ -353,15 +355,14 @@ export const callApi = async (requestType, resource, queryString = "", pageSize 
                 result = response.status;
             }
             return result;
-        } else if (response.status === 401) {
-            emit("logout");
-        } else if (response.status === 404) {
-            throw new Error("Not found");
         } else {
-            data = await response.json();
+            const data = await response.json();
             throw new Error(data.detail);
         }
     } catch (error) {
+        if (error.message === "Unauthorized") {
+            apiError.value = error.message;
+        }
         throw new Error(error.message);
     }
 };
