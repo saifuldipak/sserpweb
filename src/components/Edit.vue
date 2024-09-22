@@ -1,20 +1,22 @@
 <script setup>
-    import { ref, onMounted } from "vue";
-    import { createApiUrl, createRequest, isEqualObjects, createNotificationMessage } from "@/functions.js";
-    import SubmitConfirm from "./SubmitConfirm.vue";
-    import Forms from "./Forms.vue";
+    import { ref, onMounted, watch } from "vue";
+    import { createApiUrl, createRequest } from "@/functions.js";
     import { notification, formData, vendorTypes, contactTypes } from "../store";
     import InputSuggestion from "./InputSuggestion.vue";
     import { API_HOST } from "../config";
+    import InputVerify from "./InputVerify.vue";
 
+    const clientNameExists = ref(false);
+    const clientId = ref(0);
+    const clientName = ref("");
+    const selectedClientTypeId = ref(0);
+    const isDisabled = ref(true);
+    const showEditForm = ref(false);
+    const showSearchInput = ref(true);
     const message = ref();
     const messageType = ref();
     const serviceTypes = ref([]);
     const clientTypes = ref([]);
-    const dialogVisible = ref(false);
-    const serviceData = ref({});
-    const hideMessageBox = ref(true);
-    const itemName = ref("");
     const itemDetails = ref([]);
 
     const props = defineProps({
@@ -34,7 +36,7 @@
         message.value = "";
         messageType.value = "";
 
-        if (props.viewName === "Clients") {
+        /*  if (props.viewName === "Clients") {
             formData.value.client = { ...props.itemData };
         } else if (props.viewName === "Vendors") {
             formData.value.vendor = { ...props.itemData };
@@ -46,7 +48,7 @@
             formData.value.address = { ...props.itemData };
         } else if (props.viewName === "Contacts") {
             formData.value.contact = { ...props.itemData };
-        }
+        } */
 
         const request = createRequest("GET");
 
@@ -162,6 +164,14 @@
         }
     }; */
 
+    const setValue = () => {
+        if (props.viewName === "Clients") {
+            clientId.value = itemDetails.value[0].id;
+            clientName.value = itemDetails.value[0].name;
+            selectedClientTypeId.value = itemDetails.value[0].client_types.id;
+        }
+    };
+
     const searchItem = async (searchItem, id, name) => {
         let apiEndpoint;
         if (props.viewName === "Clients") {
@@ -173,6 +183,8 @@
             if (response.ok) {
                 itemDetails.value = await response.json();
                 setValue();
+                showSearchInput.value = false;
+                showEditForm.value = true;
             } else {
                 const data = await response.json();
                 throw new Error(data.detail);
@@ -195,11 +207,51 @@
         }
     }; */
 
-    const setValue = () => {
+    /* watchEffect(
+        () => {
+            if (formData.value.client.name) {
+                isDisabled.value = false;
+                console.log("client_name: watchEffect run");
+            }
+            if (formData.value.client.client_type_id) {
+                isDisabled.value = false;
+                console.log("client_type: watchEffect run");
+            }
+        },
+        { flush: "post" }
+    ); */
+
+    watch(formData.value, () => {
+        if (clientNameExists.value) {
+            isDisabled.value = true;
+        } else {
+            isDisabled.value = false;
+        }
+    });
+
+    const modify = () => {
         if (props.viewName === "Clients") {
-            formData.value.client.id = itemDetails.value[0].id;
-            formData.value.client.name = itemDetails.value[0].name;
-            formData.value.client.client_type_id = itemDetails.value[0].client_types.id;
+            formData.value.client.id = clientId;
+            formData.value.client.name = clientName;
+            formData.value.client.client_type_id = selectedClientTypeId;
+        }
+    };
+
+    const timeout = null;
+
+    const handleInput = (fieldInput, apiResource, queryParameter) => {
+        const valueExists = checkInput(fieldInput, apiResource, queryParameter);
+        if (valueExists) {
+        }
+    };
+
+    const processInput = (fieldInput, error) => {
+        if (fieldInput) {
+            formData.value.client.name = fieldInput;
+            clientNameExists.value = false;
+        } else {
+            formData.value.client.name = "";
+            clientNameExists.value = true;
         }
     };
 </script>
@@ -207,14 +259,34 @@
 <template>
     <div class="form">
         Edit
-        <InputSuggestion v-if="itemDetails.length === 0" :search-item="'client name'" @selected-item="searchItem" @logout="emit('logout')" />
-        <div v-if="itemDetails.length > 0">
-            <input type="text" v-model="formData.client.id" disabled />
-            <input type="text" v-model="formData.client.name" />
-            <!-- <input type="text" v-model="itemDetails[0].client_types.name" /> -->
-            <InputSuggestion :search-item="'client type'" :item-data="itemDetails[0].client_types" @selected-item="searchItem" @logout="emit('logout')" />
-            <input type="submit" value="Submit" />
-        </div>
+        <InputSuggestion v-if="showSearchInput" :search-item="'client name'" @selected-item="searchItem" @logout="emit('logout')" />
+        <form v-if="showEditForm" @submit.prevent="handleSubmit">
+            <div v-if="props.viewName === 'Clients'">
+                <!-- <input type="text" v-model="clientName" @input="checkInput(clientName, 'clients', 'client_name')" /> -->
+                <InputVerify
+                    :place-holder="'client name'"
+                    :input-value="clientName"
+                    :api-resource="{ endpoint: '/clients', queryParameter: 'client_name' }"
+                    @process-input="processInput"
+                />
+                <div v-if="clientNameExists">Client name already exists</div>
+                <select v-model="selectedClientTypeId" @change="modify">
+                    <option disabled value="">client type</option>
+                    <option v-for="clientType in clientTypes" :key="clientType.id" :value="clientType.id">
+                        {{ clientType.name }}
+                    </option>
+                </select>
+            </div>
+            <input type="submit" value="Submit" :class="{ 'disable-btn': isDisabled }" />
+        </form>
+
+        <!-- <div v-if="itemDetails.length > 0">
+                <input type="text" v-model="formData.client.id" disabled />
+                <input type="text" v-model="formData.client.name" />
+                 <input type="text" v-model="itemDetails[0].client_types.name" />
+                <InputSuggestion :search-item="'client type'" :item-data="itemDetails[0].client_types" @selected-item="searchItem" @logout="emit('logout')" />
+                <input type="submit" value="Submit" />
+            </div> -->
         <!-- <form @submit.prevent="handleSubmit">
             <div class="form-fields">
                 <InputSuggestion
@@ -233,4 +305,9 @@
 
 <style scoped>
     @import "@/assets/form.css";
+    .disable-btn {
+        pointer-events: none;
+        opacity: 0.5;
+        /* cursor: not-allowed; */
+    }
 </style>
