@@ -311,7 +311,7 @@ export const createNotificationMessage = (viewName, actionName) => {
 
     if (actionName === "Add") {
         return `${item} added successfully`;
-    } else if (actionName === "Modify") {
+    } else if (actionName === "Edit") {
         return `${item} modified successfully`;
     } else if (actionName === "Delete") {
         return `${item} deleted successfully`;
@@ -352,6 +352,48 @@ export const callApi = async (requestType, resource, queryString = "", pageSize 
             if (requestType === "GET") {
                 result = await response.json();
             } else if (requestType === "POST") {
+                result = response.status;
+            }
+            return result;
+        } else {
+            const data = await response.json();
+            throw new Error(data.detail);
+        }
+    } catch (error) {
+        if (error.message === "Unauthorized") {
+            apiError.value = error.message;
+        }
+        throw new Error(error.message);
+    }
+};
+
+export const useFetch = async ({ method, resource, queryString = "", pageSize = "", requestBody = "" }) => {
+    let apiEndpoint, request, result;
+    apiEndpoint = API_HOST + resource;
+    if (method === "GET") {
+        if (pageSize) {
+            apiEndpoint = apiEndpoint + `?page_size=${pageSize}`;
+        } else {
+            apiEndpoint = apiEndpoint + `?page_size=20`;
+        }
+
+        if (queryString) {
+            apiEndpoint = apiEndpoint + "&" + queryString;
+        }
+        request = createRequest(method);
+    }
+
+    if (method === "POST" || method === "PUT") {
+        apiEndpoint = API_HOST + resource;
+        request = createRequest(method, requestBody);
+    }
+
+    try {
+        const response = await fetch(apiEndpoint, request);
+        if (response.ok) {
+            if (method === "GET") {
+                result = await response.json();
+            } else if (method === "POST") {
                 result = response.status;
             }
             return result;
