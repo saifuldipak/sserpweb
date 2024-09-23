@@ -1,9 +1,9 @@
 <script setup>
     const props = defineProps({
-        show: {
+        /* show: {
             type: Boolean,
             required: true,
-        },
+        }, */
         actionName: {
             type: String,
             required: true,
@@ -17,9 +17,9 @@
 </script>
 
 <template>
-    <div class="confirm-message-box" v-if="show">
+    <div class="confirm-message-box">
         <div class="message" v-if="props.actionName === 'Add'">Are you sure you want to add "{{ props.itemName }}" ?</div>
-        <div class="message" v-if="props.actionName === 'Modify'">Are you sure you want to modify "{{ props.itemName }}" ?</div>
+        <div class="message" v-if="props.actionName === 'Edit'">Are you sure you want to modify "{{ props.itemName }}" ?</div>
         <div class="message" v-if="props.actionName === 'Delete'">Are you sure you want to delete "{{ props.itemName }}" ?</div>
         <div class="button-section">
             <button @click="$emit('confirm')">Yes</button>
