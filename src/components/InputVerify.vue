@@ -9,11 +9,16 @@
         },
         inputValue: {
             type: String,
-            required: true,
         },
         apiResource: {
             type: Object,
             required: true,
+            default: () => {
+                return {
+                    endpoint: "",
+                    queryParameter: "",
+                };
+            },
         },
     });
 
