@@ -4,7 +4,9 @@
     import SubmitConfirm from "./SubmitConfirm.vue";
     import { notification, formData } from "../store";
     import { API_HOST } from "../config";
+    import InputVerify from "./InputVerify.vue";
 
+    const clientNameExists = ref(false);
     const showSubmitConfirm = ref(false);
     const clientName = ref("");
     const fieldInput = ref("");
@@ -188,6 +190,20 @@
 
         closeDialog();
     };
+
+    const processInput = (fieldInput) => {
+        if (fieldInput) {
+            if (props.viewName === "Clients") {
+                formData.value.client.name = fieldInput;
+                clientNameExists.value = false;
+            }
+        } else {
+            if (props.viewName === "Clients") {
+                clientNameExists.value = true;
+            }
+        }
+        checkFormInputs();
+    };
 </script>
 
 <template>
@@ -196,8 +212,12 @@
         <div :class="{ 'form-elements-inactive': hideFormElements }">
             <form @submit.prevent="handleFormSubmit">
                 <div v-if="props.viewName === 'Clients'">
-                    <input type="text" placeholder="client name" v-model="fieldInput" @input="handleInput('clients', 'client_name')" />
-                    <div v-if="clientName.length > 0">client exists</div>
+                    <InputVerify
+                        :place-holder="'client name'"
+                        :api-resource="{ endpoint: '/clients', queryParameter: 'client_name' }"
+                        @process-input="processInput"
+                    />
+                    <div v-if="clientNameExists">Client exists</div>
                     <select v-model="formData.client.client_type_id" @change="checkFormInputs">
                         <option disabled value="">client type</option>
                         <option v-for="clientType in clientTypes" :key="clientType.id" :value="clientType.id">
