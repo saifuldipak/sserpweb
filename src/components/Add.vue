@@ -5,6 +5,7 @@
     import { notification, formData } from "../store";
     import { API_HOST } from "../config";
 
+    const showSubmitConfirm = ref(false);
     const clientName = ref("");
     const fieldInput = ref("");
     const clientTypes = ref([]);
@@ -157,9 +158,7 @@
             default:
                 break;
         }
-        dialogVisible.value = true;
-        hideMessageBox.value = false;
-        hideFormElements.value = true;
+        showSubmitConfirm.value = true;
     };
 
     const submitForm = async () => {
@@ -175,6 +174,7 @@
                 notification.value.message = createNotificationMessage(props.viewName, "Add");
                 notification.value.type = "Info";
                 emit("showNotification");
+                showSubmitConfirm.value = false;
             } else {
                 const data = await response.json();
                 throw new Error(data.detail);
@@ -314,7 +314,7 @@
                 <button v-if="props.viewName !== ''" type="submit" :class="{ 'disabled-btn': isDisabled }">Submit</button>
             </form>
         </div>
-        <SubmitConfirm v-model:show="dialogVisible" :action-name="'Add'" :item-name="itemName" @confirm="submitForm" @cancel="closeDialog" />
+        <SubmitConfirm v-if="showSubmitConfirm" :action-name="'Add'" :item-name="itemName" @confirm="submitForm" @cancel="closeDialog" />
     </div>
 </template>
 
