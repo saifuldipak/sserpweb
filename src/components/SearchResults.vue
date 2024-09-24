@@ -1,4 +1,9 @@
 <script setup>
+    import { ref, computed } from "vue";
+
+    const itemsPerPage = ref(10);
+    const currentPage = ref(1);
+
     const props = defineProps({
         searchResults: {
             type: Array,
@@ -11,11 +16,34 @@
     });
 
     const emit = defineEmits(["showDetails", "modifyItem", "deleteItem"]);
+
+    const paginatedItems = computed(() => {
+        const start = (currentPage.value - 1) * parseInt(itemsPerPage.value);
+        const end = start + parseInt(itemsPerPage.value);
+        return props.searchResults.slice(start, end);
+    });
+
+    const totalPages = computed(() => Math.ceil(props.searchResults.length / itemsPerPage.value));
+
+    // Method to switch to a specific page
+    const changePage = (pageNumber) => {
+        if (pageNumber > 0 && pageNumber <= totalPages.value) {
+            currentPage.value = pageNumber;
+        }
+    };
 </script>
 
 <template>
+    <div class="filter-menu">
+        <span class="item1">Result per page</span>
+        <select class="item2" v-model="itemsPerPage" @change="changePage(1)">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+        </select>
+    </div>
     <table v-if="props.searchResults.length > 0">
-        <tr v-for="item in props.searchResults" :key="item.id">
+        <tr v-for="item in paginatedItems" :key="item.id">
             <!-- First column -->
             <td v-if="props.viewName === 'Services'">
                 <a href="#" @click="emit('showDetails', item)">{{ item.point }}</a>
@@ -59,6 +87,11 @@
             </td> -->
         </tr>
     </table>
+    <nav class="pagination-nav">
+        <button class="item1" @click="changePage(currentPage - 1)" :disabled="currentPage === 1">Previous</button>
+        <span class="item2">Page {{ currentPage }} of {{ totalPages }}</span>
+        <button class="item3" @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">Next</button>
+    </nav>
 </template>
 
 <style scoped>
@@ -79,5 +112,48 @@
 
     .delete-icon {
         color: red;
+    }
+
+    .pagination-nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        padding: 15px;
+    }
+
+    .pagination-nav .item1 {
+        width: 60px;
+        height: 30px;
+        font-size: 11px;
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .pagination-nav.item2 {
+        grid-column: 2;
+        grid-row: 1;
+        font-size: 14px;
+        align-self: center;
+    }
+
+    .pagination-nav .item3 {
+        width: 60px;
+        height: 30px;
+        font-size: 11px;
+        grid-column: 3;
+        grid-row: 1;
+        justify-self: end;
+    }
+
+    .filter-menu {
+        display: grid;
+    }
+    .filter-menu .item1 {
+        font-size: 13px;
+        grid-column: 1;
+        grid-row: 1;
+    }
+    .filter-menu .item2 {
+        grid-column: 2;
+        grid-row: 1;
     }
 </style>
