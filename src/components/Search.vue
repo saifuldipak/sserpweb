@@ -4,6 +4,7 @@
     import { notification } from "../store";
     import SearchResults from "./SearchResults.vue";
     import ShowDetails from "./ShowDetails.vue";
+    import { useFetch } from "../functions";
 
     const showSearchResults = ref(false);
     const itemDetails = ref({});
@@ -90,6 +91,7 @@
     };
 
     const searchItem = async () => {
+        message.value = "";
         let resource, queryString;
         if (props.viewName === "Clients") {
             resource = "/clients";
@@ -97,12 +99,12 @@
         }
 
         try {
-            searchResults.value = await callApi("GET", resource, queryString);
+            searchResults.value = await useFetch({ method: "GET", resource: resource, queryString: queryString });
             if (searchResults.value.length > 0) {
                 showSearchResults.value = true;
             }
         } catch (error) {
-            if (error.message === "Not found") {
+            if (error.message === "Not Found") {
                 message.value = "Nothing found";
             } else {
                 notification.value.message = error.message;
