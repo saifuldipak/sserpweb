@@ -1,12 +1,25 @@
 <script setup>
-    import { ref } from "vue";
+    import { ref, onMounted, watch } from "vue";
+    import { useFetch, createNotificationMessage } from "@/functions.js";
+    import { notification, formData } from "../store";
+    import InputSuggestion from "./InputSuggestion.vue";
     import SubmitConfirm from "./SubmitConfirm.vue";
-    import { createApiUrl, createRequest, createNotificationMessage } from "@/functions.js";
-    import { notification } from "../store";
+    import ShowDetails from "./ShowDetails.vue";
 
-    const dialogVisible = ref(true);
-    const actionName = ref("Delete");
-    const hideMessageBox = ref(false);
+    const showDetailsDisable = ref(false);
+    const showDetails = ref(false);
+    const itemName = ref("");
+    const searchResults = ref([]);
+    const showSubmitConfirm = ref(false);
+    const clientNameExists = ref(false);
+    const clientId = ref(0);
+    const clientName = ref("");
+    const selectedClientTypeId = ref(0);
+    const isDisabled = ref(true);
+    const showEditForm = ref(false);
+    const showSearchInput = ref(true);
+    const clientTypes = ref([]);
+    const itemDetails = ref([]);
 
     const props = defineProps({
         viewName: {
@@ -15,61 +28,184 @@
         },
         itemData: {
             type: Object,
-            required: true,
         },
     });
 
-    const emit = defineEmits(["cancel", "showNotification"]);
+    const emit = defineEmits(["showNotification", "logout"]);
 
-    const closeDialog = (type = "") => {
-        dialogVisible.value = false;
-        if (type) {
-            emit("cancel");
+    onMounted(async () => {
+        let resource;
+        if (props.viewName === "Clients") {
+            resource = "/client/types";
+        }
+
+        try {
+            searchResults.value = await useFetch({ method: "GET", resource: resource });
+        } catch (error) {
+            notification.value.type = "Error";
+            notification.value.message = error.message;
+        }
+
+        if (props.viewName === "Clients") {
+            clientTypes.value = searchResults.value;
+        }
+    });
+
+    watch(formData.value, () => {
+        if (clientNameExists.value) {
+            isDisabled.value = true;
+        } else {
+            isDisabled.value = false;
+        }
+    });
+
+    const setValue = () => {
+        if (props.viewName === "Clients") {
+            clientId.value = itemDetails.value[0].id;
+            clientName.value = itemDetails.value[0].name;
+            selectedClientTypeId.value = itemDetails.value[0].client_types.id;
         }
     };
 
-    const deleteItem = async () => {
-        const apiEndpoint = createApiUrl({ view: props.viewName, action: actionName.value }) + "/" + props.itemData.id;
-        const method = "DELETE";
-        const request = createRequest(method);
+    const searchItem = async (searchItem, id, name) => {
+        let resource, queryString;
+        if (props.viewName === "Clients") {
+            resource = "/clients";
+            queryString = `client_id=${id}`;
+        }
 
         try {
-            const response = await fetch(apiEndpoint, request);
-            if (response.status === 200) {
-                notification.value.message = createNotificationMessage(props.viewName, actionName.value);
-                notification.value.type = "Info";
-                emit("showNotification");
-            } else {
-                const data = await response.json();
-                notification.value.message = data.detail;
-                notification.value.type = "Error";
-                emit("showNotification");
-            }
+            itemDetails.value = await useFetch({ method: "GET", resource: resource, queryString: queryString });
+            setValue();
+            //showSearchInput.value = false;
+            showDetails.value = true;
         } catch (error) {
-            console.error(error);
-            notification.value.message = error.message;
             notification.value.type = "Error";
-        } finally {
-            closeDialog();
+            notification.value.message = error.message;
         }
+    };
+
+    const processInput = (fieldInput, error) => {
+        if (fieldInput) {
+            if (props.viewName === "Clients") {
+                formData.value.client.id = clientId.value;
+                formData.value.client.name = fieldInput;
+                formData.value.client.client_type_id = selectedClientTypeId.value;
+                clientNameExists.value = false;
+            }
+        } else {
+            formData.value.client.name = "";
+            clientNameExists.value = true;
+        }
+    };
+
+    const processSelect = () => {
+        if (props.viewName === "Clients") {
+            formData.value.client.id = clientId.value;
+            formData.value.client.name = clientName.value;
+            formData.value.client.client_type_id = selectedClientTypeId.value;
+        }
+    };
+
+    let requestBody;
+    const handleFormSubmit = () => {
+        switch (props.viewName) {
+            case "Clients":
+                itemName.value = formData.value.client.name;
+                requestBody = formData.value.client;
+                break;
+            case "Services":
+                itemName.value = formData.value.service.point;
+                requestBody = formData.value.service;
+                break;
+            case "Service Types":
+                itemName.value = formData.value.serviceTypes.name;
+                requestBody = formData.value.serviceTypes;
+                break;
+            case "Vendors":
+                itemName.value = formData.value.vendor.name;
+                requestBody = formData.value.vendor;
+                break;
+            case "Pops":
+                itemName.value = formData.value.pop.name;
+                requestBody = formData.value.pop;
+                break;
+            case "Addresses":
+                itemName.value = formData.value.address.flat;
+                requestBody = formData.value.address;
+                break;
+            case "Contacts":
+                itemName.value = formData.value.contact.name;
+                requestBody = formData.value.contact;
+                break;
+            case "Account Managers":
+                itemName.value = formData.value.accountManager.client_id;
+                requestBody = formData.value.accountManager;
+                break;
+            case "Client Types":
+                itemName.value = formData.value.clientTypes.name;
+                requestBody = formData.value.clientTypes;
+                break;
+            default:
+                break;
+        }
+        showSubmitConfirm.value = true;
+    };
+
+    const deleteItem = async () => {
+        let resource;
+        if (props.viewName === "Clients") {
+            resource = `/client/${itemDetails.value[0].id}`;
+        }
+
+        try {
+            const response = await useFetch({ method: "DELETE", resource: resource });
+            notification.value.type = "Info";
+            notification.value.message = createNotificationMessage(props.viewName, "Delete");
+        } catch (error) {
+            notification.value.type = "Error";
+            notification.value.message = error.message;
+        } finally {
+            showDetails.value = false;
+            showSubmitConfirm.value = false;
+            emit("showNotification");
+        }
+    };
+
+    const handleDelete = () => {
+        showDetailsDisable.value = true;
+        itemName.value = itemDetails.value[0].name;
+        showSubmitConfirm.value = true;
+    };
+
+    const cancelSubmitConfirm = () => {
+        showSubmitConfirm.value = false;
+        showDetailsDisable.value = false;
     };
 </script>
 
 <template>
-    <div class="message-box-container">
-        <SubmitConfirm
-            v-model:show="dialogVisible"
-            :action-name="actionName"
-            :item-name="props.itemData.name"
-            @confirm="deleteItem"
-            @cancel="closeDialog('return')"
-        />
+    <div class="form">
+        Delete
+        <InputSuggestion v-if="showSearchInput" :search-item="'client name'" @selected-item="searchItem" />
     </div>
+    <ShowDetails
+        v-if="showDetails"
+        :view-name="props.viewName"
+        :item-details="itemDetails[0]"
+        :show-delete-button="true"
+        :disable="showDetailsDisable"
+        @close="showDetails = false"
+        @delete="handleDelete"
+    />
+    <SubmitConfirm v-if="showSubmitConfirm" :item-name="itemName" :action-name="'Delete'" @confirm="deleteItem" @cancel="cancelSubmitConfirm" />
 </template>
 
 <style scoped>
-    .message-box-container {
-        width: 30%;
-        position: relative;
+    @import "@/assets/form.css";
+    .disable-btn {
+        pointer-events: none;
+        opacity: 0.5;
+        /* cursor: not-allowed; */
     }
 </style>

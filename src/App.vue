@@ -72,12 +72,15 @@
         showAdd.value = false;
         showEdit.value = false;
         showSearch.value = false;
+        showDelete.value = false;
         if (component === "search") {
             showSearch.value = true;
         } else if (component === "add") {
             showAdd.value = true;
         } else if (component === "edit") {
             showEdit.value = true;
+        } else if (component === "delete") {
+            showDelete.value = true;
         }
     };
 
@@ -164,6 +167,7 @@
             <div>
                 <a href="#" @click="showForm('add')"><span class="material-symbols-outlined add-button"> add_box </span></a>
                 <a href="#" @click="showForm('edit')"><span class="material-symbols-outlined edit-button">edit</span></a>
+                <a href="#" @click="showForm('delete')"><span class="material-symbols-outlined delete-button">delete</span></a>
                 <a href="#" @click="showForm('search')"><span class="material-symbols-outlined"> search </span></a>
             </div>
         </div>
@@ -171,7 +175,7 @@
         <Notification v-if="showNotification" @remove-notification="showNotification = false" />
         <Add v-if="showAdd" :view-name="viewName" @show-notification="showNotification = true" @logout="removeToken" />
         <Edit v-if="showEdit" :view-name="viewName" :item-data="itemData" @show-notification="showNotification = true" />
-        <Delete v-if="showDelete" :view-name="viewName" :item-data="itemData" @cancel="cancelDeleteItem" @show-notification="showNotification = true" />
+        <Delete v-if="showDelete" :view-name="viewName" @show-notification="showNotification = true" />
         <ShowDetails
             v-if="showDetails"
             :view-name="viewName"
@@ -294,5 +298,9 @@
 
     .edit-button {
         color: orange;
+    }
+
+    .delete-button {
+        color: red;
     }
 </style>

@@ -30,7 +30,7 @@
 
 <style scoped>
     .confirm-message-box {
-        width: 100%;
+        width: 40%;
         position: absolute;
         z-index: 1000;
         top: 50%;

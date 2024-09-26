@@ -1,4 +1,5 @@
 <script setup>
+    import { onMounted } from "vue";
     import AddressDetails from "./AddressDetails.vue";
     import ContactDetails from "./ContactDetails.vue";
 
@@ -13,18 +14,24 @@
             type: Object,
             required: true,
         },
+        showDeleteButton: {
+            type: Boolean,
+        },
+        disable: {
+            type: Boolean,
+        },
         /* itemName: {
             type: String,
             required: true,
         }, */
     });
 
-    const emit = defineEmits(["close", "searchItem"]);
+    const emit = defineEmits(["close", "searchItem", "delete"]);
 </script>
 
 <template>
-    <div class="main-container">
-        <div class="button-container">
+    <div class="main-container" :class="{ 'main-container-disable': props.disable }">
+        <div class="top-button-container">
             <button @click="emit('close')">X</button>
         </div>
         <div class="data-container">
@@ -103,6 +110,7 @@
                 </ol>
             </div>
         </div>
+        <div v-if="props.showDeleteButton" class="bottom-button-container"><button @click="emit('delete')">Delete</button></div>
     </div>
 </template>
 
@@ -117,17 +125,40 @@
         justify-content: flex-start;
     }
 
-    .button-container {
+    .main-container-disable {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
+    .top-button-container {
         width: 100%;
         display: flex;
         justify-content: flex-end;
     }
 
-    .button-container button {
+    .top-button-container button {
+        width: 10%;
         border-radius: 5px;
         margin: 1%;
         background: rgb(233, 228, 228);
         border: none;
+    }
+
+    .bottom-button-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .bottom-button-container button {
+        width: 40%;
+        border-radius: 5px;
+        margin: 1%;
+        background: rgb(233, 228, 228);
+        border: 1px;
+        color: red;
+        font-weight: bolder;
+        box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
     }
 
     .data-container {
