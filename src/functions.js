@@ -388,6 +388,11 @@ export const useFetch = async ({ method, resource, queryString = "", pageSize = 
         request = createRequest(method, requestBody);
     }
 
+    if (method === "DELETE") {
+        apiEndpoint = API_HOST + resource;
+        request = createRequest(method);
+    }
+
     try {
         const response = await fetch(apiEndpoint, request);
         if (response.ok) {
@@ -402,8 +407,8 @@ export const useFetch = async ({ method, resource, queryString = "", pageSize = 
             throw new Error(data.detail);
         }
     } catch (error) {
-        if (error.message === "Unauthorized") {
-            apiError.value = error.message;
+        if (error.message === "Signature has expired.") {
+            apiError.value = "Unauthorized";
         }
         throw new Error(error.message);
     }
