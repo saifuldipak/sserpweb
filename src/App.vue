@@ -165,10 +165,10 @@
                 <h1 class="heading">{{ viewName }}</h1>
             </div>
             <div>
-                <a href="#" @click="showForm('add')"><span class="material-symbols-outlined add-button"> add_box </span></a>
-                <a href="#" @click="showForm('edit')"><span class="material-symbols-outlined edit-button">edit</span></a>
-                <a href="#" @click="showForm('delete')"><span class="material-symbols-outlined delete-button">delete</span></a>
-                <a href="#" @click="showForm('search')"><span class="material-symbols-outlined"> search </span></a>
+                <a href="#" @click="showForm('add')"><span class="material-symbols-outlined add-button" title="add"> add_box </span></a>
+                <a href="#" @click="showForm('edit')"><span class="material-symbols-outlined edit-button" title="edit">edit</span></a>
+                <a href="#" @click="showForm('delete')"><span class="material-symbols-outlined delete-button" title="delete">delete</span></a>
+                <a href="#" @click="showForm('search')"><span class="material-symbols-outlined" title="search"> search </span></a>
             </div>
         </div>
         <HelpMessage v-if="showHelpMessage" :view-name="viewName" @close-help-message="showHelpMessage = false" />
