@@ -58,6 +58,8 @@
                     }
                 }
             }, 1500);
+        } else {
+            emit("processInput", "");
         }
     };
 </script>
