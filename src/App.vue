@@ -69,10 +69,7 @@
     };
 
     const showForm = (component) => {
-        showAdd.value = false;
-        showEdit.value = false;
-        showSearch.value = false;
-        showDelete.value = false;
+        removeAllComponents();
         if (component === "search") {
             showSearch.value = true;
         } else if (component === "add") {
@@ -128,12 +125,12 @@
 
     const removeAllComponents = () => {
         showAdd.value = false;
-        showModify.value = false;
+        showEdit.value = false;
         showDelete.value = false;
-        showData.value = false;
-        showDetails.value = false;
         showNotification.value = false;
         showHelpMessage.value = false;
+        showSearch.value = false;
+        showDetails.value = false;
     };
 
     watchEffect(() => {
