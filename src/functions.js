@@ -413,3 +413,16 @@ export const useFetch = async ({ method, resource, queryString = "", pageSize = 
         throw new Error(error.message);
     }
 };
+
+export const checkFormInputs = (viewName, formData) => {
+    if (viewName === "Clients") {
+        if (formData.value.client.name && formData.value.client.client_type_id) {
+            return false;
+        }
+    } else if (viewName === "Client Types") {
+        if (formData.value.clientTypes.name) {
+            return false;
+        }
+    }
+    return true;
+};
