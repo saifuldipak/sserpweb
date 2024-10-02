@@ -6,6 +6,8 @@
     import ShowDetails from "./ShowDetails.vue";
     import { useFetch } from "../functions";
 
+    const showSubmitButton = ref(true);
+    const showAddButton = ref(true);
     const showSearchResults = ref(false);
     const itemDetails = ref({});
     const showDetails = ref(false);
@@ -35,6 +37,8 @@
     const emit = defineEmits(["showNotification", "changeView", "logout"]);
 
     const removeAllFields = () => {
+        showSubmitButton.value = false;
+        showAddButton.value = false;
         showClientNameField.value = false;
         showClientTypeField.value = false;
         showServiceNameField.value = false;
@@ -44,7 +48,7 @@
     };
 
     onMounted(async () => {
-        if (props.viewName === "Clients") {
+        if (props.viewName === "Clients" || props.viewName === "Client Types") {
             try {
                 clientTypes.value = await callApi("GET", "/client/types");
             } catch (error) {
@@ -70,6 +74,9 @@
             showServiceNameField.value = true;
             serviceNameFieldClass.value = "position1";
             clientNameFieldClass.value = "position3";
+        } else if (props.viewName === "Client Types") {
+            showSearchResults.value = true;
+            searchResults.value = clientTypes.value;
         }
     });
 
@@ -234,7 +241,7 @@
             <div v-if="showServiceNameField" :class="serviceNameFieldClass">
                 <input type="text" v-model="serviceName" placeholder="service name" />
             </div>
-            <div class="position2">
+            <div v-if="showAddButton" class="position2">
                 <span class="material-symbols-outlined tooltip" title="more search options" @click="toggleField">add_circle</span>
             </div>
 
@@ -247,7 +254,7 @@
                 </select>
                 <div v-if="clientTypesNotFound">Please add client types</div>
             </div>
-            <div class="position4"><input type="submit" value="Search" /></div>
+            <div v-if="showSubmitButton" class="position4"><input type="submit" value="Search" /></div>
         </div>
     </form>
     <div v-if="message" class="message">{{ message }}</div>

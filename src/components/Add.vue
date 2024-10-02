@@ -1,11 +1,17 @@
 <script setup>
     import { onMounted, ref } from "vue";
-    import { createRequest, resetFormData, createNotificationMessage } from "@/functions.js";
+    import { createRequest, resetFormData, createNotificationMessage, useFetch } from "@/functions.js";
     import SubmitConfirm from "./SubmitConfirm.vue";
     import { notification, formData } from "../store";
     import { API_HOST } from "../config";
     import InputVerify from "./InputVerify.vue";
 
+    const itemExists = ref(false);
+    const showInputVerify = ref(false);
+    const placeHolder = ref("");
+    const endpoint = ref("");
+    const queryParameter = ref("");
+    const clientTypeExists = ref(false);
     const clientNameExists = ref(false);
     const showSubmitConfirm = ref(false);
     const clientName = ref("");
@@ -30,6 +36,13 @@
     onMounted(() => {
         resetFormData(formData);
         searchItem("client/types");
+
+        if (props.viewName === "Client Types") {
+            placeHolder.value = "client type";
+            endpoint.value = "/client/types";
+            queryParameter.value = "type_name";
+            showInputVerify.value = true;
+        }
     });
 
     const checkClientName = () => {
@@ -50,16 +63,20 @@
     };
 
     const checkFormInputs = () => {
+        isDisabled.value = true;
+
         if (props.viewName === "Clients") {
             if (formData.value.client.name && formData.value.client.client_type_id) {
                 isDisabled.value = false;
-            } else {
-                isDisabled.value = true;
+            }
+        } else if (props.viewName === "Client Types") {
+            if (formData.value.clientTypes.name) {
+                isDisabled.value = false;
             }
         }
     };
 
-    let timeout = null;
+    /* let timeout = null;
     const handleInput = (apiResource, queryParameter) => {
         clearTimeout(timeout);
         if (fieldInput.value.length > 0) {
@@ -73,7 +90,7 @@
             formData.value.client.name = "";
             checkFormInputs();
         }
-    };
+    }; */
 
     const searchItem = async (apiResource, queryParameter = "", queryValue = "") => {
         let apiEndpoint;
@@ -163,7 +180,7 @@
         showSubmitConfirm.value = true;
     };
 
-    const submitForm = async () => {
+    /* const submitForm = async () => {
         let apiEndpoint;
         if (props.viewName === "Clients") {
             apiEndpoint = API_HOST + "/client";
@@ -189,6 +206,24 @@
         }
 
         closeDialog();
+    }; */
+
+    const submitForm = () => {
+        let resource;
+        if (props.viewName === "Client Types") {
+            resource = "/client/type";
+        }
+
+        try {
+            const response = useFetch({ method: "POST", resource: resource, requestBody: requestBody });
+            notification.value.type = "Info";
+            notification.value.message = createNotificationMessage(props.viewName, "Add");
+        } catch (error) {
+            notification.value.type = "Error";
+            notification.value.message = error.message;
+        }
+        showSubmitConfirm.value = false;
+        emit("showNotification");
     };
 
     const processInput = (fieldInput) => {
@@ -196,12 +231,18 @@
             if (props.viewName === "Clients") {
                 formData.value.client.name = fieldInput;
                 clientNameExists.value = false;
+            } else if (props.viewName === "Client Types") {
+                formData.value.clientTypes.name = fieldInput;
+                itemExists.value = false;
             }
+        } else if (fieldInput === "") {
+            resetFormData(formData);
+            itemExists.value = false;
         } else {
-            if (props.viewName === "Clients") {
-                clientNameExists.value = true;
-            }
+            resetFormData(formData);
+            itemExists.value = true;
         }
+
         checkFormInputs();
     };
 </script>
@@ -226,6 +267,13 @@
                     </select>
                     <div v-if="clientTypes.length === 0">client type not found</div>
                 </div>
+                <InputVerify
+                    v-if="showInputVerify"
+                    :place-holder="placeHolder"
+                    :api-resource="{ endpoint: endpoint, queryParameter: queryParameter }"
+                    @process-input="processInput"
+                />
+                <div v-if="itemExists">{{ placeHolder }} exists</div>
                 <button v-if="props.viewName !== ''" type="submit" :class="{ 'disabled-btn': isDisabled }">Submit</button>
             </form>
         </div>
