@@ -74,7 +74,7 @@
 </script>
 
 <template>
-    <input class="client-name" type="text" :placeholder="searchItem" v-model="itemName" @input="searchSuggestions" />
+    <input class="client-name" type="text" :placeholder="props.searchItem" v-model="itemName" @input="searchSuggestions" />
     <ul v-if="itemName.length > 0" class="suggestions">
         <div v-if="props.itemName !== 'Services'">
             <li class="suggestion" v-for="item in itemList" :key="item.id" @click="selectSuggestion(item.id, item.name)">{{ item.name }}</li>
