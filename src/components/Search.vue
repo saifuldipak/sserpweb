@@ -6,6 +6,15 @@
     import ShowDetails from "./ShowDetails.vue";
     import { useFetch } from "../functions";
 
+    const optionsSelectField1 = ref([]);
+    const showSelectField1 = ref(false);
+    const classSelectField1 = ref("");
+    const placeHolderSelectField1 = ref("");
+    const selectField1 = ref("");
+    const showInputField1 = ref(false);
+    const classInputField1 = ref("");
+    const placeHolderInputField1 = ref("");
+    const inputField1 = ref("");
     const showSubmitButton = ref(true);
     const showAddButton = ref(true);
     const showSearchResults = ref(false);
@@ -61,6 +70,19 @@
                 }
             }
         }
+
+        /* let resource, queryString;
+        if (props.viewName === "Vendors") {
+            resource = "/vendors";
+            queryString = `vendor_name=${inputField1.value}`;
+        }
+
+        try {
+            optionsSelectField1.value = await useFetch({ method: "GET", resource: resource, queryString: queryString });
+        } catch (error) {
+            notification.value.type = "Error";
+            notification.value.message = error.message;
+        } */
     });
 
     watchEffect(() => {
@@ -77,6 +99,17 @@
         } else if (props.viewName === "Client Types") {
             showSearchResults.value = true;
             searchResults.value = clientTypes.value;
+        } else if (props.viewName === "Vendors") {
+            showInputField1.value = true;
+            classInputField1.value = "position1";
+            placeHolderInputField1.value = "vendor name";
+            showAddButton.value = true;
+            placeHolderSelectField1.value = "vendor type";
+            optionsSelectField1.value = [
+                { id: 1, name: "LSP" },
+                { id: 2, name: "ISP" },
+                { id: 3, name: "NTTN" },
+            ];
         }
     });
 
@@ -94,6 +127,12 @@
             } else {
                 showClientNameField.value = true;
             }
+        } else if (props.viewName === "Vendors") {
+            if (showSelectField1.value) {
+                showSelectField1.value = false;
+            } else {
+                showSelectField1.value = true;
+            }
         }
     };
 
@@ -103,6 +142,9 @@
         if (props.viewName === "Clients") {
             resource = "/clients";
             queryString = `client_name=${clientName.value}&client_type=${selectedClientType.value}`;
+        } else if (props.viewName === "Vendors") {
+            resource = "/vendors";
+            queryString = `vendor_name=${inputField1.value}&vendor_type=${selectField1.value}`;
         }
 
         try {
@@ -235,17 +277,29 @@
     <form class="form" @submit.prevent="searchItem">
         <div>Search</div>
         <div class="container">
-            <div v-if="showClientNameField" :class="clientNameFieldClass">
-                <input type="text" v-model="clientName" placeholder="client name" />
-            </div>
-            <div v-if="showServiceNameField" :class="serviceNameFieldClass">
-                <input type="text" v-model="serviceName" placeholder="service name" />
+            <div v-if="showInputField1" :class="classInputField1">
+                <input type="text" v-model="inputField1" :placeholder="placeHolderInputField1" />
             </div>
             <div v-if="showAddButton" class="position2">
                 <span class="material-symbols-outlined tooltip" title="more search options" @click="toggleField">add_circle</span>
             </div>
+            <div v-if="showSelectField1" :class="classSelectField1">
+                <select v-model="selectField1">
+                    <option disabled value="">{{ placeHolderSelectField1 }}</option>
+                    <option v-for="option in optionsSelectField1" :key="option.id" :value="option.name">
+                        {{ option.name }}
+                    </option>
+                </select>
+            </div>
+            <div class="position4"><input type="submit" value="Search" /></div>
 
-            <div v-if="showClientTypeField" :class="clientTypeFieldClass">
+            <!-- <div v-if="showClientNameField" :class="clientNameFieldClass">
+                <input type="text" v-model="clientName" placeholder="client name" />
+            </div>
+            <div v-if="showServiceNameField" :class="serviceNameFieldClass">
+                <input type="text" v-model="serviceName" placeholder="service name" />
+            </div> -->
+            <!-- <div v-if="showClientTypeField" :class="clientTypeFieldClass">
                 <select v-model="selectedClientType">
                     <option disabled value="">client type</option>
                     <option v-for="clientType in clientTypes" :key="clientType.id" :value="clientType.name">
@@ -253,10 +307,10 @@
                     </option>
                 </select>
                 <div v-if="clientTypesNotFound">Please add client types</div>
-            </div>
-            <div v-if="showSubmitButton" class="position4"><input type="submit" value="Search" /></div>
+            </div> -->
         </div>
     </form>
+
     <div v-if="message" class="message">{{ message }}</div>
 
     <SearchResults v-if="showSearchResults" :searchResults="searchResults" :viewName="props.viewName" @show-details="viewDetails" />
