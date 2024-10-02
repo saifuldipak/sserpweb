@@ -6,6 +6,7 @@
     import SubmitConfirm from "./SubmitConfirm.vue";
     import ShowDetails from "./ShowDetails.vue";
 
+    const searchInput = ref("");
     const showDetailsDisable = ref(false);
     const showDetails = ref(false);
     const itemName = ref("");
@@ -34,6 +35,12 @@
     const emit = defineEmits(["showNotification", "logout"]);
 
     onMounted(async () => {
+        if (props.viewName === "Clients") {
+            searchInput.value = "client name";
+        } else if (props.viewName === "Client Types") {
+            searchInput.value = "client type";
+        }
+
         let resource;
         if (props.viewName === "Clients") {
             resource = "/client/types";
@@ -72,12 +79,13 @@
         if (props.viewName === "Clients") {
             resource = "/clients";
             queryString = `client_id=${id}`;
+        } else if (props.viewName === "Client Types") {
+            resource = "/client/types";
+            queryString = `type_id=${id}`;
         }
 
         try {
             itemDetails.value = await useFetch({ method: "GET", resource: resource, queryString: queryString });
-            setValue();
-            //showSearchInput.value = false;
             showDetails.value = true;
         } catch (error) {
             notification.value.type = "Error";
@@ -156,6 +164,8 @@
         let resource;
         if (props.viewName === "Clients") {
             resource = `/client/${itemDetails.value[0].id}`;
+        } else if (props.viewName === "Client Types") {
+            resource = `/client/type/${itemDetails.value[0].id}`;
         }
 
         try {
@@ -187,7 +197,7 @@
 <template>
     <div class="form">
         Delete
-        <InputSuggestion v-if="showSearchInput" :search-item="'client name'" @selected-item="searchItem" />
+        <InputSuggestion v-if="showSearchInput" :search-item="searchInput" @selected-item="searchItem" />
     </div>
     <ShowDetails
         v-if="showDetails"
