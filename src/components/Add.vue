@@ -1,11 +1,13 @@
 <script setup>
     import { onMounted, ref } from "vue";
-    import { createRequest, resetFormData, createNotificationMessage, useFetch } from "@/functions.js";
+    import { createRequest, resetFormData, createNotificationMessage, useFetch, checkFormInputs } from "@/functions.js";
     import SubmitConfirm from "./SubmitConfirm.vue";
     import { notification, formData } from "../store";
     import { API_HOST } from "../config";
     import InputVerify from "./InputVerify.vue";
 
+    const optionsSelectField = ref([]);
+    const selectField = ref("");
     const itemExists = ref(false);
     const showInputVerify = ref(false);
     const placeHolder = ref("");
@@ -41,8 +43,17 @@
             placeHolder.value = "client type";
             endpoint.value = "/client/types";
             queryParameter.value = "type_name";
-            showInputVerify.value = true;
+        } else if (props.viewName === "Vendors") {
+            placeHolder.value = "vendor name";
+            endpoint.value = "/vendors";
+            queryParameter.value = "vendor_name";
+            optionsSelectField.value = [
+                { id: 1, name: "LSP" },
+                { id: 2, name: "ISP" },
+                { id: 3, name: "NTTN" },
+            ];
         }
+        showInputVerify.value = true;
     });
 
     const checkClientName = () => {
@@ -62,7 +73,7 @@
         }
     };
 
-    const checkFormInputs = () => {
+    /* const checkFormInputs = () => {
         isDisabled.value = true;
 
         if (props.viewName === "Clients") {
@@ -74,7 +85,7 @@
                 isDisabled.value = false;
             }
         }
-    };
+    }; */
 
     /* let timeout = null;
     const handleInput = (apiResource, queryParameter) => {
@@ -212,6 +223,8 @@
         let resource;
         if (props.viewName === "Client Types") {
             resource = "/client/type";
+        } else if (props.viewName === "Vendors") {
+            resource = "/vendor";
         }
 
         try {
@@ -233,8 +246,10 @@
                 clientNameExists.value = false;
             } else if (props.viewName === "Client Types") {
                 formData.value.clientTypes.name = fieldInput;
-                itemExists.value = false;
+            } else if (props.viewName === "Vendors") {
+                formData.value.vendor.name = fieldInput;
             }
+            itemExists.value = false;
         } else if (fieldInput === "") {
             resetFormData(formData);
             itemExists.value = false;
@@ -243,7 +258,15 @@
             itemExists.value = true;
         }
 
-        checkFormInputs();
+        isDisabled.value = checkFormInputs(props.viewName, formData);
+    };
+
+    const processSelect = () => {
+        if (props.viewName === "Vendors") {
+            formData.value.vendor.type = selectField.value;
+        }
+
+        isDisabled.value = checkFormInputs(props.viewName, formData);
     };
 </script>
 
@@ -274,6 +297,12 @@
                     @process-input="processInput"
                 />
                 <div v-if="itemExists">{{ placeHolder }} exists</div>
+                <select v-model="selectField" @change="processSelect">
+                    <option disabled value="">client type</option>
+                    <option v-for="option in optionsSelectField" :key="option.id" :value="option.name">
+                        {{ option.name }}
+                    </option>
+                </select>
                 <button v-if="props.viewName !== ''" type="submit" :class="{ 'disabled-btn': isDisabled }">Submit</button>
             </form>
         </div>
