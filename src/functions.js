@@ -423,6 +423,10 @@ export const checkFormInputs = (viewName, formData) => {
         if (formData.value.clientTypes.name) {
             return false;
         }
+    } else if (viewName === "Vendors") {
+        if (formData.value.vendor.name && formData.value.vendor.type) {
+            return false;
+        }
     }
     return true;
 };
