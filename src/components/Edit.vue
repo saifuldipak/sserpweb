@@ -1,13 +1,25 @@
 <script setup>
     import { ref, onMounted, watch } from "vue";
-    import { createApiUrl, createRequest, useFetch, createNotificationMessage, checkFormInputs } from "@/functions.js";
+    import { createApiUrl, createRequest, useFetch, createNotificationMessage, checkFormInputs, resetFormData } from "@/functions.js";
     import { notification, formData, vendorTypes, contactTypes } from "../store";
     import InputSuggestion from "./InputSuggestion.vue";
     import { API_HOST } from "../config";
     import InputVerify from "./InputVerify.vue";
     import SubmitConfirm from "./SubmitConfirm.vue";
-    import { resetFormData } from "../functions";
+    import InputSuggestions from "./InputSuggestions.vue";
 
+    const selectOptions = ref([]);
+    const itemExists = ref(false);
+    const endpoint = ref("");
+    const queryParameter = ref("");
+    const inputField = ref("");
+    const selectField = ref("");
+    const vendorTypeId = ref(0);
+    const placeHolder = ref("");
+    const apiResource = ref({
+        endpoint: "",
+        queryParameter: "",
+    });
     const clientTypeExists = ref(false);
     const clientTypeId = ref(0);
     const clientTypeName = ref("");
@@ -42,34 +54,38 @@
     const emit = defineEmits(["showNotification", "logout"]);
 
     onMounted(async () => {
+        resetFormData(formData);
         let resource;
         if (props.viewName === "Clients") {
             resource = "/client/types";
         }
 
-        try {
+        /* try {
             searchResults.value = await useFetch({ method: "GET", resource: resource });
         } catch (error) {
             notification.value.type = "Error";
             notification.value.message = error.message;
         }
-
         if (props.viewName === "Clients") {
             clientTypes.value = searchResults.value;
-        }
+        } */
 
         if (props.viewName === "Client Types") {
             inputType.value = "client type";
+        } else if (props.viewName === "Vendors") {
+            apiResource.value.endpoint = "/vendors";
+            apiResource.value.queryParameter = "vendor_name";
+            placeHolder.value = "vendor name";
         }
     });
 
-    watch(formData.value, () => {
+    /*  watch(formData.value, () => {
         if (clientNameExists.value) {
             isDisabled.value = true;
         } else {
             isDisabled.value = false;
         }
-    });
+    }); */
 
     /* const setValue = () => {
         if (props.viewName === "Clients") {
@@ -90,7 +106,20 @@
         } else if (props.viewName === "Client Types") {
             clientTypeId.value = itemDetails.value[0].id;
             clientTypeName.value = itemDetails.value[0].name;
+        } else if (props.viewName === "Vendors") {
+            formData.value.vendor.id = itemDetails.value[0].id;
+            inputField.value = itemDetails.value[0].name;
+            selectField.value = itemDetails.value[0].type;
+            placeHolder.value = "vendor name";
+            endpoint.value = "/vendors";
+            queryParameter.value = "vendor_name";
+            selectOptions.value = [
+                { id: 1, name: "LSP" },
+                { id: 2, name: "ISP" },
+                { id: 3, name: "NTTN" },
+            ];
         }
+
         showInputSuggestion.value = false;
         showEditForm.value = true;
     };
@@ -103,6 +132,9 @@
         } else if (props.viewName === "Client Types") {
             resource = "/client/types";
             queryString = `type_id=${id}`;
+        } else if (props.viewName === "Vendors") {
+            resource = "/vendors";
+            queryString = `vendor_id=${id}`;
         }
 
         try {
@@ -125,18 +157,18 @@
                 formData.value.clientTypes.id = clientTypeId.value;
                 formData.value.clientTypes.name = fieldInput;
                 clientTypeExists.value = false;
+            } else if (props.viewName === "Vendors") {
+                formData.value.vendor.id = itemDetails.value[0].id;
+                formData.value.vendor.name = fieldInput;
+                formData.value.vendor.type = selectField.value;
+                itemExists.value = false;
             }
         } else if (fieldInput === "") {
             resetFormData(formData);
-            clientNameExists.value = false;
-            clientTypeExists.value = false;
+            itemExists.value = false;
         } else {
             resetFormData(formData);
-            if (props.viewName === "Clients") {
-                clientNameExists.value = true;
-            } else if (props.viewName === "Client Types") {
-                clientTypeExists.value = true;
-            }
+            itemExists.value = true;
         }
 
         isDisabled.value = checkFormInputs(props.viewName, formData);
@@ -147,7 +179,17 @@
             formData.value.client.id = clientId.value;
             formData.value.client.name = clientName.value;
             formData.value.client.client_type_id = selectedClientTypeId.value;
+        } else if (props.viewName === "Vendors") {
+            if (selectField.value !== itemDetails.value[0].type) {
+                formData.value.vendor.id = itemDetails.value[0].id;
+                formData.value.vendor.name = inputField.value;
+                formData.value.vendor.type = selectField.value;
+            } else {
+                formData.value.vendor.name = "";
+                formData.value.vendor.type = "";
+            }
         }
+        isDisabled.value = checkFormInputs(props.viewName, formData);
     };
 
     let requestBody;
@@ -196,11 +238,14 @@
     };
 
     const submitForm = async () => {
+        closeDialog();
         let resource;
         if (props.viewName === "Clients") {
             resource = "/client";
         } else if (props.viewName === "Client Types") {
             resource = "/client/type";
+        } else if (props.viewName === "Vendors") {
+            resource = "/vendor";
         }
 
         try {
@@ -211,8 +256,7 @@
             notification.value.type = "Error";
             notification.value.message = error.message;
         }
-        closeDialog();
-        emit("showNotification");
+        resetFormData(formData);
     };
 
     const closeDialog = () => {
@@ -223,8 +267,21 @@
 <template>
     <div class="form">
         Edit
-        <InputSuggestion v-if="showInputSuggestion" :search-item="inputType" @selected-item="searchItem" @logout="emit('logout')" />
+        <InputSuggestions v-if="showInputSuggestion" :place-holder="placeHolder" :api-resource="apiResource" @selected-item="searchItem" />
         <form v-if="showEditForm" @submit.prevent="handleFormSubmit">
+            <InputVerify
+                :place-holder="placeHolder"
+                :input-value="inputField"
+                :api-resource="{ endpoint: endpoint, queryParameter: queryParameter }"
+                @process-input="processInput"
+            />
+            <div v-if="itemExists">{{ placeHolder }} exists</div>
+
+            <select v-if="props.viewName === 'Vendors'" v-model="selectField" @change="processSelect">
+                <option disabled value="">select</option>
+                <option v-for="option in selectOptions" :key="option.id" :value="option.name">{{ option.name }}</option>
+            </select>
+
             <div v-if="props.viewName === 'Clients'">
                 <InputVerify
                     :place-holder="'client name'"
