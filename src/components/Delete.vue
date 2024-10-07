@@ -2,10 +2,14 @@
     import { ref, onMounted, watch } from "vue";
     import { useFetch, createNotificationMessage } from "@/functions.js";
     import { notification, formData } from "../store";
-    import InputSuggestion from "./InputSuggestion.vue";
+    import InputSuggestions from "./InputSuggestions.vue";
     import SubmitConfirm from "./SubmitConfirm.vue";
     import ShowDetails from "./ShowDetails.vue";
 
+    const showInputSuggestions = ref(true);
+    const placeHolder = ref("");
+    const endpoint = ref("");
+    const queryParameter = ref("");
     const searchInput = ref("");
     const showDetailsDisable = ref(false);
     const showDetails = ref(false);
@@ -35,7 +39,12 @@
     const emit = defineEmits(["showNotification", "logout"]);
 
     onMounted(async () => {
-        if (props.viewName === "Clients") {
+        if (props.viewName === "Vendors") {
+            placeHolder.value = "vendor name";
+            endpoint.value = "/vendors";
+            queryParameter.value = "vendor_name";
+        }
+        /* if (props.viewName === "Clients") {
             searchInput.value = "client name";
         } else if (props.viewName === "Client Types") {
             searchInput.value = "client type";
@@ -44,18 +53,18 @@
         let resource;
         if (props.viewName === "Clients") {
             resource = "/client/types";
-        }
+        } */
 
-        try {
+        /* try {
             searchResults.value = await useFetch({ method: "GET", resource: resource });
         } catch (error) {
             notification.value.type = "Error";
             notification.value.message = error.message;
-        }
+        } */
 
-        if (props.viewName === "Clients") {
+        /* if (props.viewName === "Clients") {
             clientTypes.value = searchResults.value;
-        }
+        } */
     });
 
     watch(formData.value, () => {
@@ -82,6 +91,9 @@
         } else if (props.viewName === "Client Types") {
             resource = "/client/types";
             queryString = `type_id=${id}`;
+        } else if (props.viewName === "Vendors") {
+            resource = "/vendors";
+            queryString = `vendor_id=${id}`;
         }
 
         try {
@@ -161,11 +173,14 @@
     };
 
     const deleteItem = async () => {
+        showSubmitConfirm.value = false;
         let resource;
         if (props.viewName === "Clients") {
             resource = `/client/${itemDetails.value[0].id}`;
         } else if (props.viewName === "Client Types") {
             resource = `/client/type/${itemDetails.value[0].id}`;
+        } else if (props.viewName === "Vendors") {
+            resource = `/vendor/${itemDetails.value[0].id}`;
         }
 
         try {
@@ -197,7 +212,12 @@
 <template>
     <div class="form">
         Delete
-        <InputSuggestion v-if="showSearchInput" :search-item="searchInput" @selected-item="searchItem" />
+        <InputSuggestions
+            v-if="showInputSuggestions"
+            :place-holder="placeHolder"
+            :api-resource="{ endpoint: endpoint, queryParameter: queryParameter }"
+            @selected-item="searchItem"
+        />
     </div>
     <ShowDetails
         v-if="showDetails"
