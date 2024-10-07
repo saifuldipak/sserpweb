@@ -28,18 +28,24 @@
 
     const emit = defineEmits(["selectedItem", "logout"]);
 
+    let timeout = null;
     const searchSuggestions = async () => {
         message.value = "";
-        messageType.value = "";
-        const queryString = props.apiResource.queryParameter + "=" + itemName.value;
-
+        clearTimeout(timeout);
         if (itemName.value.length > 2) {
-            try {
-                itemList.value = await useFetch({ method: "GET", resource: props.apiResource.endpoint, queryString: queryString });
-            } catch (error) {
-                notification.value.message = error.message;
-                notification.value.type = "Error";
-            }
+            timeout = setTimeout(async () => {
+                const queryString = props.apiResource.queryParameter + "=" + itemName.value;
+                try {
+                    itemList.value = await useFetch({ method: "GET", resource: props.apiResource.endpoint, queryString: queryString });
+                } catch (error) {
+                    if (error.message === "Not Found") {
+                        message.value = "not found";
+                    } else {
+                        notification.value.message = error.message;
+                        notification.value.type = "Error";
+                    }
+                }
+            }, 1000);
         }
     };
 
@@ -62,6 +68,7 @@
 
 <template>
     <input class="client-name" type="text" :placeholder="`search ${props.placeHolder}`" v-model="itemName" @input="searchSuggestions" />
+    <div v-if="message">{{ placeHolder + message }}</div>
     <ul v-if="itemName.length > 0" class="suggestions">
         <div v-if="props.itemName !== 'Services'">
             <li class="suggestion" v-for="item in itemList" :key="item.id" @click="selectSuggestion(item.id, item.name)">{{ item.name }}</li>
