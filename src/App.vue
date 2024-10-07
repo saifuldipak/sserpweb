@@ -10,7 +10,7 @@
     import Search from "./components/Search.vue";
     import HelpMessage from "./components/HelpMessage.vue";
     import Edit from "./components/Edit.vue";
-    import { apiError } from "./store";
+    import { apiError, notification } from "./store";
 
     const showEdit = ref(false);
     const token = ref("");
@@ -41,6 +41,11 @@
         { id: 9, name: "Client Types" },
     ]);
 
+    const clearNotification = () => {
+        notification.value.message = "";
+        notification.value.type = "";
+    };
+
     const removeToken = () => {
         localStorage.removeItem("token");
         token.value = "";
@@ -51,6 +56,7 @@
         token.value = localStorage.getItem("token");
         apiError.value = "";
         removeAllComponents();
+        clearNotification();
     };
 
     const clickedLink = (view, searchItem) => {
@@ -136,6 +142,12 @@
     watchEffect(() => {
         if (apiError.value === "Unauthorized") {
             removeToken();
+        }
+
+        if (notification.value.message && notification.value.type) {
+            showNotification.value = true;
+        } else {
+            showNotification.value = false;
         }
     });
 </script>
