@@ -23,7 +23,6 @@
     const removeNotification = () => {
         notification.value.message = "";
         notification.value.type = "";
-        emit("removeNotification");
     };
 </script>
 
