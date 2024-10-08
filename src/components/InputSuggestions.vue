@@ -35,17 +35,20 @@
         if (itemName.value.length > 2) {
             timeout = setTimeout(async () => {
                 const queryString = props.apiResource.queryParameter + "=" + itemName.value;
+                itemList.value = [];
                 try {
                     itemList.value = await useFetch({ method: "GET", resource: props.apiResource.endpoint, queryString: queryString });
                 } catch (error) {
                     if (error.message === "Not Found") {
-                        message.value = "not found";
+                        message.value = " not found";
                     } else {
                         notification.value.message = error.message;
                         notification.value.type = "Error";
                     }
                 }
-            }, 1000);
+            }, 500);
+        } else {
+            emit("selectedItem", null, null);
         }
     };
 
@@ -53,7 +56,7 @@
         itemId.value = id;
         itemName.value = name;
         itemList.value = [];
-        emit("selectedItem", props.searchItem, id, name);
+        emit("selectedItem", id, name);
     };
 
     watchEffect(() => {
