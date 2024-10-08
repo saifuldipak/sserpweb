@@ -427,6 +427,10 @@ export const checkFormInputs = (viewName, formData) => {
         if (formData.value.vendor.name && formData.value.vendor.type) {
             return false;
         }
+    } else if (viewName === "Pops") {
+        if (formData.value.pop.name && formData.value.pop.owner) {
+            return false;
+        }
     }
     return true;
 };
