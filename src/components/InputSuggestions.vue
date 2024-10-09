@@ -24,6 +24,9 @@
                 };
             },
         },
+        inputData: {
+            type: String,
+        },
     });
 
     const emit = defineEmits(["selectedItem", "logout"]);
@@ -47,7 +50,9 @@
                     }
                 }
             }, 500);
-        } else {
+        }
+
+        if (itemName.value.length === 0) {
             emit("selectedItem", null, null);
         }
     };
@@ -60,11 +65,8 @@
     };
 
     watchEffect(() => {
-        if (props.itemData) {
-            itemName.value = props.itemData.name;
-        }
-        if (props.viewName) {
-            itemName.value = "";
+        if (props.inputData) {
+            itemName.value = props.inputData;
         }
     });
 </script>
@@ -73,13 +75,18 @@
     <input class="client-name" type="text" :placeholder="`search ${props.placeHolder}`" v-model="itemName" @input="searchSuggestions" />
     <div v-if="message">{{ placeHolder + message }}</div>
     <ul v-if="itemName.length > 0" class="suggestions">
-        <div v-if="props.itemName !== 'Services'">
-            <li class="suggestion" v-for="item in itemList" :key="item.id" @click="selectSuggestion(item.id, item.name)">{{ item.name }}</li>
-        </div>
-        <div v-else>
+        <div v-if="props.apiResource.endpoint === '/services'">
             <li class="suggestion" v-for="item in itemList" :key="item.id" @click="selectSuggestion(item.id, item.point)">
                 {{ item.point }}, {{ item.clients.name }}
             </li>
+        </div>
+        <div v-else-if="props.apiResource.endpoint === '/pops'">
+            <li class="suggestion" v-for="item in itemList" :key="item.id" @click="selectSuggestion(item.id, item.name)">
+                {{ item.name }}, {{ item.vendors.name }}
+            </li>
+        </div>
+        <div v-else>
+            <li class="suggestion" v-for="item in itemList" :key="item.id" @click="selectSuggestion(item.id, item.name)">{{ item.name }}</li>
         </div>
     </ul>
 </template>
