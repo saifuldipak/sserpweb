@@ -110,6 +110,11 @@
                 { id: 2, name: "ISP" },
                 { id: 3, name: "NTTN" },
             ];
+        } else if (props.viewName === "Pops") {
+            showInputField1.value = true;
+            classInputField1.value = "position1";
+            placeHolderInputField1.value = "pop name";
+            showAddButton.value = false;
         }
     });
 
@@ -145,6 +150,9 @@
         } else if (props.viewName === "Vendors") {
             resource = "/vendors";
             queryString = `vendor_name=${inputField1.value}&vendor_type=${selectField1.value}`;
+        } else if (props.viewName === "Pops") {
+            resource = "/pops";
+            queryString = `pop_name=${inputField1.value}`;
         }
 
         try {

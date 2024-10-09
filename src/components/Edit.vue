@@ -1,6 +1,6 @@
 <script setup>
     import { ref, onMounted, watch } from "vue";
-    import { createApiUrl, createRequest, useFetch, createNotificationMessage, checkFormInputs, resetFormData } from "@/functions.js";
+    import { createApiUrl, createRequest, useFetch, createNotificationMessage, checkFormInputs, resetFormData, createRequestBody } from "@/functions.js";
     import { notification, formData, vendorTypes, contactTypes } from "../store";
     import InputSuggestion from "./InputSuggestion.vue";
     import { API_HOST } from "../config";
@@ -8,6 +8,15 @@
     import SubmitConfirm from "./SubmitConfirm.vue";
     import InputSuggestions from "./InputSuggestions.vue";
 
+    const popOwnerId = ref(0);
+    const showInputVerify = ref(false);
+    const showInputField1 = ref(false);
+    const placeHolderInputField1 = ref("");
+    const inputField1 = ref("");
+    const showInputField2 = ref(false);
+    const placeHolderInputField2 = ref("");
+    const inputField2 = ref("");
+    const requestBody = ref({});
     const selectOptions = ref([]);
     const itemExists = ref(false);
     const endpoint = ref("");
@@ -76,6 +85,10 @@
             apiResource.value.endpoint = "/vendors";
             apiResource.value.queryParameter = "vendor_name";
             placeHolder.value = "vendor name";
+        } else if (props.viewName === "Pops") {
+            apiResource.value.endpoint = "/pops";
+            apiResource.value.queryParameter = "pop_name";
+            placeHolder.value = "pop name";
         }
     });
 
@@ -118,23 +131,46 @@
                 { id: 2, name: "ISP" },
                 { id: 3, name: "NTTN" },
             ];
+        } else if (props.viewName === "Pops") {
+            formData.value.pop.id = itemDetails.value[0].id;
+            inputField1.value = itemDetails.value[0].name;
+            popOwnerId.value = itemDetails.value[0].owner;
+            inputField2.value = itemDetails.value[0].vendors.name;
+            placeHolderInputField1.value = "pop name";
+            placeHolderInputField2.value = "pop owner";
+            apiResource.value.endpoint = "/vendors";
+            apiResource.value.queryParameter = "vendor_name";
+            showInputField1.value = true;
+            showInputField2.value = true;
         }
 
         showInputSuggestion.value = false;
         showEditForm.value = true;
     };
 
-    const searchItem = async (searchItem, id, name) => {
+    const searchItem = async (id, name) => {
+        if (!id) {
+            return;
+        }
+
         let resource, queryString;
-        if (props.viewName === "Clients") {
-            resource = "/clients";
-            queryString = `client_id=${id}`;
-        } else if (props.viewName === "Client Types") {
-            resource = "/client/types";
-            queryString = `type_id=${id}`;
-        } else if (props.viewName === "Vendors") {
-            resource = "/vendors";
-            queryString = `vendor_id=${id}`;
+        switch (props.viewName) {
+            case "Clients":
+                resource = "/clients";
+                queryString = `client_id=${id}`;
+                break;
+            case "Client Types":
+                resource = "/client/types";
+                queryString = `type_id=${id}`;
+                break;
+            case "Vendors":
+                resource = "/vendors";
+                queryString = `vendor_id=${id}`;
+                break;
+            case "Pops":
+                resource = "/pops";
+                queryString = `pop_id=${id}`;
+                break;
         }
 
         try {
@@ -189,51 +225,14 @@
                 formData.value.vendor.type = "";
             }
         }
+
         isDisabled.value = checkFormInputs(props.viewName, formData);
     };
 
-    let requestBody;
     const handleFormSubmit = () => {
-        switch (props.viewName) {
-            case "Clients":
-                itemName.value = formData.value.client.name;
-                requestBody = formData.value.client;
-                break;
-            case "Services":
-                itemName.value = formData.value.service.point;
-                requestBody = formData.value.service;
-                break;
-            case "Service Types":
-                itemName.value = formData.value.serviceTypes.name;
-                requestBody = formData.value.serviceTypes;
-                break;
-            case "Vendors":
-                itemName.value = formData.value.vendor.name;
-                requestBody = formData.value.vendor;
-                break;
-            case "Pops":
-                itemName.value = formData.value.pop.name;
-                requestBody = formData.value.pop;
-                break;
-            case "Addresses":
-                itemName.value = formData.value.address.flat;
-                requestBody = formData.value.address;
-                break;
-            case "Contacts":
-                itemName.value = formData.value.contact.name;
-                requestBody = formData.value.contact;
-                break;
-            case "Account Managers":
-                itemName.value = formData.value.accountManager.client_id;
-                requestBody = formData.value.accountManager;
-                break;
-            case "Client Types":
-                itemName.value = formData.value.clientTypes.name;
-                requestBody = formData.value.clientTypes;
-                break;
-            default:
-                break;
-        }
+        const [name, body] = createRequestBody(props.viewName, formData);
+        itemName.value = name;
+        requestBody.value = body;
         showSubmitConfirm.value = true;
     };
 
@@ -246,10 +245,12 @@
             resource = "/client/type";
         } else if (props.viewName === "Vendors") {
             resource = "/vendor";
+        } else if (props.viewName === "Pops") {
+            resource = "/pop";
         }
 
         try {
-            const response = await useFetch({ method: "PUT", resource: resource, requestBody: requestBody });
+            const response = await useFetch({ method: "PUT", resource: resource, requestBody: requestBody.value });
             notification.value.type = "Info";
             notification.value.message = createNotificationMessage(props.viewName, "Edit");
         } catch (error) {
@@ -262,6 +263,24 @@
     const closeDialog = () => {
         showSubmitConfirm.value = false;
     };
+
+    const selectItem = (id, name) => {
+        if (props.viewName === "Pops") {
+            if (id !== popOwnerId.value) {
+                formData.value.pop.owner = id;
+                formData.value.pop.name = inputField1.value;
+            }
+        }
+        isDisabled.value = checkFormInputs(props.viewName, formData);
+    };
+
+    const checkInput = () => {
+        if (props.viewName === "Pops") {
+            formData.value.pop.name = inputField1.value;
+            formData.value.pop.owner = popOwnerId.value;
+        }
+        isDisabled.value = checkFormInputs(props.viewName, formData);
+    };
 </script>
 
 <template>
@@ -269,7 +288,17 @@
         Edit
         <InputSuggestions v-if="showInputSuggestion" :place-holder="placeHolder" :api-resource="apiResource" @selected-item="searchItem" />
         <form v-if="showEditForm" @submit.prevent="handleFormSubmit">
+            <input v-if="showInputField1" type="text" v-model="inputField1" :placeholder="placeHolderInputField1" @input="checkInput" />
+            <InputSuggestions
+                v-if="showInputField2"
+                :input-data="inputField2"
+                :place-holder="placeHolderInputField2"
+                :api-resource="apiResource"
+                @selected-item="selectItem"
+            />
+
             <InputVerify
+                v-if="showInputVerify"
                 :place-holder="placeHolder"
                 :input-value="inputField"
                 :api-resource="{ endpoint: endpoint, queryParameter: queryParameter }"
