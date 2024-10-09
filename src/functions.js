@@ -434,3 +434,49 @@ export const checkFormInputs = (viewName, formData) => {
     }
     return true;
 };
+
+export const createRequestBody = (viewName, formData) => {
+    let itemName, requestBody;
+    switch (viewName) {
+        case "Clients":
+            itemName = formData.value.client.name;
+            requestBody = formData.value.client;
+            break;
+        case "Services":
+            itemName = formData.value.service.point;
+            requestBody = formData.value.service;
+            break;
+        case "Service Types":
+            itemName = formData.value.serviceTypes.name;
+            requestBody = formData.value.serviceTypes;
+            break;
+        case "Vendors":
+            itemName = formData.value.vendor.name;
+            requestBody = formData.value.vendor;
+            break;
+        case "Pops":
+            itemName = formData.value.pop.name;
+            requestBody = formData.value.pop;
+            break;
+        case "Addresses":
+            itemName = formData.value.address.flat;
+            requestBody = formData.value.address;
+            break;
+        case "Contacts":
+            itemName = formData.value.contact.name;
+            requestBody = formData.value.contact;
+            break;
+        case "Account Managers":
+            itemName = formData.value.accountManager.client_id;
+            requestBody = formData.value.accountManager;
+            break;
+        case "Client Types":
+            itemName = formData.value.clientTypes.name;
+            requestBody = formData.value.clientTypes;
+            break;
+        default:
+            break;
+    }
+
+    return [itemName, requestBody];
+};
