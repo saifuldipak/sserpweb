@@ -5,7 +5,22 @@
     import { notification, formData } from "../store";
     import { API_HOST } from "../config";
     import InputVerify from "./InputVerify.vue";
+    import InputSuggestions from "./InputSuggestions.vue";
 
+    const apiResource = ref({
+        endpoint: "",
+        queryParameter: "",
+    });
+    const showInputField2 = ref(false);
+    const classInputField2 = ref("");
+    const placeHolderInputField2 = ref("");
+    const inputField2 = ref("");
+    const showInputVerify1 = ref(false);
+    const showSelectField1 = ref(false);
+    const showInputField1 = ref(false);
+    const classInputField1 = ref("");
+    const placeHolderInputField1 = ref("");
+    const inputField1 = ref("");
     const optionsSelectField = ref([]);
     const selectField = ref("");
     const itemExists = ref(false);
@@ -52,6 +67,17 @@
                 { id: 2, name: "ISP" },
                 { id: 3, name: "NTTN" },
             ];
+        } else if (props.viewName === "Pops") {
+            showInputVerify1.value = false;
+            showSelectField1.value = false;
+            showInputField1.value = true;
+            classInputField1.value = "position1";
+            placeHolderInputField1.value = "pop name";
+            showInputField2.value = true;
+            classInputField2.value = "position3";
+            placeHolderInputField2.value = "pop owner";
+            apiResource.value.endpoint = "/vendors";
+            apiResource.value.queryParameter = "vendor_name";
         }
         showInputVerify.value = true;
     });
@@ -219,16 +245,18 @@
         closeDialog();
     }; */
 
-    const submitForm = () => {
+    const submitForm = async () => {
         let resource;
         if (props.viewName === "Client Types") {
             resource = "/client/type";
         } else if (props.viewName === "Vendors") {
             resource = "/vendor";
+        } else if (props.viewName === "Pops") {
+            resource = "/pop";
         }
 
         try {
-            const response = useFetch({ method: "POST", resource: resource, requestBody: requestBody });
+            const response = await useFetch({ method: "POST", resource: resource, requestBody: requestBody });
             notification.value.type = "Info";
             notification.value.message = createNotificationMessage(props.viewName, "Add");
         } catch (error) {
@@ -268,6 +296,20 @@
 
         isDisabled.value = checkFormInputs(props.viewName, formData);
     };
+
+    const selectItem = (id, name) => {
+        if (props.viewName === "Pops") {
+            formData.value.pop.owner = id;
+        }
+        isDisabled.value = checkFormInputs(props.viewName, formData);
+    };
+
+    const checkInput = () => {
+        if (props.viewName === "Pops") {
+            formData.value.pop.name = inputField1.value;
+        }
+        isDisabled.value = checkFormInputs(props.viewName, formData);
+    };
 </script>
 
 <template>
@@ -291,18 +333,21 @@
                     <div v-if="clientTypes.length === 0">client type not found</div>
                 </div>
                 <InputVerify
-                    v-if="showInputVerify"
+                    v-if="showInputVerify1"
                     :place-holder="placeHolder"
                     :api-resource="{ endpoint: endpoint, queryParameter: queryParameter }"
                     @process-input="processInput"
                 />
                 <div v-if="itemExists">{{ placeHolder }} exists</div>
-                <select v-model="selectField" @change="processSelect">
+                <select v-if="showSelectField1" v-model="selectField" @change="processSelect">
                     <option disabled value="">client type</option>
                     <option v-for="option in optionsSelectField" :key="option.id" :value="option.name">
                         {{ option.name }}
                     </option>
                 </select>
+
+                <input v-if="showInputField1" type="text" v-model="inputField1" :placeholder="placeHolderInputField1" @input="checkInput" />
+                <InputSuggestions v-if="showInputField2" :place-holder="placeHolderInputField2" :api-resource="apiResource" @selected-item="selectItem" />
                 <button v-if="props.viewName !== ''" type="submit" :class="{ 'disabled-btn': isDisabled }">Submit</button>
             </form>
         </div>
