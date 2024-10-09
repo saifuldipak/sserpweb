@@ -43,6 +43,10 @@
             placeHolder.value = "vendor name";
             endpoint.value = "/vendors";
             queryParameter.value = "vendor_name";
+        } else if (props.viewName === "Pops") {
+            placeHolder.value = "pop name";
+            endpoint.value = "/pops";
+            queryParameter.value = "pop_name";
         }
         /* if (props.viewName === "Clients") {
             searchInput.value = "client name";
@@ -75,15 +79,15 @@
         }
     });
 
-    const setValue = () => {
+    /* const setValue = () => {
         if (props.viewName === "Clients") {
             clientId.value = itemDetails.value[0].id;
             clientName.value = itemDetails.value[0].name;
             selectedClientTypeId.value = itemDetails.value[0].client_types.id;
         }
-    };
+    }; */
 
-    const searchItem = async (searchItem, id, name) => {
+    const searchItem = async (id, name) => {
         let resource, queryString;
         if (props.viewName === "Clients") {
             resource = "/clients";
@@ -94,6 +98,9 @@
         } else if (props.viewName === "Vendors") {
             resource = "/vendors";
             queryString = `vendor_id=${id}`;
+        } else if (props.viewName === "Pops") {
+            resource = "/pops";
+            queryString = `pop_id=${id}`;
         }
 
         try {
@@ -105,7 +112,7 @@
         }
     };
 
-    const processInput = (fieldInput, error) => {
+    /*  const processInput = (fieldInput, error) => {
         if (fieldInput) {
             if (props.viewName === "Clients") {
                 formData.value.client.id = clientId.value;
@@ -117,17 +124,17 @@
             formData.value.client.name = "";
             clientNameExists.value = true;
         }
-    };
+    }; */
 
-    const processSelect = () => {
+    /* const processSelect = () => {
         if (props.viewName === "Clients") {
             formData.value.client.id = clientId.value;
             formData.value.client.name = clientName.value;
             formData.value.client.client_type_id = selectedClientTypeId.value;
         }
-    };
+    }; */
 
-    let requestBody;
+    /* let requestBody;
     const handleFormSubmit = () => {
         switch (props.viewName) {
             case "Clients":
@@ -170,7 +177,7 @@
                 break;
         }
         showSubmitConfirm.value = true;
-    };
+    }; */
 
     const deleteItem = async () => {
         showSubmitConfirm.value = false;
@@ -181,6 +188,8 @@
             resource = `/client/type/${itemDetails.value[0].id}`;
         } else if (props.viewName === "Vendors") {
             resource = `/vendor/${itemDetails.value[0].id}`;
+        } else if (props.viewName === "Pops") {
+            resource = `/pop/${itemDetails.value[0].id}`;
         }
 
         try {
