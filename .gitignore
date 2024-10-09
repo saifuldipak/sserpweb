@@ -1,5 +1,6 @@
 #Vite config
 vite.config.js
+.vite
 
 #VSCode config files
 .vscode
